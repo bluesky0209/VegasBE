@@ -133,7 +133,7 @@ export const createDemo = async (req: Request, rep: Response) => {
                 GameId,
                 "StartBalance": 10000,
                 "Params": {
-                    "language": "pt"
+                    "language": "en"
                 },
             }
         });
