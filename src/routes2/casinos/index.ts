@@ -4,7 +4,7 @@ import { checkUser, verifyToken } from '../../middlewares/auth';
 import { getCasinoGamesDetail, getCasinoGamesListByCategory, getCasinoGamesLists, getCasinoProviders } from '../../controllers/casinos';
 import { deleteMany } from '../../controllers/casinos/casinos';
 import { getGameList, createBankGroup, createSession } from '../../controllers/casinos/api';
-import { getBalance } from "../../controllers/casinos/seamless";
+import { getSeamless } from "../../controllers/casinos/seamless";
 
 const router = routerx();
 //provider
@@ -17,7 +17,7 @@ router.post('/get-gamedetail', getCasinoGamesDetail)
 router.post('/get-providers', getCasinoProviders)
 router.post('/createSession', createSession)
 //callback
-router.post('/getBalance', getBalance)
+router.post('/seamless', getSeamless)
 
 router.post('/delete', deleteMany)
 
