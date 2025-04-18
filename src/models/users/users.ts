@@ -18,6 +18,9 @@ const UsersSchema = new Schema(
         bankGroup: {
             type: String
         },
+        balance: {
+            type: Number
+        },
         nick: {
             type: String
         },
