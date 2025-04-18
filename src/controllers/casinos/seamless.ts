@@ -3,8 +3,8 @@ import { CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
 export const getSeamless = async (req: Request, rep: Response) => {
-    console.log(req.method, req, "method")
-    switch (req.method) {
+    console.log(req.method, "method")
+    switch (req.body.method) {
         case 'getBalance':
             const { callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId } = req.body;
             console.log("getBalance=> ", callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId)
@@ -13,7 +13,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 if (user.balance) {
                     return rep.json({
                         "jsonrpc": "2.0",
-                        "id": 1138988756,
+                        "id": req.body.id,
                         "result": {
                             "balance": user.balance,
                             "freeroundsLeft": 5
