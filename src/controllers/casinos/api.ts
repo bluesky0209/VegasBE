@@ -138,6 +138,7 @@ export const createDemo = async (req: Request, rep: Response) => {
             }
         });
         console.log('✅ Success:', res.data);
+        return res.json(res.data);
     } catch (err: any) {
         console.error('❌ Error:', err.response?.data || err.message);
     }
