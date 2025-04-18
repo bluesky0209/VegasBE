@@ -113,27 +113,26 @@ mongoose
         const db = mongoose.connection.db;
 
         const port = process.env.PORT || 5000;
-        if (process.env.TYPE === 'https') {
-            console.log("here")
-            const options = {
-                key: fs.readFileSync('../server-key.pem'),
-                cert: fs.readFileSync('../server-crt.pem'),
-                ca: fs.readFileSync('../seamless-ca.pem')
-            };
-            const https = require('https').createServer(options, app);
-            const io = require('socket.io')(https, { cors: { origin: '*' } });
-            socket(io);
-            app.set('io', io);
-            https.listen(port);
-            console.log('server listening on:', port);
-        } else {
-            const http = require('http').createServer(app);
-            const io = require('socket.io')(http, { cors: { origin: '*' } });
-            socket(io);
-            app.set('io', io);
-            http.listen(port);
-            console.log('server listening on:', port);
-        }
+        // if (process.env.TYPE === 'https') {
+        const options = {
+            key: fs.readFileSync('../server-key.pem'),
+            cert: fs.readFileSync('../server-crt.pem'),
+            ca: fs.readFileSync('../seamless-ca.pem')
+        };
+        const https = require('https').createServer(options, app);
+        const io = require('socket.io')(https, { cors: { origin: '*' } });
+        socket(io);
+        app.set('io', io);
+        https.listen(port);
+        console.log('server listening on:', port);
+        // } else {
+        //     const http = require('http').createServer(app);
+        //     const io = require('socket.io')(http, { cors: { origin: '*' } });
+        //     socket(io);
+        //     app.set('io', io);
+        //     http.listen(port);
+        //     console.log('server listening on:', port);
+        // }
     })
     .catch((error: any) => {
         console.log('database connection error => ', error);
