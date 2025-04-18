@@ -115,8 +115,9 @@ mongoose
         const port = process.env.PORT || 5000;
         if (process.env.TYPE === 'https') {
             const options = {
-                key: fs.readFileSync('./conf/key.pem'),
-                cert: fs.readFileSync('./conf/cert.pem')
+                // key: fs.readFileSync('./conf/key.pem'),
+                // cert: fs.readFileSync('./conf/cert.pem')
+                ca: fs.readFileSync('./seamless-ca.pem')
             };
             const https = require('https').createServer(options, app);
             const io = require('socket.io')(https, { cors: { origin: '*' } });
