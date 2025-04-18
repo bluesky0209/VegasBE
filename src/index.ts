@@ -117,7 +117,7 @@ mongoose
             const options = {
                 // key: fs.readFileSync('./conf/key.pem'),
                 // cert: fs.readFileSync('./conf/cert.pem')
-                ca: fs.readFileSync('./seamless-ca.pem')
+                ca: fs.readFileSync('../seamless-ca.pem')
             };
             const https = require('https').createServer(options, app);
             const io = require('socket.io')(https, { cors: { origin: '*' } });
