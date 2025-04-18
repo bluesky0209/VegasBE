@@ -141,7 +141,7 @@ export const signup = async (req: Request, res: Response) => {
         });
         newuser.save()
 
-        return res.json('You have successfully created in as a user to BCB bets.');
+        return res.json('You have successfully created in as a user');
 
     } catch (e) {
         console.log("===error===")

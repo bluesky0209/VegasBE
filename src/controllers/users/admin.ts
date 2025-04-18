@@ -55,17 +55,6 @@ export const signin = async (req: Request, res: Response) => {
     const { password, email } = req.body;
     if (!password || !email) return res.status(400).json('Invalid field!');
     if (!req.headers.admin) return res.status(400).json(`You can't access here.`);
-    // const rlResIp = await ipLimiter.get(req.ip);
-    // const rlResUsername = await usernameLimiter.get(email);
-    // if (rlResUsername !== null && rlResUsername.consumedPoints > maxFailsByLogin) {
-    //     const retrySecs = Math.round(rlResUsername.msBeforeNext / 1000);
-    //     res.set('Retry-After', String(retrySecs));
-    //     return res.status(429).send('Too Many Requests.');
-    // } else if (rlResIp !== null && rlResIp.consumedPoints > maxFailsByLogin) {
-    //     const retrySecs = Math.round(rlResIp.msBeforeNext / 1000) || 1;
-    //     res.set('Retry-After', String(retrySecs));
-    //     return res.status(429).send('Too Many Requests.');
-    // } else {
     const user = await Users.findOne({
         $or: [
             {
@@ -154,7 +143,7 @@ export const signup = async (req: Request, res: Response) => {
     if (!u_result) {
         return res.status(400).json('error');
     } else {
-        return res.json('You have successfully created in as a user to BCB bets.');
+        return res.json('You have successfully created in as a user.');
     }
 };
 
@@ -265,61 +254,6 @@ export const addlabel = async (req: Request, res: Response) => {
         {
             $sort: {
                 label: 1,
-            }
-        }
-    ]);
-    return res.json(results);
-};
-
-
-export const csv = async (req: Request, res: Response) => {
-    const { status, userId = null, permission = null, country = null, date = null } = req.body;
-    let query = {} as any;
-    if (userId) {
-        query._id = ObjectId(userId);
-    }
-    if (permission) {
-        query.permissionId = ObjectId(permission);
-    }
-    if (status !== '' && status !== undefined) {
-        query.status = status;
-    }
-    if (country) {
-        query.country = {
-            $regex: new RegExp('^' + country.toLowerCase(), 'i')
-        };
-    }
-    if (date && date[0] && date[1]) {
-        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
-    }
-    const results = await Users.aggregate([
-        { $match: query },
-        ...aggregateQuery,
-        {
-            $project: {
-                _id: 0,
-                UserId: '$_id',
-                Email: '$email',
-                Username: '$username',
-                Avatar: '$avatar',
-                CryptoAccount: '$cryptoAccount',
-                Permission: '$permission.title',
-                Status: {
-                    $switch: {
-                        branches: [
-                            {
-                                case: { $eq: ['$status', true] },
-                                then: 'Active'
-                            },
-                            {
-                                case: { $eq: ['$status', false] },
-                                then: 'InActive'
-                            }
-                        ],
-                        default: 'Active'
-                    }
-                },
-                CreatedAt: '$createdAt'
             }
         }
     ]);

@@ -8,7 +8,6 @@ import {
     updateOne,
     label,
     addlabel,
-    csv,
     signin,
     signup,
     signout,
@@ -25,7 +24,6 @@ router.post('/changePassword', verifyAdminToken, V.body(Validator.Users.Admin.Ch
 router.get('/', verifyAdminToken, get);
 router.get('/:id', verifyAdminToken, V.params(Validator.ObjectId), getOne);
 router.post('/list', verifyAdminToken, V.body(Validator.Users.Admin.List), list);
-router.post('/csv', verifyAdminToken, V.body(Validator.Users.Admin.List), csv);
 router.post('/label', verifyAdminToken, label);
 router.post('/addlabel', verifyAdminToken, addlabel);
 router.put('/:id', verifyAdminToken, V.params(Validator.ObjectId), updateOne);

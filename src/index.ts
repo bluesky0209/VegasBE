@@ -102,11 +102,11 @@ app.get('*', apiV2Limiter, (req: express.Request, res: express.Response) =>
 );
 
 app.use(RetrunValidation);
-// createBankGroup({ currency: 'GBP' });
-// getGameList({ id: 1744943876345, BankGroupId: 'GoldenBet_GBP' });
-// setPlayer({ Id: 'testplayer', BankGroupId: 'GoldenBet_GBP', Nick: 'test' })
+// createBankGroup({ currency: 'USD' });
+// getGameList({ id: 1744970985003, BankGroupId: 'GoldenBet_USD' });
+// setPlayer({ Id: 'testplayer', BankGroupId: 'GoldenBet_USD', Nick: 'test' })
 // createSession({ PlayerId: 'testplayer', GameId: 'slots3elcartelplus_mga' })
-// createDemo({ BankGroupId: 'GoldenBet_GBP', GameId: 'cdt_wzdn' })
+// createDemo({ BankGroupId: 'GoldenBet_USD', GameId: 'cdt_wzdn' })
 mongoose
     .connect(process.env.DATABASE as string)
     .then(() => {

@@ -94,7 +94,9 @@ export const setBonus = async ({ Id }: { Id: string }) => {
     }
 }
 
-export const createSession = async ({ PlayerId, GameId }: { PlayerId: string, GameId: string }) => {
+export const createSession = async (req: Request, rep: Response) => {
+    const { PlayerId, GameId } = req.body;
+    console.log(PlayerId, GameId, "createSession")
     try {
         const id = new Date().getTime();
         const res = await client.post('/', {
@@ -147,7 +149,7 @@ export const getGameList = async ({ id, BankGroupId }: { id: Number, BankGroupId
             id,
             params: { BankGroupId }
         });
-        console.log('✅ Success usd:', res.data.result.Games[0], res.data.result.Games[1]);
+        console.log('✅ Success usd:', res.data.result.Games[0], res.data.result.Games.length);
         if (res.data.result.Games && res.data.result.Games.length > 0) {
             for (const game of res.data.result.Games) {
                 await CasinoGameLists.create(game);
