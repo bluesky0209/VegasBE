@@ -6,5 +6,4 @@ const router = routerx();
 router.use('/users', users);
 router.use('/casinos', casinos);
 
-
 export default router;
