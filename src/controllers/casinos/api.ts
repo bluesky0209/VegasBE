@@ -120,7 +120,8 @@ export const createSession = async (req: Request, rep: Response) => {
     }
 }
 
-export const createDemo = async ({ BankGroupId, GameId }: { BankGroupId: string, GameId: string }) => {
+export const createDemo = async (req: Request, rep: Response) => {
+    const { BankGroupId, GameId } = req.body;
     try {
         const id = new Date().getTime();
         const res = await client.post('/', {
