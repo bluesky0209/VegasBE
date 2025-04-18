@@ -3,7 +3,7 @@ import { CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
 export const getSeamless = async (req: Request, rep: Response) => {
-    console.log(req.method, req.body, "method")
+    console.log(req.method, req.body, "method", req.params)
     switch (req.body.method) {
         case 'getBalance':
             const { callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId } = req.body;
