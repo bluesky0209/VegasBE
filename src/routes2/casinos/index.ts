@@ -17,10 +17,7 @@ router.post('/get-gamedetail', getCasinoGamesDetail)
 router.post('/get-providers', getCasinoProviders)
 router.post('/createSession', createSession)
 //callback
-router.post('/seamless', (req, res, next) => {
-    console.log('Seamless request:', req.method, req.url, req.body);
-    return getSeamless(req, res);
-})
+router.post('/seamless', getSeamless)
 
 router.post('/delete', deleteMany)
 

@@ -4,9 +4,6 @@ import casinos from './casinos'
 
 const router = routerx();
 router.use('/users', users);
-router.use('/casinos', (req, res, next) => {
-    console.log('Casino route request:', req.method, req.url, req.body);
-    return casinos(req, res, next);
-});
+router.use('/casinos', casinos);
 
 export default router;
