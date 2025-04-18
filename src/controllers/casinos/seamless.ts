@@ -6,7 +6,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
     console.log(req.method, req.body, "method", req.params)
     switch (req.body.method) {
         case 'getBalance':
-            const { callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId } = req.body;
+            const { callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId } = req.body.params;
             console.log("getBalance=> ", callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId)
             if (callerId && playerName && currency) {
                 const user = await Users.findOne({ username: playerName });
