@@ -114,9 +114,10 @@ mongoose
 
         const port = process.env.PORT || 5000;
         if (process.env.TYPE === 'https') {
+            console.log("here")
             const options = {
-                key: fs.readFileSync('./conf/key.pem'),
-                cert: fs.readFileSync('./conf/cert.pem'),
+                key: fs.readFileSync('../server-key.pem'),
+                cert: fs.readFileSync('../server-crt.pem'),
                 ca: fs.readFileSync('../seamless-ca.pem')
             };
             const https = require('https').createServer(options, app);
