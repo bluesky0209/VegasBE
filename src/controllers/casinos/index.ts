@@ -16,7 +16,7 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
         query.SectionId = provider;
     }
     const count = await CasinoGameLists.countDocuments(query);
-    const result = await CasinoGameLists.find(query).limit(40);
+    const result = await CasinoGameLists.find(query).skip(20).limit(60);
 
     return res.json({ result, count });
 }

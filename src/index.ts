@@ -40,7 +40,6 @@ app.use(methodOverride());
 app.use(logErrors);
 app.use(clientErrorHandler);
 app.use(express.static(`${config.DIR}/upload`));
-app.use(express.static(`${config.DIR}/teams`));
 
 app.use(
     helmet({
@@ -113,10 +112,11 @@ mongoose
         const db = mongoose.connection.db;
 
         const port = process.env.PORT || 5000;
+        console.log(port, process.env.PORT, "port")
         if (process.env.TYPE === 'https') {
             console.log("here")
             const options = {
-                key: fs.readFileSync(`${config.DIR}/seamless-key.pem`),
+                key: fs.readFileSync(`${config.DIR}/server-key.pem`),
                 cert: fs.readFileSync(`${config.DIR}/server-crt.pem`),
                 ca: fs.readFileSync(`${config.DIR}/seamless-ca.pem`)
             };
