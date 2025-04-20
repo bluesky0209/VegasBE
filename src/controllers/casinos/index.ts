@@ -10,11 +10,13 @@ import { getIPAddress } from '../base';
 import moment = require('moment-timezone');
 
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
-    const { id, pid, gname, page, pageSize, sort } = req.body;
+    const { id, provider, gname, page, pageSize, sort } = req.body;
     let query: any = { status: true }
-
+    if (provider) {
+        query.provider = provider;
+    }
     const count = await CasinoGameLists.countDocuments(query);
-    const result = await CasinoGameLists.find().limit(20);
+    const result = await CasinoGameLists.find(query).limit(100);
 
     return res.json({ result, count });
 }
