@@ -19,7 +19,8 @@ const UsersSchema = new Schema(
             type: String
         },
         balance: {
-            type: Number
+            type: Number,
+            default: 0
         },
         nick: {
             type: String

@@ -24,15 +24,7 @@ const userInfo = (user: any) => {
         _id: user._id,
         email: user.email,
         username: user.username,
-        invite_members: user.invite_members,
         avatar: user.avatar,
-        cryptoAccount: user.cryptoAccount,
-        publicAddress: user.publicAddress,
-        oddsformat: user.oddsformat,
-        friendsRewards: user.friendsRewards,
-        commissionRewards: user.commissionRewards,
-        referralRewards: user.referralRewards,
-        friendsWager: user.friendsWager,
         friends: user.friends,
         wager: user.wager,
         iReferral: user.iReferral,
@@ -95,12 +87,10 @@ export const signin = async (req: Request, res: Response) => {
             refreshToken: session.refreshToken
         };
         // await usernameLimiter.delete(email);
-        const balance = await getUserBalance(user._id);
         return res.json({
             status: true,
             session: sessionData,
-            user: userData,
-            balance
+            user: userData
         });
     }
     // }
