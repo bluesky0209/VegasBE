@@ -33,6 +33,10 @@ const CasinoGameListsSchema = new Schema({
     },
     MaxMultiplier: {
         type: Number
+    },
+    status: {
+        type: Boolean,
+        default: true
     }
 }
 );
