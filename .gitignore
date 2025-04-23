@@ -6,11 +6,4 @@ dist
 log
 /upload
 apikey.pem
-seamless-ca.pem
-ca-crt.pem
-ca-crt.srl
-ca-key.pem
-server-crt.pem
-server-csr.pem
-server-key.pem
-server.cnf
+
