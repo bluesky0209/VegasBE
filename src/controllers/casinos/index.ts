@@ -13,7 +13,11 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
     const { id, provider, gname, page = 1, pageSize = 20, sort } = req.body;
     let query: any = { status: true }
     if (provider) {
-        query.SectionId = provider;
+        if (provider == 'tablegames') {
+            query.Tags = { $in: ["Table Game"] }
+        } else {
+            query.SectionId = provider;
+        }
     }
     const count = await CasinoGameLists.countDocuments(query);
     const result = await CasinoGameLists.find(query)
