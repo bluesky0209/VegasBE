@@ -3,12 +3,12 @@
     "version": "1.0.0",
     "description": "vegas backend v1",
     "author": "",
-    "main": "src/index.ts",
+    "main": "src/app.ts",
     "private": true,
     "scripts": {
-        "start": "node dist/index.js",
-        "dev": "nodemon src/index.ts --exec ts-node",
-        "batchStart": "concurrently --kill-others \"node dist/index.js\" ",
+        "start": "node dist/app.js",
+        "dev": "nodemon src/app.ts --exec ts-node",
+        "batchStart": "concurrently --kill-others \"node dist/app.js\" ",
         "clean": "rimraf dist",
         "build": "tsc"
     },

@@ -23,6 +23,28 @@ import { clientErrorHandler, logErrors } from './controllers/base';
 import { createBankGroup, createDemo, createSession, getGameList, setPlayer } from './controllers/casinos/api';
 const config = require('../config');
 
+// Custom log file setup
+// Note: Create /log directory manually first
+const logDir = path.join(__dirname, '../log');
+if (!fs.existsSync(logDir)) {
+    console.error('Log directory does not exist. Please create /log directory manually first.');
+    process.exit(1);
+}
+const logStream = fs.createWriteStream(path.join(logDir, 'app.log'), { flags: 'a' });
+
+// Override console.log and console.error
+console.log = function (message: any) {
+    const logMessage = `${new Date().toISOString()} - ${message}`;
+    logStream.write(`${logMessage}\n`);
+    process.stdout.write(`${message}\n`);
+};
+
+console.error = function (message: any) {
+    const logMessage = `${new Date().toISOString()} - ERROR: ${message}`;
+    logStream.write(`${logMessage}\n`);
+    process.stderr.write(`${message}\n`);
+};
+
 const app = express();
 
 // const accessLogStream = createStream('access.log', {
@@ -120,7 +142,7 @@ mongoose
                 cert: fs.readFileSync(`${config.DIR}/server-crt.pem`),
                 ca: fs.readFileSync(`${config.DIR}/seamless-ca.pem`)
             };
-            const https = require('https').createServer(options, app);
+            const https = require('http').createServer(options, app);
             const io = require('socket.io')(https, { cors: { origin: '*' } });
             socket(io);
             app.set('io', io);
@@ -138,5 +160,3 @@ mongoose
     .catch((error: any) => {
         console.log('database connection error => ', error);
     });
-
-
