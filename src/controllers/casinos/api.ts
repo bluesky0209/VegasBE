@@ -9,7 +9,6 @@ const config = require('../../../config');
 
 // Load the .pem file
 const certPath = path.join(`${config.DIR}`, 'apikey.pem');
-console.log(certPath, "certPath")
 const cert = fs.readFileSync(certPath);
 
 // Create HTTPS agent with .pem cert as both cert and key
