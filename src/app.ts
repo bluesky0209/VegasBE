@@ -26,6 +26,7 @@ const config = require('../config');
 // Custom log file setup
 // Note: Create /log directory manually first
 const logDir = path.join(__dirname, '../log');
+console.log(logDir)
 if (!fs.existsSync(logDir)) {
     console.error('Log directory does not exist. Please create /log directory manually first.');
     process.exit(1);
