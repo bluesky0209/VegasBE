@@ -142,7 +142,7 @@ mongoose
                 cert: fs.readFileSync(`${config.DIR}/server-crt.pem`),
                 ca: fs.readFileSync(`${config.DIR}/seamless-ca.pem`)
             };
-            const https = require('http').createServer(options, app);
+            const https = require('https').createServer(options, app);
             const io = require('socket.io')(https, { cors: { origin: '*' } });
             socket(io);
             app.set('io', io);
