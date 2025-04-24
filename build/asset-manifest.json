@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.3629180d.css",
-    "main.js": "/static/js/main.1dcf8f26.js",
+    "main.css": "/static/css/main.8cbfb0e1.css",
+    "main.js": "/static/js/main.d618cf2b.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
     "static/media/bg_panoramic.jpg": "/static/media/bg_panoramic.ba1b258d4295268ac90f.jpg",
     "static/media/bgmusic.mp3": "/static/media/bgmusic.f79233631845e4bea9bc.mp3",
@@ -28,6 +28,7 @@
     "static/media/egt.png": "/static/media/egt.f815ffcb5cf0d30e4f9c.png",
     "static/media/novomatic.png": "/static/media/novomatic.306ac337b1d72086b139.png",
     "static/media/en.png": "/static/media/en.7c8f71d68fc92eec4175.png",
+    "static/media/goldbonusbg.png": "/static/media/goldbonusbg.c4f042fd81e4b58c8ed7.png",
     "static/media/jp_bronze_logo.png": "/static/media/jp_bronze_logo.a75b6e6692f6a574a79b.png",
     "static/media/wazdan.png": "/static/media/wazdan.f8756e9076e5ec45632e.png",
     "static/media/jp_silver_logo.png": "/static/media/jp_silver_logo.a54ccd980dd164c11816.png",
@@ -42,12 +43,12 @@
     "static/media/slide.mp3": "/static/media/slide.a672fb224405f50868a9.mp3",
     "static/media/click.mp3": "/static/media/click.7ed8a16d3712767b0e61.mp3",
     "index.html": "/index.html",
-    "main.3629180d.css.map": "/static/css/main.3629180d.css.map",
-    "main.1dcf8f26.js.map": "/static/js/main.1dcf8f26.js.map",
+    "main.8cbfb0e1.css.map": "/static/css/main.8cbfb0e1.css.map",
+    "main.d618cf2b.js.map": "/static/js/main.d618cf2b.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3629180d.css",
-    "static/js/main.1dcf8f26.js"
+    "static/css/main.8cbfb0e1.css",
+    "static/js/main.d618cf2b.js"
   ]
 }
