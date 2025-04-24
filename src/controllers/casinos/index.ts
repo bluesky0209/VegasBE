@@ -13,8 +13,13 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
     const { id, provider, gname, page = 1, pageSize = 20, sort } = req.body;
     let query: any = { status: true }
     if (provider) {
-        if (provider == 'tablegames') {
+        if (provider === 'tablegames') {
             query.Tags = { $in: ["Table Game"] }
+        } else if (provider === 'fishing') {
+            query.$or = [
+                { Description: "fish" },
+                { Name: { $regex: 'Fish', $options: 'i' } }
+            ];
         } else {
             query.SectionId = provider;
         }

@@ -1,10 +1,12 @@
 {
   "files": {
     "main.css": "/static/css/main.3629180d.css",
-    "main.js": "/static/js/main.c999c9f6.js",
+    "main.js": "/static/js/main.1dcf8f26.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
     "static/media/bg_panoramic.jpg": "/static/media/bg_panoramic.ba1b258d4295268ac90f.jpg",
+    "static/media/bgmusic.mp3": "/static/media/bgmusic.f79233631845e4bea9bc.mp3",
     "static/media/vegas.png": "/static/media/vegas.2aa5c25d8cf5be2649dc.png",
+    "static/media/intro.default.mp3": "/static/media/intro.default.ea3c24173413b1c61890.mp3",
     "static/media/vegas-logo.png": "/static/media/vegas-logo.440a6e8aabd66debdf73.png",
     "static/media/impact.ttf": "/static/media/impact.0294f8285a2493417c09.ttf",
     "static/media/1_OIIv4FEjJQMqh-zEPhtlYA.png": "/static/media/1_OIIv4FEjJQMqh-zEPhtlYA.de325dbbc4da84f6efbd.png",
@@ -37,13 +39,15 @@
     "static/media/catarrowleft.png": "/static/media/catarrowleft.5e1f9a495cc7afdd360a.png",
     "static/media/jp_gold_logo.png": "/static/media/jp_gold_logo.21a4119d3e113adf6aee.png",
     "static/media/botbutton_hover.png": "/static/media/botbutton_hover.baf0e76232d3c3abb74a.png",
+    "static/media/slide.mp3": "/static/media/slide.a672fb224405f50868a9.mp3",
+    "static/media/click.mp3": "/static/media/click.7ed8a16d3712767b0e61.mp3",
     "index.html": "/index.html",
     "main.3629180d.css.map": "/static/css/main.3629180d.css.map",
-    "main.c999c9f6.js.map": "/static/js/main.c999c9f6.js.map",
+    "main.1dcf8f26.js.map": "/static/js/main.1dcf8f26.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3629180d.css",
-    "static/js/main.c999c9f6.js"
+    "static/js/main.1dcf8f26.js"
   ]
 }
