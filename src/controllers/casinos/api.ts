@@ -66,7 +66,7 @@ export const setPlayer = async ({ Id, BankGroupId, Nick }: { Id: string, BankGro
         });
         console.log('✅ Success:', res.data);
         if (res.data) {
-            await Users.create({ username: Id, bankGroup: BankGroupId, nick: Nick });
+            // await Users.create({ username: Id, bankGroup: BankGroupId, nick: Nick });
         }
     } catch (err: any) {
         console.error('❌ Error:', err.response?.data || err.message);

@@ -103,7 +103,7 @@ app.get('*', apiV2Limiter, (req: express.Request, res: express.Response) =>
 app.use(RetrunValidation);
 // createBankGroup({ currency: 'USD' });
 // getGameList({ id: 1744970985003, BankGroupId: 'GoldenBet_USD' });
-// setPlayer({ Id: 'testplayer', BankGroupId: 'GoldenBet_USD', Nick: 'test' })
+// setPlayer({ Id: 'dev', BankGroupId: 'GoldenBet_USD', Nick: 'dev' })
 // createSession({ PlayerId: 'testplayer', GameId: 'slots3elcartelplus_mga' })
 // createDemo({ BankGroupId: 'GoldenBet_USD', GameId: 'cdt_wzdn' })
 mongoose
