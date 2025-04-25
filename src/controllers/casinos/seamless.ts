@@ -99,7 +99,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         amount,
                         currency,
                         type: 'c2gaming-casino-bet',
-                        info: generatInfo(),
+                        info: transactionRef,
                         status: true
                     }),
                     CasinoBetHistory.create({
@@ -154,7 +154,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                             amount: -existingTransaction.amount,
                             currency: existingTransaction.currency,
                             type: 'c2gaming-casino-rollback',
-                            info: generatInfo(),
+                            info: transactionRef,
                             status: true
                         }),
                         CasinoBetHistory.updateOne({ transactionRef }, { type: 'rollback' })
