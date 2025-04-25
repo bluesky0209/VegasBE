@@ -25,9 +25,10 @@ export const getSeamless = async (req: Request, rep: Response) => {
         case 'withdrawAndDeposit': {
             try {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
-                console.log("withdrawAndDeposit =>", playerName, withdraw, deposit,)
+                console.log("withdrawAndDeposit =>", playerName, withdraw, deposit, currency)
                 const amount = (deposit - withdraw) / 100;
                 if (currency === 'USD') {
+                    console.log("The currency is not supported.")
                     return rep.json({
                         jsonrpc: "2.0",
                         id: 0,
@@ -38,6 +39,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     });
                 }
                 if (deposit < 0) {
+                    console.log("The depoist amount is not valid.")
                     return rep.json({
                         jsonrpc: "2.0",
                         id: 0,
@@ -48,6 +50,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     });
                 }
                 if (withdraw < 0) {
+                    console.log("The withdraw amount is not valid.")
                     return rep.json({
                         jsonrpc: "2.0",
                         id: 0,
@@ -67,6 +70,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 ]);
 
                 if (user.balance * 100 < withdraw) {
+                    console.log("The player doesn't have enough money to do the bet action.")
                     return rep.json({
                         jsonrpc: "2.0",
                         id: 0,
