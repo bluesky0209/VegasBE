@@ -114,13 +114,13 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         provider: 'c2gaming'
                     })
                 ]);
-                console.log((Number(updatedBalance.balance) * 100), "updatedBalance.balance")
+                console.log(req.body.id, (Number(updatedBalance.balance) * 100), betHistory.transactionRef, "updatedBalance.balance")
                 return rep.json({
                     jsonrpc: "2.0",
                     id: req.body.id,
-                    result: {
-                        newBalance: (Number(updatedBalance.balance) * 100),
-                        transactionRef: betHistory.transactionRef
+                    "result": {
+                        "newBalance": (Number(updatedBalance.balance) * 100),
+                        "transactionId": betHistory.transactionRef
                     }
                 });
             } catch (error) {
