@@ -30,8 +30,8 @@ export const Validator = {
             }),
             Signup: Joi.object({
                 email: Joi.string().email().required(),
-                username: Joi.string().min(6).max(30).required(),
-                password: Joi.string().min(8).max(30).required(),
+                username: Joi.string().min(3).max(30).required(),
+                password: Joi.string().min(4).max(30).required(),
                 iReferral: Joi.string().allow('', null).optional(),
                 rReferral: Joi.string().allow('', null).optional()
             }),
