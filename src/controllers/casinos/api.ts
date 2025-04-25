@@ -128,9 +128,7 @@ export const closeSession = async (req: Request, rep: Response) => {
             method: "Session.Close",
             id,
             params: {
-                Params: {
-                    SessionId
-                }
+                SessionId
             }
         });
         console.log('✅ Success:', res.data);
