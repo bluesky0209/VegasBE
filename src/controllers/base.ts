@@ -8,7 +8,7 @@ import * as moment from 'moment-timezone';
 import 'dotenv/config';
 import mongoose, { ObjectId as ObjectIdType } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Sessions, Users } from '../models';
+import { Sessions, Users, BalanceHistories } from '../models';
 const config = require('../../config');
 
 export const maxFailsByLogin = 3;
@@ -108,6 +108,22 @@ export const handleBet = async ({
     status?: boolean | undefined;
 }) => {
     try {
+        const user = await Users.findOneAndUpdate(
+            { _id: ObjectId(userId) },
+            { $inc: { balance: amount } },
+            { new: true }
+        );
+        await BalanceHistories.create({
+            userId,
+            amount,
+            currency,
+            type,
+            currentBalance: NumberFix(user.balance),
+            beforeBalance: NumberFix(user.balance - amount),
+            info,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
         const session = await Sessions.findOne({ userId });
         if (session?.socketId) {
             req.app.get('io').to(session.socketId).emit('balance', {
@@ -115,7 +131,7 @@ export const handleBet = async ({
             });
         }
 
-        return 0;
+        return user;
     } catch (error) {
         console.error('Handle bet error:', error);
     }

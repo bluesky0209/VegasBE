@@ -1,52 +1,39 @@
 import { Schema, model } from 'mongoose';
 
 const CasinoBetHistorySchema = new Schema({
-    GAMEID: {
+    gameId: {
         type: String,
         required: true,
     },
-    USERID: {
+    username: {
+        type: String,
+        required: true,
+    },
+    userId: {
         type: Schema.Types.ObjectId,
         required: true,
     },
-    LAUNCHURL: {
+    amount: {
         type: Number,
         required: true
     },
-    AMOUNT: {
-        type: Number,
-        required: true
-    },
-    betting: {
-        type: Object,
-        required: true
-    },
-    TYPE: {
+    transactionRef: {
         type: String,
-        required: true
-    },
-    transactionId: {
-        type: String,
-        required: true
-    },
-    lastbalance: {
-        type: Number,
-        required: true
-    },
-    updatedbalance: {
-        type: Number,
         required: true
     },
     currency: {
         type: String,
         default: "USD"
     },
-    currencyId: {
-        type: Schema.Types.ObjectId
+    spinDetails: {
+        type: Object
     },
-    ip: {
-        type: String,
+    type: {
+        type: String //bet and rollback
     },
+    provider: {
+        type: String
+    }
 }, { timestamps: true })
 
 export const CasinoBetHistory = model('casino_bethistory', CasinoBetHistorySchema);
