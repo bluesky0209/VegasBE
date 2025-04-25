@@ -3,7 +3,7 @@ import { V, Validator } from '../../middlewares/validation';
 import { checkUser, verifyToken } from '../../middlewares/auth';
 import { getCasinoGamesListByCategory, getCasinoGamesLists, getCasinoProviders } from '../../controllers/casinos';
 import { deleteMany } from '../../controllers/casinos/casinos';
-import { getGameList, createBankGroup, createSession, createDemo } from '../../controllers/casinos/api';
+import { getGameList, createBankGroup, createSession, createDemo, setPlayer } from '../../controllers/casinos/api';
 import { getSeamless } from "../../controllers/casinos/seamless";
 
 const router = routerx();
@@ -17,6 +17,7 @@ router.post('/get-gamelists', getCasinoGamesLists);
 router.post('/get-gamelistsbycategory', getCasinoGamesListByCategory);
 router.post('/get-providers', getCasinoProviders)
 router.post('/createSession', createSession)
+router.post('/set-player', setPlayer)
 //callback
 router.post('/seamless', (req, res, next) => {
     console.log(req);
