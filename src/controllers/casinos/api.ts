@@ -119,6 +119,28 @@ export const createSession = async (req: Request, rep: Response) => {
     }
 }
 
+export const closeSession = async (req: Request, rep: Response) => {
+    const { SessionId } = req.body;
+    try {
+        const id = new Date().getTime();
+        const res = await client.post('/', {
+            jsonrpc: "2.0",
+            method: "Session.Close",
+            id,
+            params: {
+                Params: {
+                    SessionId
+                }
+            }
+        });
+        console.log('✅ Success:', res.data);
+        return rep.json(res.data)
+    } catch (err: any) {
+        console.error('❌ Error:', err.response?.data || err.message);
+    }
+
+}
+
 export const createDemo = async (req: Request, rep: Response) => {
     const { BankGroupId, GameId } = req.body;
     try {

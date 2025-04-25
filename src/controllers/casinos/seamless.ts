@@ -120,7 +120,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     id: req.body.id,
                     result: {
                         newBalance: (Number(updatedBalance.balance) * 100),
-                        transactionId: betHistory.transactionRef
+                        transactionRef: betHistory.transactionRef
                     }
                 });
             } catch (error) {
