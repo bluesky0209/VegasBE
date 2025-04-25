@@ -27,17 +27,17 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
                 console.log("withdrawAndDeposit =>", playerName, withdraw, transactionRef, deposit, currency, gameId)
                 const amount = (deposit - withdraw) / 100;
-                if (currency === 'USD') {
-                    console.log("The currency is not supported.")
-                    return rep.json({
-                        jsonrpc: "2.0",
-                        id: 0,
-                        error: {
-                            "code": 2,
-                            "message": "The currency is not supported."
-                        }
-                    });
-                }
+                // if (currency === 'USD') {
+                //     console.log("The currency is not supported.")
+                //     return rep.json({
+                //         jsonrpc: "2.0",
+                //         id: 0,
+                //         error: {
+                //             "code": 2,
+                //             "message": "The currency is not supported."
+                //         }
+                //     });
+                // }
                 if (deposit < 0) {
                     console.log("The depoist amount is not valid.")
                     return rep.json({
