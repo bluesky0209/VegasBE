@@ -25,7 +25,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
         case 'withdrawAndDeposit': {
             try {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
-                console.log("withdrawAndDeposit =>", playerName, withdraw, transactionRef, deposit, currency, gameId)
+                console.log("withdrawAndDeposit =>", withdraw, deposit, transactionRef, currency, gameId)
                 const amount = (deposit - withdraw) / 100;
                 // if (currency === 'USD') {
                 //     console.log("The currency is not supported.")
@@ -114,7 +114,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         provider: 'c2gaming'
                     })
                 ]);
-                console.log(updatedBalance.balance, "updatedBalance.balance")
+                console.log((Number(updatedBalance.balance) * 100), "updatedBalance.balance")
                 return rep.json({
                     jsonrpc: "2.0",
                     id: req.body.id,
@@ -159,13 +159,14 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         }),
                         CasinoBetHistory.updateOne({ transactionRef }, { type: 'rollback' })
                     ]);
-                    console.log(updatedBalance, "rollback")
+                    console.log(updatedBalance.balance, "rollback")
                     return rep.json({
                         jsonrpc: "2.0",
                         id: req.body.id,
                         result: {}
                     });
                 } else {
+                    console.log("already done")
                     return rep.json({
                         jsonrpc: "2.0",
                         id: req.body.id,
