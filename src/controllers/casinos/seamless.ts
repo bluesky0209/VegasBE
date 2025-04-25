@@ -1,4 +1,4 @@
-import { generatInfo, handleBet, ObjectId } from '../base';
+import { generatInfo, handleBet, NumberFix, ObjectId } from '../base';
 import { CasinoBetHistory, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
@@ -9,13 +9,13 @@ export const getSeamless = async (req: Request, rep: Response) => {
             console.log("getBalance=> ", req.body.id, callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId)
             if (callerId && playerName && currency) {
                 const user = await Users.findOne({ username: playerName });
-                console.log(user.balance * 100, "balance")
+                console.log(NumberFix(user.balance * 100, 5), "balance")
                 if (user.balance) {
                     return rep.json({
                         "jsonrpc": "2.0",
                         "id": req.body.id,
                         "result": {
-                            "balance": user.balance * 100,
+                            "balance": NumberFix(user.balance * 100, 5),
                         }
                     })
                 }
@@ -114,12 +114,12 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         provider: 'c2gaming'
                     })
                 ]);
-                console.log(req.body.id, (Number(updatedBalance.balance) * 100), betHistory.transactionRef, "updatedBalance.balance")
+                console.log(req.body.id, NumberFix(updatedBalance.balance * 100, 5), betHistory.transactionRef, "updatedBalance.balance")
                 return rep.json({
                     jsonrpc: "2.0",
                     id: req.body.id,
                     "result": {
-                        "newBalance": (Number(updatedBalance.balance) * 100),
+                        "newBalance": (NumberFix(updatedBalance.balance * 100, 5)),
                         "transactionId": betHistory.transactionRef
                     }
                 });
