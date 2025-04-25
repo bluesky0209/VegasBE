@@ -25,7 +25,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
         case 'withdrawAndDeposit': {
             try {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
-                console.log("withdrawAndDeposit =>", playerName, withdraw, deposit, currency)
+                console.log("withdrawAndDeposit =>", playerName, withdraw, transactionRef, deposit, currency, gameId)
                 const amount = (deposit - withdraw) / 100;
                 if (currency === 'USD') {
                     console.log("The currency is not supported.")
