@@ -1,12 +1,9 @@
 
 import 'dotenv/config';
 import 'regenerator-runtime';
-import * as request from 'request';
-import md5 = require("md5")
 import { CasinoBetHistory, CasinoCategories, CasinoGameLists, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 import { CronJob } from 'cron';
-import { getIPAddress } from '../base';
 import moment = require('moment-timezone');
 
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
