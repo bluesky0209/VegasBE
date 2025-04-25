@@ -76,7 +76,6 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         }
                     });
                 }
-
                 if (existingTransaction) {
                     return rep.json({
                         jsonrpc: "2.0",
@@ -111,7 +110,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         provider: 'c2gaming'
                     })
                 ]);
-
+                console.log(updatedBalance.balance, "updatedBalance.balance")
                 return rep.json({
                     jsonrpc: "2.0",
                     id: req.body.id,
