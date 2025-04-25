@@ -96,7 +96,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     handleBet({
                         req,
                         userId: user._id,
-                        amount: (amount / 100),
+                        amount,
                         currency,
                         type: 'c2gaming-casino-bet',
                         info: generatInfo(),
@@ -105,7 +105,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     CasinoBetHistory.create({
                         username: playerName,
                         userId: user._id,
-                        amount: (amount / 100),
+                        amount,
                         transactionRef,
                         currency,
                         gameId,
@@ -136,33 +136,54 @@ export const getSeamless = async (req: Request, rep: Response) => {
             }
         }
         case 'rollbackTransaction': {
-            const { callerId, playerName, transactionRef, gameRoundRef, gameId, bonusId, sessionId, sessionAlternativeId } = req.body.params;
-            console.log("rollbackTransaction =>", playerName, transactionRef,)
-            const [user, existingTransaction] = await Promise.all([
-                Users.findOne({ username: playerName }),
-                CasinoBetHistory.findOne({
-                    transactionRef,
-                    username: playerName
-                })
-            ]);
-            if (existingTransaction && existingTransaction.type !== 'rollback') {
-                const [updatedBalance, betHistory] = await Promise.all([
-                    handleBet({
-                        req,
-                        userId: user._id,
-                        amount: -existingTransaction.amount,
-                        currency: existingTransaction.currency,
-                        type: 'c2gaming-casino-rollback',
-                        info: generatInfo(),
-                        status: true
-                    }),
-                    CasinoBetHistory.updateOne({ transactionRef }, { type: 'rollback' })
+            try {
+                const { callerId, playerName, transactionRef, gameRoundRef, gameId, bonusId, sessionId, sessionAlternativeId } = req.body.params;
+                console.log("rollbackTransaction =>", playerName, transactionRef,)
+                const [user, existingTransaction] = await Promise.all([
+                    Users.findOne({ username: playerName }),
+                    CasinoBetHistory.findOne({
+                        transactionRef,
+                        username: playerName
+                    })
                 ]);
-                console.log(updatedBalance, "rollback")
+                if (existingTransaction && existingTransaction.type !== 'rollback') {
+                    const [updatedBalance, betHistory] = await Promise.all([
+                        handleBet({
+                            req,
+                            userId: user._id,
+                            amount: -existingTransaction.amount,
+                            currency: existingTransaction.currency,
+                            type: 'c2gaming-casino-rollback',
+                            info: generatInfo(),
+                            status: true
+                        }),
+                        CasinoBetHistory.updateOne({ transactionRef }, { type: 'rollback' })
+                    ]);
+                    console.log(updatedBalance, "rollback")
+                    return rep.json({
+                        jsonrpc: "2.0",
+                        id: req.body.id,
+                        result: {}
+                    });
+                } else {
+                    return rep.json({
+                        jsonrpc: "2.0",
+                        id: req.body.id,
+                        error: {
+                            code: 7,
+                            message: "Transaction not found or already rolled back"
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error in rollbackTransaction:", error);
                 return rep.json({
                     jsonrpc: "2.0",
                     id: req.body.id,
-                    result: {}
+                    error: {
+                        code: 7,
+                        message: "Internal server error"
+                    }
                 });
             }
             break;
