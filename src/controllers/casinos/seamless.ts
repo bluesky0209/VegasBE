@@ -145,7 +145,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     username: playerName
                 })
             ]);
-            if (existingTransaction) {
+            if (existingTransaction && existingTransaction.type !== 'rollback') {
                 const [updatedBalance, betHistory] = await Promise.all([
                     handleBet({
                         req,
