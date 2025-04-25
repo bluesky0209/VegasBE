@@ -108,32 +108,47 @@ export const handleBet = async ({
     status?: boolean | undefined;
 }) => {
     try {
+        // Find and update user balance
         const user = await Users.findOneAndUpdate(
             { _id: ObjectId(userId) },
-            { $inc: { balance: amount } },
+            { $inc: { balance: NumberFix(amount, 5) } },
             { new: true }
         );
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const currentBalance = NumberFix(user.balance, 5);
+        const beforeBalance = NumberFix(currentBalance - amount, 5);
+
+        // Create balance history record
         await BalanceHistories.create({
             userId,
-            amount,
+            amount: NumberFix(amount, 5),
             currency,
             type,
-            currentBalance: NumberFix(user.balance),
-            beforeBalance: NumberFix(user.balance - amount),
+            currentBalance,
+            beforeBalance,
             info,
             createdAt: new Date(),
             updatedAt: new Date()
         });
-        const session = await Sessions.findOne({ userId });
-        if (session?.socketId) {
-            req.app.get('io').to(session.socketId).emit('balance', {
-                balance: 0
-            });
+
+        // Emit socket event if session exists
+        if (status && req) {
+            const session = await Sessions.findOne({ userId });
+            if (session?.socketId) {
+                req.app.get('io').to(session.socketId).emit('balance', {
+                    balance: currentBalance
+                });
+            }
         }
 
         return user;
     } catch (error) {
         console.error('Handle bet error:', error);
+        throw error; // Re-throw to handle in caller
     }
 };
 
