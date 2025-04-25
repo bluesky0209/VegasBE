@@ -26,7 +26,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
             try {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
                 console.log("withdrawAndDeposit =>", playerName, withdraw, deposit,)
-                const amount = deposit - withdraw;
+                const amount = (deposit - withdraw) / 100;
                 if (currency === 'USD') {
                     return rep.json({
                         jsonrpc: "2.0",
@@ -66,7 +66,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     })
                 ]);
 
-                if (user.balance < withdraw) {
+                if (user.balance * 100 < withdraw) {
                     return rep.json({
                         jsonrpc: "2.0",
                         id: 0,
@@ -116,7 +116,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     jsonrpc: "2.0",
                     id: req.body.id,
                     result: {
-                        newBalance: updatedBalance.balance,
+                        newBalance: updatedBalance.balance * 100,
                         transactionId: betHistory.transactionRef
                     }
                 });
