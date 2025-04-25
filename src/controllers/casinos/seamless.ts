@@ -187,7 +187,6 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     }
                 });
             }
-            break;
         }
         default:
             break;
