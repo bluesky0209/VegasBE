@@ -96,7 +96,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     handleBet({
                         req,
                         userId: user._id,
-                        amount,
+                        amount: (amount / 100),
                         currency,
                         type: 'c2gaming-casino-bet',
                         info: generatInfo(),
@@ -105,7 +105,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     CasinoBetHistory.create({
                         username: playerName,
                         userId: user._id,
-                        amount,
+                        amount: (amount / 100),
                         transactionRef,
                         currency,
                         gameId,
@@ -119,7 +119,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     jsonrpc: "2.0",
                     id: req.body.id,
                     result: {
-                        newBalance: updatedBalance.balance * 100,
+                        newBalance: (Number(updatedBalance.balance) * 100),
                         transactionId: betHistory.transactionRef
                     }
                 });
@@ -158,6 +158,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     }),
                     CasinoBetHistory.updateOne({ transactionRef }, { type: 'rollback' })
                 ]);
+                console.log(updatedBalance, "rollback")
                 return rep.json({
                     jsonrpc: "2.0",
                     id: req.body.id,
