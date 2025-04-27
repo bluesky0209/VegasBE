@@ -1,8 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.5286593e.css",
-    "main.js": "/static/js/main.c1ece7e2.js",
+    "main.css": "/static/css/main.b6ed3110.css",
+    "main.js": "/static/js/main.fdff377f.js",
+    "static/js/919.ff589e5d.chunk.js": "/static/js/919.ff589e5d.chunk.js",
+    "static/css/840.ee2b85af.chunk.css": "/static/css/840.ee2b85af.chunk.css",
+    "static/js/840.0e2e94e0.chunk.js": "/static/js/840.0e2e94e0.chunk.js",
+    "static/js/809.0515b556.chunk.js": "/static/js/809.0515b556.chunk.js",
+    "static/js/479.b3e544f2.chunk.js": "/static/js/479.b3e544f2.chunk.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
+    "static/js/796.90dbc342.chunk.js": "/static/js/796.90dbc342.chunk.js",
     "static/media/bg_panoramic.jpg": "/static/media/bg_panoramic.ba1b258d4295268ac90f.jpg",
     "static/media/bgmusic.mp3": "/static/media/bgmusic.f79233631845e4bea9bc.mp3",
     "static/media/vegas.png": "/static/media/vegas.2aa5c25d8cf5be2649dc.png",
@@ -16,6 +22,7 @@
     "static/media/logo.png": "/static/media/logo.8a7f8c12ae367b152e9d.png",
     "static/media/lnw.png": "/static/media/lnw.37e18fea447685cf6ed4.png",
     "static/media/fishing.png": "/static/media/fishing.6aa8a955af697a466d3e.png",
+    "static/media/preloader.png": "/static/media/preloader.8ad9a7e346dcd4d159d4.png",
     "static/media/lvl_progress.png": "/static/media/lvl_progress.08561f88a62b29059db6.png",
     "static/media/all.png": "/static/media/all.7aa09bb2f9732b7daa18.png",
     "static/media/jackpot.png": "/static/media/jackpot.42c69fcdab61e5ea0aa9.png",
@@ -47,12 +54,18 @@
     "static/media/click.mp3": "/static/media/click.7ed8a16d3712767b0e61.mp3",
     "static/media/evoplay1.svg": "/static/media/evoplay1.af2d05204b3d898aca221a270dc2d79f.svg",
     "index.html": "/index.html",
-    "main.5286593e.css.map": "/static/css/main.5286593e.css.map",
-    "main.c1ece7e2.js.map": "/static/js/main.c1ece7e2.js.map",
-    "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map"
+    "main.b6ed3110.css.map": "/static/css/main.b6ed3110.css.map",
+    "main.fdff377f.js.map": "/static/js/main.fdff377f.js.map",
+    "919.ff589e5d.chunk.js.map": "/static/js/919.ff589e5d.chunk.js.map",
+    "840.ee2b85af.chunk.css.map": "/static/css/840.ee2b85af.chunk.css.map",
+    "840.0e2e94e0.chunk.js.map": "/static/js/840.0e2e94e0.chunk.js.map",
+    "809.0515b556.chunk.js.map": "/static/js/809.0515b556.chunk.js.map",
+    "479.b3e544f2.chunk.js.map": "/static/js/479.b3e544f2.chunk.js.map",
+    "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map",
+    "796.90dbc342.chunk.js.map": "/static/js/796.90dbc342.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5286593e.css",
-    "static/js/main.c1ece7e2.js"
+    "static/css/main.b6ed3110.css",
+    "static/js/main.fdff377f.js"
   ]
 }
