@@ -124,14 +124,14 @@ mongoose
             const io = require('socket.io')(https, { cors: { origin: '*' } });
             socket(io);
             app.set('io', io);
-            https.listen(port);
+            https.listen(port, 'localhost');
             console.log('server listening on:', port);
         } else {
             const http = require('http').createServer(app);
             const io = require('socket.io')(http, { cors: { origin: '*' } });
             socket(io);
             app.set('io', io);
-            http.listen(port);
+            http.listen(port, 'localhost');
             console.log('server listening on:', port);
         }
     })
