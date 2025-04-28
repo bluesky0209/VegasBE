@@ -17,6 +17,10 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
                 { Description: "fish" },
                 { Name: { $regex: 'Fish', $options: 'i' } }
             ];
+        } else if (provider === 'pragmatic') {
+            query.$or = [
+                { aggregator: 'skyxspin', Id: { $regex: '^pp_' } }
+            ];
         } else {
             query.SectionId = provider;
         }
