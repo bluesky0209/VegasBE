@@ -249,6 +249,7 @@ export const skyTransfer = async (req: Request, rep: Response) => {
 export const skyBalance = async (req: Request, rep: Response) => {
     try {
         const { UserID } = req.body;
+        console.log(UserID, "UserID")
         const user = await Users.findById(UserID);
         if (user.balance) {
             return rep.json(
