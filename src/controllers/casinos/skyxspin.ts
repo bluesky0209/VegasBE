@@ -59,8 +59,9 @@ export const launchGame = async (req: Request, rep: Response) => {
     const { PlayerId, GameId } = req.body;
     try {
         const res = await client.post(`/api/v1/game/launch?UserID=${PlayerId}&GameID=${GameId}&Language=en`);
+        console.log(res.data?.data, "url")
         if (res.data?.data) {
-            return res.data.data.Url;
+            return rep.json({ result: { SessionUrl: res.data.data.Url } })
         }
     } catch (e) {
         console.log(e)

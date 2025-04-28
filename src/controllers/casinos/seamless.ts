@@ -198,6 +198,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
 export const skyTransfer = async (req: Request, rep: Response) => {
     try {
         const { UserID, TransactionID, Amount, RoundID, GameID, ReqTime, Reason, IsEnd } = req.body;
+        console.log(UserID, TransactionID, Amount, RoundID, GameID, ReqTime, Reason, IsEnd, "")
         const [user, existingTransaction] = await Promise.all([
             Users.findOne({ username: UserID }),
             CasinoBetHistory.findOne({
@@ -226,11 +227,20 @@ export const skyTransfer = async (req: Request, rep: Response) => {
                 provider: 'skyxspin'
             })
         ]);
+        return rep.json(
+            {
+                "code": 0,
+                "error": "",
+                "data": {
+                    "Balance": NumberFix(updatedBalance.balance, 5)
+                }
+            }
+        )
     } catch (e) {
         console.log(e)
         return rep.json({
             "code": 1,
-            "error": "something went wrong!"
+            "error": "some error occur!!"
         })
     }
 
@@ -246,7 +256,7 @@ export const skyBalance = async (req: Request, rep: Response) => {
                     "code": 0,
                     "error": "",
                     "data": {
-                        "Balance": user.balance
+                        "Balance": NumberFix(user.balance, 5)
                     }
                 }
             )
@@ -255,7 +265,7 @@ export const skyBalance = async (req: Request, rep: Response) => {
         console.log(e)
         return rep.json({
             "code": 1,
-            "error": "something went wrong!"
+            "error": "some error occur!!"
         })
     }
 }
