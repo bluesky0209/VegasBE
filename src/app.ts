@@ -21,6 +21,7 @@ import { RetrunValidation } from './middlewares/validation';
 import { checkUrl, corsOptionsDelegate } from './middlewares/auth';
 import { clientErrorHandler, logErrors } from './controllers/base';
 import { createBankGroup, createDemo, createSession, getGameList, setPlayer } from './controllers/casinos/api';
+import { getGameLists } from './controllers/casinos/skyxspin';
 const config = require('../config');
 
 const app = express();
@@ -106,6 +107,7 @@ app.use(RetrunValidation);
 // setPlayer({ Id: 'test24', BankGroupId: 'GoldenBet_USD', Nick: 'test24' })
 // createSession({ PlayerId: 'testplayer', GameId: 'slots3elcartelplus_mga' })
 // createDemo({ BankGroupId: 'GoldenBet_USD', GameId: 'cdt_wzdn' })
+// getGameLists();
 mongoose
     .connect(process.env.DATABASE as string)
     .then(() => {

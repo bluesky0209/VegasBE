@@ -2,6 +2,7 @@ import { generatInfo, handleBet, NumberFix, ObjectId } from '../base';
 import { CasinoBetHistory, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
+//c2gaming
 export const getSeamless = async (req: Request, rep: Response) => {
     switch (req.body.method) {
         case 'getBalance': {
@@ -192,3 +193,72 @@ export const getSeamless = async (req: Request, rep: Response) => {
             break;
     }
 }
+
+//skyxspin
+export const skyTransfer = async (req: Request, rep: Response) => {
+    try {
+        const { UserID, TransactionID, Amount, RoundID, GameID, ReqTime, Reason, IsEnd } = req.body;
+        const [user, existingTransaction] = await Promise.all([
+            Users.findOne({ username: UserID }),
+            CasinoBetHistory.findOne({
+                transactionRef: TransactionID,
+                username: UserID
+            })
+        ]);
+        const [updatedBalance, betHistory] = await Promise.all([
+            handleBet({
+                req,
+                userId: user._id,
+                amount: Amount,
+                currency: 'USD',
+                type: `skyxspin-casino-${Reason}`,
+                info: TransactionID,
+                status: true
+            }),
+            CasinoBetHistory.create({
+                username: UserID,
+                userId: user._id,
+                amount: Amount,
+                transactionRef: TransactionID,
+                currency: 'USD',
+                gameId: GameID,
+                type: Reason,
+                provider: 'skyxspin'
+            })
+        ]);
+    } catch (e) {
+        console.log(e)
+        return rep.json({
+            "code": 1,
+            "error": "something went wrong!"
+        })
+    }
+
+}
+
+export const skyBalance = async (req: Request, rep: Response) => {
+    try {
+        const { UserID } = req.body;
+        const user = await Users.findById(UserID);
+        if (user.balance) {
+            return rep.json(
+                {
+                    "code": 0,
+                    "error": "",
+                    "data": {
+                        "Balance": user.balance
+                    }
+                }
+            )
+        }
+    } catch (e) {
+        console.log(e)
+        return rep.json({
+            "code": 1,
+            "error": "something went wrong!"
+        })
+    }
+}
+
+
+

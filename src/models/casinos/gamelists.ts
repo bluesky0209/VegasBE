@@ -34,6 +34,12 @@ const CasinoGameListsSchema = new Schema({
     MaxMultiplier: {
         type: Number
     },
+    Icon: {
+        type: String
+    },
+    aggregator: {
+        type: String //c2gaming, skyxspin
+    },
     status: {
         type: Boolean,
         default: true
