@@ -32,7 +32,7 @@ router.post('/set-player', setPlayer)
 router.post('/seamless', getSeamless)
 router.use('/skyxspin', async (req, res, next) => {
     const { AppID, AppSecret } = req.body;
-    if (AppID === process.env.SKYXSPIN_Appid && AppSecret === process.env.SKYXSPIN_AppSecret) {
+    if (AppID === process.env.SKYXSPIN_Appid && AppSecret === process.env.SKYXSPIN_Appsecret) {
         next();
     } else {
         return res.json({
