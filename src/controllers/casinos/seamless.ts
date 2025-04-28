@@ -250,7 +250,7 @@ export const skyBalance = async (req: Request, rep: Response) => {
     try {
         const { UserID } = req.body;
         console.log(UserID, "UserID")
-        const user = await Users.findById(UserID);
+        const user = await Users.findOne({ username: UserID });
         if (user.balance) {
             return rep.json(
                 {
