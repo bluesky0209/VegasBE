@@ -30,7 +30,17 @@ router.post('/closeSession', closeSession)
 router.post('/set-player', setPlayer)
 //callback
 router.post('/seamless', getSeamless)
-router.post('/skyxspin', skyxspin)
+router.use('/skyxspin', async (req, res, next) => {
+    const { AppID, AppSecret } = req.body;
+    if (AppID === process.env.SKYXSPIN_Appid && AppSecret === process.env.SKYXSPIN_AppSecret) {
+        next();
+    } else {
+        return res.json({
+            code: 1,
+            error: "wrong App information"
+        });
+    }
+}, skyxspin)
 
 router.post('/delete', deleteMany)
 
