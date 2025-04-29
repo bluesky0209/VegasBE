@@ -9,17 +9,18 @@ import moment = require('moment-timezone');
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
     const { id, provider, gname, page = 1, pageSize = 20, sort } = req.body;
     let query: any = { status: true }
+    const skyx = ['pp', 'tada', 'hacksaw', 'jdb', 'jili']
     if (provider) {
         if (provider === 'tablegames') {
             query.Tags = { $in: ["Table Game"] }
         } else if (provider === 'fishing') {
             query.$or = [
-                { Description: "fish" },
-                { Name: { $regex: 'Fish', $options: 'i' } }
+                { SectionId: "fishing" },
+                { SectionId: "spadegaming" }
             ];
-        } else if (provider === 'pragmatic') {
+        } else if (skyx.includes(provider)) {
             query.$or = [
-                { aggregator: 'skyxspin', Id: { $regex: '^pp_' } }
+                { aggregator: 'skyxspin', Id: { $regex: `^${provider}_` } }
             ];
         } else {
             query.SectionId = provider;

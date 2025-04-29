@@ -12,6 +12,7 @@ import {
     signup,
     signout,
     changePassword,
+    createUser
 } from '../../controllers/users/admin';
 import { verifyAdminToken } from '../../middlewares/auth';
 const router = routerx();
@@ -28,5 +29,6 @@ router.post('/label', verifyAdminToken, label);
 router.post('/addlabel', verifyAdminToken, addlabel);
 router.put('/:id', verifyAdminToken, V.params(Validator.ObjectId), updateOne);
 router.delete('/:id', verifyAdminToken, V.params(Validator.ObjectId), deleteOne);
+router.post('/create', verifyAdminToken, V.body(Validator.Users.Admin.CreateUser), createUser);
 
 export default router;

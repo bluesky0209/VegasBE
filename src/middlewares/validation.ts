@@ -78,13 +78,18 @@ export const Validator = {
         },
         Admin: {
             Signin: Joi.object({
-                email: Joi.string().max(30).required(),
-                password: Joi.string().min(8).max(30).required()
+                username: Joi.string().max(30).required(),
+                password: Joi.string().min(6).max(30).required()
             }),
             Signup: Joi.object({
                 email: Joi.string().max(30).required(),
                 username: Joi.string().min(6).max(30).required(),
                 password: Joi.string().min(8).max(30).required()
+            }),
+            CreateUser: Joi.object({
+                username: Joi.string().min(4).max(30).required(),
+                password: Joi.string().min(4).max(30).required(),
+                permissionId: Joi.string().min(24).max(24).required()
             }),
             ChangePassword: Joi.object({
                 userId: Joi.string().min(24).max(24).required(),

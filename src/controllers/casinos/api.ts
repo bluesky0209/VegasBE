@@ -65,11 +65,16 @@ export const setPlayer = async ({ Id, BankGroupId, Nick }: { Id: string, BankGro
             }
         });
         console.log('✅ Success:', res.data);
-        if (res.data) {
+        if (res.data?.result) {
+            console.log(false)
+            return true;
             // await Users.create({ username: Id, bankGroup: BankGroupId, nick: Nick });
+        } else {
+            return false
         }
     } catch (err: any) {
         console.error('❌ Error:', err.response?.data || err.message);
+        return false;
     }
 }
 
@@ -174,7 +179,10 @@ export const getGameList = async ({ id, BankGroupId }: { id: Number, BankGroupId
         console.log('✅ Success usd:', res.data.result.Games[0], res.data.result.Games.length);
         if (res.data.result.Games && res.data.result.Games.length > 0) {
             for (const game of res.data.result.Games) {
-                await CasinoGameLists.create(game);
+                const existingGame = await CasinoGameLists.findOne({ Id: game.Id });
+                if (!existingGame) {
+                    await CasinoGameLists.create(game);
+                }
             }
         }
     } catch (err: any) {

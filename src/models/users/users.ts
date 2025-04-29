@@ -4,8 +4,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 const UsersSchema = new Schema(
     {
         email: {
-            type: String,
-            unique: true
+            type: String
         },
         password: {
             type: String,

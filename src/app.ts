@@ -104,7 +104,7 @@ app.get('*', apiV2Limiter, (req: express.Request, res: express.Response) =>
 app.use(RetrunValidation);
 // createBankGroup({ currency: 'USD' });
 // getGameList({ id: 1744970985003, BankGroupId: 'GoldenBet_USD' });
-// setPlayer({ Id: 'test24', BankGroupId: 'GoldenBet_USD', Nick: 'test24' })
+// setPlayer({ Id: 'test123', BankGroupId: 'GoldenBet_USD', Nick: 'test123' })
 // createSession({ PlayerId: 'testplayer', GameId: 'slots3elcartelplus_mga' })
 // createDemo({ BankGroupId: 'GoldenBet_USD', GameId: 'cdt_wzdn' })
 // getGameLists();

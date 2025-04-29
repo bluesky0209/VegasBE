@@ -12,6 +12,7 @@ import {
     Sessions,
     Users
 } from '../../models';
+import { setPlayer } from '../casinos/api';
 
 const aggregateQuery = [
     {
@@ -52,24 +53,23 @@ const aggregateQuery = [
 ] as any;
 
 export const signin = async (req: Request, res: Response) => {
-    const { password, email } = req.body;
-    if (!password || !email) return res.status(400).json('Invalid field!');
+    const { password, username } = req.body;
+    if (!password || !username) return res.status(400).json('Invalid field!');
     if (!req.headers.admin) return res.status(400).json(`You can't access here.`);
     const user = await Users.findOne({
         $or: [
             {
                 username: {
-                    $regex: new RegExp('^' + email.toLowerCase(), 'i')
+                    $regex: new RegExp('^' + username.toLowerCase(), 'i')
                 }
             },
             {
                 email: {
-                    $regex: new RegExp('^' + email.toLowerCase(), 'i')
+                    $regex: new RegExp('^' + username.toLowerCase(), 'i')
                 }
             }
         ]
     });
-    console.log(user, "user")
     if (!user) {
         // checkLimiter(req, res);
         return res.status(400).json(`We can't find with this email or username.`);
@@ -143,7 +143,55 @@ export const signup = async (req: Request, res: Response) => {
     if (!u_result) {
         return res.status(400).json('error');
     } else {
-        return res.json('You have successfully created in as a user.');
+        const populatedUser = await Users.findById(u_result._id).populate('permissionId', 'title');
+        return res.json({
+            message: 'You have successfully created in as a user.',
+            user: populatedUser
+        });
+    }
+};
+export const createUser = async (req: Request, res: Response) => {
+    try {
+        const user = req.body;
+        // const emailExists = await Users.findOne({
+        //     email: { $regex: new RegExp('^' + user.email.toLowerCase(), 'i') }
+        // });
+        // if (emailExists) {
+        //     return res.status(400).json(`${user.email} is used by another account.`);
+        // }
+        const usernameExists = await Users.findOne({
+            username: { $regex: new RegExp('^' + user.username.toLowerCase(), 'i') }
+        });
+        if (usernameExists) {
+            return res.status(400).json(`An account named '${user.username}' already exists.`);
+        }
+
+        let newuser = new Users(user);
+        newuser.password = newuser.generateHash(user.password);
+        newuser.permissionId = ObjectId(user.permissionId);
+        newuser.status = true;
+        const c2gaming = await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
+        if (!c2gaming) {
+            await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
+        }
+        const u_result = await newuser.save();
+        if (!u_result) {
+            return res.status(400).json('error');
+        } else {
+            const populatedUser = await Users.findById(u_result._id).populate('permissionId', ['title']).lean().then(doc => {
+                if (doc && doc.permissionId) {
+                    doc.permission = doc.permissionId;
+                    delete doc.permissionId;
+                }
+                return doc;
+            });
+            return res.json(
+                populatedUser
+            );
+        }
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json('error');
     }
 };
 
