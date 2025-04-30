@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/static/css/main.520285a0.css",
-    "main.js": "/static/js/main.115fa0dc.js",
+    "main.css": "/static/css/main.1ff51900.css",
+    "main.js": "/static/js/main.b7c05144.js",
     "static/js/919.ff589e5d.chunk.js": "/static/js/919.ff589e5d.chunk.js",
-    "static/css/556.2b50edcc.chunk.css": "/static/css/556.2b50edcc.chunk.css",
-    "static/js/556.c30b0d20.chunk.js": "/static/js/556.c30b0d20.chunk.js",
+    "static/css/399.d408d435.chunk.css": "/static/css/399.d408d435.chunk.css",
+    "static/js/399.e4d6c98d.chunk.js": "/static/js/399.e4d6c98d.chunk.js",
     "static/js/809.0515b556.chunk.js": "/static/js/809.0515b556.chunk.js",
     "static/js/479.b3e544f2.chunk.js": "/static/js/479.b3e544f2.chunk.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
@@ -35,7 +35,7 @@
     "static/media/konami.png": "/static/media/konami.acfa3935b34aea9aa5e9.png",
     "static/media/racing.png": "/static/media/racing.8e1c7d0ebefc797eed49.png",
     "static/media/bomba.png": "/static/media/bomba.18c675e986ad18b0e317.png",
-    "static/media/SSG.png": "/static/media/SSG.daf5f6ba27c77a360b08.png",
+    "static/media/ssg.png": "/static/media/ssg.daf5f6ba27c77a360b08.png",
     "static/media/myjp_icon.png": "/static/media/myjp_icon.94fc7732cb70c14e2283.png",
     "static/media/amatic.png": "/static/media/amatic.9df3c4ee3a9277426571.png",
     "static/media/netent.png": "/static/media/netent.199745f7fa8501f6ef63.png",
@@ -68,18 +68,18 @@
     "static/media/click.mp3": "/static/media/click.7ed8a16d3712767b0e61.mp3",
     "static/media/evoplay1.svg": "/static/media/evoplay1.af2d05204b3d898aca221a270dc2d79f.svg",
     "index.html": "/index.html",
-    "main.520285a0.css.map": "/static/css/main.520285a0.css.map",
-    "main.115fa0dc.js.map": "/static/js/main.115fa0dc.js.map",
+    "main.1ff51900.css.map": "/static/css/main.1ff51900.css.map",
+    "main.b7c05144.js.map": "/static/js/main.b7c05144.js.map",
     "919.ff589e5d.chunk.js.map": "/static/js/919.ff589e5d.chunk.js.map",
-    "556.2b50edcc.chunk.css.map": "/static/css/556.2b50edcc.chunk.css.map",
-    "556.c30b0d20.chunk.js.map": "/static/js/556.c30b0d20.chunk.js.map",
+    "399.d408d435.chunk.css.map": "/static/css/399.d408d435.chunk.css.map",
+    "399.e4d6c98d.chunk.js.map": "/static/js/399.e4d6c98d.chunk.js.map",
     "809.0515b556.chunk.js.map": "/static/js/809.0515b556.chunk.js.map",
     "479.b3e544f2.chunk.js.map": "/static/js/479.b3e544f2.chunk.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map",
     "538.1ab5a181.chunk.js.map": "/static/js/538.1ab5a181.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.520285a0.css",
-    "static/js/main.115fa0dc.js"
+    "static/css/main.1ff51900.css",
+    "static/js/main.b7c05144.js"
   ]
 }
