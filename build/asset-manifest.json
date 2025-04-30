@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.b3aacb79.css",
-    "main.js": "/static/js/main.2da07853.js",
+    "main.css": "/static/css/main.520285a0.css",
+    "main.js": "/static/js/main.115fa0dc.js",
     "static/js/919.ff589e5d.chunk.js": "/static/js/919.ff589e5d.chunk.js",
-    "static/css/786.9abad49f.chunk.css": "/static/css/786.9abad49f.chunk.css",
-    "static/js/786.dd7a0f31.chunk.js": "/static/js/786.dd7a0f31.chunk.js",
+    "static/css/556.2b50edcc.chunk.css": "/static/css/556.2b50edcc.chunk.css",
+    "static/js/556.c30b0d20.chunk.js": "/static/js/556.c30b0d20.chunk.js",
     "static/js/809.0515b556.chunk.js": "/static/js/809.0515b556.chunk.js",
     "static/js/479.b3e544f2.chunk.js": "/static/js/479.b3e544f2.chunk.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
-    "static/js/796.90dbc342.chunk.js": "/static/js/796.90dbc342.chunk.js",
+    "static/js/538.1ab5a181.chunk.js": "/static/js/538.1ab5a181.chunk.js",
     "static/media/bg_panoramic.jpg": "/static/media/bg_panoramic.ba1b258d4295268ac90f.jpg",
     "static/media/bgmusic.mp3": "/static/media/bgmusic.f79233631845e4bea9bc.mp3",
     "static/media/vegas.png": "/static/media/vegas.2aa5c25d8cf5be2649dc.png",
@@ -35,7 +35,7 @@
     "static/media/konami.png": "/static/media/konami.acfa3935b34aea9aa5e9.png",
     "static/media/racing.png": "/static/media/racing.8e1c7d0ebefc797eed49.png",
     "static/media/bomba.png": "/static/media/bomba.18c675e986ad18b0e317.png",
-    "static/media/ssg.png": "/static/media/ssg.daf5f6ba27c77a360b08.png",
+    "static/media/SSG.png": "/static/media/SSG.daf5f6ba27c77a360b08.png",
     "static/media/myjp_icon.png": "/static/media/myjp_icon.94fc7732cb70c14e2283.png",
     "static/media/amatic.png": "/static/media/amatic.9df3c4ee3a9277426571.png",
     "static/media/netent.png": "/static/media/netent.199745f7fa8501f6ef63.png",
@@ -59,23 +59,27 @@
     "static/media/botbutton_hover.png": "/static/media/botbutton_hover.baf0e76232d3c3abb74a.png",
     "static/media/jdb.svg": "/static/media/jdb.c0c33cdfc81daeef8abe83841844291c.svg",
     "static/media/microgaming.png": "/static/media/microgaming.1b250ea120f9b4f8c5bd.png",
+    "static/media/oxanium-latin-400-normal.woff": "/static/media/oxanium-latin-400-normal.111630aad333ee742075.woff",
+    "static/media/oxanium-latin-400-normal.woff2": "/static/media/oxanium-latin-400-normal.4994f0f3e4cb584d1a73.woff2",
     "static/media/slide.mp3": "/static/media/slide.a672fb224405f50868a9.mp3",
+    "static/media/oxanium-latin-ext-400-normal.woff": "/static/media/oxanium-latin-ext-400-normal.8b3230e33cdde31ea989.woff",
     "static/media/hacksaw.svg": "/static/media/hacksaw.572404cc29b7f89b45c965183f9cb8ef.svg",
+    "static/media/oxanium-latin-ext-400-normal.woff2": "/static/media/oxanium-latin-ext-400-normal.e9b66e0c370312950454.woff2",
     "static/media/click.mp3": "/static/media/click.7ed8a16d3712767b0e61.mp3",
     "static/media/evoplay1.svg": "/static/media/evoplay1.af2d05204b3d898aca221a270dc2d79f.svg",
     "index.html": "/index.html",
-    "main.b3aacb79.css.map": "/static/css/main.b3aacb79.css.map",
-    "main.2da07853.js.map": "/static/js/main.2da07853.js.map",
+    "main.520285a0.css.map": "/static/css/main.520285a0.css.map",
+    "main.115fa0dc.js.map": "/static/js/main.115fa0dc.js.map",
     "919.ff589e5d.chunk.js.map": "/static/js/919.ff589e5d.chunk.js.map",
-    "786.9abad49f.chunk.css.map": "/static/css/786.9abad49f.chunk.css.map",
-    "786.dd7a0f31.chunk.js.map": "/static/js/786.dd7a0f31.chunk.js.map",
+    "556.2b50edcc.chunk.css.map": "/static/css/556.2b50edcc.chunk.css.map",
+    "556.c30b0d20.chunk.js.map": "/static/js/556.c30b0d20.chunk.js.map",
     "809.0515b556.chunk.js.map": "/static/js/809.0515b556.chunk.js.map",
     "479.b3e544f2.chunk.js.map": "/static/js/479.b3e544f2.chunk.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map",
-    "796.90dbc342.chunk.js.map": "/static/js/796.90dbc342.chunk.js.map"
+    "538.1ab5a181.chunk.js.map": "/static/js/538.1ab5a181.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b3aacb79.css",
-    "static/js/main.2da07853.js"
+    "static/css/main.520285a0.css",
+    "static/js/main.115fa0dc.js"
   ]
 }
