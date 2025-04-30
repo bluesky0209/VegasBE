@@ -170,9 +170,12 @@ export const createUser = async (req: Request, res: Response) => {
         newuser.password = newuser.generateHash(user.password);
         newuser.permissionId = ObjectId(user.permissionId);
         newuser.status = true;
-        const c2gaming = await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
+        let c2gaming = await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
         if (!c2gaming) {
-            await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
+            c2gaming = await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
+        }
+        if (!c2gaming) {
+            return res.status(400).json('error');
         }
         const u_result = await newuser.save();
         if (!u_result) {
