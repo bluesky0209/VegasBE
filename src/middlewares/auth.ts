@@ -49,16 +49,13 @@ export const verifyToken = async (req: any, res: Response, next: NextFunction) =
 export const verifyAdminToken = async (req: any, res: Response, next: NextFunction) => {
     try {
         const token = req.headers.token;
-        console.log(token, 'token')
         if (!token || token != process.env.ADMIN_TOKEN) {
-            console.log('Unauthorized1')
             return res.status(401).json({ error: 'Unauthorized' });
         } else if (adminPathList.includes(req.path)) {
             next();
         } else {
             const accessToken = req.headers.authorization;
             if (!accessToken) {
-                console.log('Unauthorized2')
                 return res.status(401).json({ error: 'Unauthorized' });
             } else {
                 const user = await Sessions.findOneAndUpdate({ accessToken }, { expiration: getSessionTime() }).populate('userId');
@@ -66,7 +63,6 @@ export const verifyAdminToken = async (req: any, res: Response, next: NextFuncti
                     req.user = user.userId;
                     next();
                 } else {
-                    console.log('Unauthorized3')
                     return res.status(401).json({ error: 'Unauthorized' });
                 }
             }

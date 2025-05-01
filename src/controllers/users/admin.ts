@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import {
+    decrypt,
+    encrypt,
     // checkLimiter, 
     // usernameLimiter, 
     // ipLimiter,
@@ -150,15 +152,10 @@ export const signup = async (req: Request, res: Response) => {
         });
     }
 };
+
 export const createUser = async (req: Request, res: Response) => {
     try {
         const user = req.body;
-        // const emailExists = await Users.findOne({
-        //     email: { $regex: new RegExp('^' + user.email.toLowerCase(), 'i') }
-        // });
-        // if (emailExists) {
-        //     return res.status(400).json(`${user.email} is used by another account.`);
-        // }
         const usernameExists = await Users.findOne({
             username: { $regex: new RegExp('^' + user.username.toLowerCase(), 'i') }
         });
@@ -259,8 +256,16 @@ export const list = async (req: Request, res: Response) => {
     }
     const count = await Users.countDocuments(query);
     if (!pageSize || !page) {
-        const results = await Users.aggregate([{ $match: query }, ...aggregateQuery]);
-        return res.json({ results, count });
+        const results = await Users.aggregate([
+            { $match: query },
+            ...aggregateQuery
+        ]);
+        const decryptedResults = results.map(user => ({
+            ...user,
+            password: decrypt(user.password)
+        }));
+
+        return res.json({ results: decryptedResults, count });
     } else {
         const results = await Users.aggregate([
             { $match: query },
@@ -268,7 +273,11 @@ export const list = async (req: Request, res: Response) => {
             { $skip: (page - 1) * pageSize },
             { $limit: pageSize }
         ]);
-        return res.json({ results, count });
+        const decryptedResults = results.map(user => ({
+            ...user,
+            password: decrypt(user.password)
+        }));
+        return res.json({ results: decryptedResults, count });
     }
 };
 
@@ -312,9 +321,12 @@ export const addlabel = async (req: Request, res: Response) => {
 };
 
 export const updateOne = async (req: Request, res: Response) => {
+    let { username, password, permissionId } = req.body;
+    password = encrypt(password);
     const query = { _id: ObjectId(req.params.id) };
-    await Users.updateOne(query, req.body);
+    await Users.updateOne(query, { username, password, permissionId });
     const result = await Users.aggregate([{ $match: query }, ...aggregateQuery]);
+    result[0].password = decrypt(result[0].password);
     return res.json(result[0]);
 };
 

@@ -3,33 +3,32 @@ import { CasinoGameLists } from '../../models';
 import { Request, Response } from 'express';
 
 export const get = async (req: Request, res: Response) => {
-    const result = await CasinoGameLists.find().sort({ status: -1, order: 1, createdAt: -1 }).populate('detail.system');
+    const result = await CasinoGameLists.find().sort({ status: -1, order: 1, createdAt: -1 });
     return res.json(result);
 };
 
 export const getOne = async (req: Request, res: Response) => {
     const result = await CasinoGameLists.findOne({
         _id: ObjectId(req.params.id)
-    }).populate('detail.system');
+    });
     return res.json(result);
 };
 
 export const list = async (req: Request, res: Response) => {
     const { pageSize = null, page = null, providerId = null } = req.body;
+    console.log(pageSize, page, providerId, "pageSize, page, providerId");
     let query = {} as any;
     if (providerId) {
-        query["detail.system"] = providerId;
+        query[""] = providerId;
     }
     const count = await CasinoGameLists.countDocuments(query);
     if (!pageSize || !page) {
-        const results = await CasinoGameLists.find(query).sort({ status: -1, order: 1, createdAt: -1 }).populate('detail.system');
+        const results = await CasinoGameLists.find(query);
         return res.json({ results, count });
     } else {
         const results = await CasinoGameLists.find(query)
             .limit(pageSize)
-            .skip((page - 1) * pageSize)
-            .sort({ status: -1, order: 1, createdAt: -1 })
-            .populate('detail.system');
+            .skip((page - 1) * pageSize);
         return res.json({ results, count });
     }
 };

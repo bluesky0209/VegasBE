@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import * as bcrypt from 'bcrypt-nodejs';
+import { decrypt, encrypt } from '../../controllers/base';
 
 const UsersSchema = new Schema(
     {
@@ -89,11 +90,14 @@ const UsersSchema = new Schema(
 );
 
 UsersSchema.methods.generateHash = (password: string) => {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+    // Using encrypt() from base.ts to allow decryption later
+    // return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+    return encrypt(password);
 };
 
 UsersSchema.methods.validPassword = (password: string, encrypted: string) => {
-    return bcrypt.compareSync(password, encrypted);
+    // return bcrypt.compareSync(password, encrypted);
+    return decrypt(encrypted) === password;
 };
 
 UsersSchema.pre('findOneAndUpdate', function () {
@@ -105,6 +109,10 @@ UsersSchema.pre('findOne', function () {
 });
 
 UsersSchema.pre('find', function () {
+    this.populate('permissionId', ['title']);
+});
+
+UsersSchema.pre('findById', function () {
     this.populate('permissionId', ['title']);
 });
 

@@ -5,6 +5,7 @@ import * as geoip from 'geoip-country';
 import * as requestIp from 'request-ip';
 import * as nodemailer from 'nodemailer';
 import * as moment from 'moment-timezone';
+import * as bcrypt from 'bcrypt-nodejs';
 import 'dotenv/config';
 import mongoose, { ObjectId as ObjectIdType } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
@@ -50,6 +51,10 @@ export const decrypt = (text: string): string => {
     } catch (e) {
         return '';
     }
+};
+
+export const decryptPassword = (password: string, hash: string): boolean => {
+    return bcrypt.compareSync(password, hash);
 };
 
 export const getIPAddress = (req: Request) => {
