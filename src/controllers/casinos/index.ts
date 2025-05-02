@@ -7,7 +7,7 @@ import { CronJob } from 'cron';
 import moment = require('moment-timezone');
 
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
-    const { id, provider, gname, page = 1, pageSize = 20, sort } = req.body;
+    const { id, provider, gname, page = 1, pageSize = 20, filter } = req.body;
     let query: any = { status: true }
     const skyx = ['pp', 'tada', 'hacksaw', 'jdb', 'jili']
     if (provider) {
@@ -25,6 +25,9 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
         } else {
             query.SectionId = provider;
         }
+    }
+    if (filter) {
+        query.Name = { $regex: `^${filter}`, $options: 'i' }
     }
     const count = await CasinoGameLists.countDocuments(query);
     const result = await CasinoGameLists.find(query)
