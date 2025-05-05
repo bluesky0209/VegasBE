@@ -245,7 +245,7 @@ export const list = async (req: Request, res: Response) => {
     const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId } = req.body;
     const permission = await Permissions.findById(ObjectId(permissionId));
     const findRole = await Permissions.findOne({ title: role });
-    console.log(findRole.order, permission.order);
+    console.log(findRole, permission, "data");
     if (findRole.order <= permission.order) {
         return res.status(403).json('You are not authorized to access this page.');
     }
