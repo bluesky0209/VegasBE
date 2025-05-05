@@ -242,55 +242,60 @@ export const getOne = async (req: Request, res: Response) => {
 
 //admin -> users list
 export const list = async (req: Request, res: Response) => {
-    const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId } = req.body;
-    const permission = await Permissions.findById(ObjectId(permissionId));
-    const findRole = await Permissions.findOne({ title: role });
-    console.log(findRole, permission, "data");
-    if (findRole.order <= permission.order) {
-        return res.status(403).json('You are not authorized to access this page.');
-    }
-    let query = {} as any;
-    if (role) {
-        query.role = role;
-    }
-    if (parentId) {
-        query.parent[role] = ObjectId(parentId);
-    }
+    try {
+        const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId } = req.body;
+        const permission = await Permissions.findById(ObjectId(permissionId));
+        console.log(role, "role")
+        const findRole = await Permissions.findOne({ title: 'player' });
+        console.log(findRole, permission, "data");
+        if (findRole.order <= permission.order) {
+            return res.status(403).json('You are not authorized to access this page.');
+        }
+        let query = {} as any;
+        if (role) {
+            query.role = role;
+        }
+        if (parentId) {
+            query.parent[role] = ObjectId(parentId);
+        }
 
-    if (playerId) {
-        query._id = ObjectId(playerId);
-    }
+        if (playerId) {
+            query._id = ObjectId(playerId);
+        }
 
-    if (status !== '' && status !== undefined) {
-        query.status = status;
-    }
+        if (status !== '' && status !== undefined) {
+            query.status = status;
+        }
 
-    if (date && date[0] && date[1]) {
-        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
-    }
-    const count = await Users.countDocuments(query);
-    if (!pageSize || !page) {
-        const results = await Users.aggregate([
-            { $match: query }
-        ]);
-        const decryptedResults = results.map(user => ({
-            ...user,
-            password: decrypt(user.password)
-        }));
+        if (date && date[0] && date[1]) {
+            query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+        }
+        const count = await Users.countDocuments(query);
+        if (!pageSize || !page) {
+            const results = await Users.aggregate([
+                { $match: query }
+            ]);
+            const decryptedResults = results.map(user => ({
+                ...user,
+                password: decrypt(user.password)
+            }));
 
-        return res.json({ results: decryptedResults, count });
-    } else {
-        const results = await Users.aggregate([
-            { $match: query },
-            ...aggregateQuery,
-            { $skip: (page - 1) * pageSize },
-            { $limit: pageSize }
-        ]);
-        const decryptedResults = results.map(user => ({
-            ...user,
-            password: decrypt(user.password)
-        }));
-        return res.json({ results: decryptedResults, count });
+            return res.json({ results: decryptedResults, count });
+        } else {
+            const results = await Users.aggregate([
+                { $match: query },
+                ...aggregateQuery,
+                { $skip: (page - 1) * pageSize },
+                { $limit: pageSize }
+            ]);
+            const decryptedResults = results.map(user => ({
+                ...user,
+                password: decrypt(user.password)
+            }));
+            return res.json({ results: decryptedResults, count });
+        }
+    } catch (e) {
+        console.log(e, "error")
     }
 };
 
