@@ -4,8 +4,49 @@ import { decrypt, encrypt } from '../../controllers/base';
 
 const UsersSchema = new Schema(
     {
+        id: {
+            type: Number,
+            unique: true
+        },
+        parent: {
+            superagent: {
+                type: String,
+                ref: 'users'
+            },
+            agent: {
+                type: String,
+                ref: 'users'
+            },
+            cashier: {
+                type: String,
+                ref: 'users'
+            }
+
+        },
+        count: {
+            superagent: {
+                type: Number,
+                default: 0
+            },
+            agent: {
+                type: Number,
+                default: 0
+            },
+            cashier: {
+                type: Number,
+                default: 0
+            },
+            player: {
+                type: Number,
+                default: 0
+            }
+        },
+        role: {
+            type: String,
+            default: 'player'
+        },
         email: {
-            type: String
+            type: String,
         },
         password: {
             type: String,
@@ -15,31 +56,16 @@ const UsersSchema = new Schema(
             type: String,
             unique: true
         },
-        bankGroup: {
+        name: {
             type: String
         },
         balance: {
             type: Number,
             default: 0
         },
-        nick: {
-            type: String
-        },
-        firstname: {
-            type: String,
-            default: ''
-        },
-        lastname: {
-            type: String,
-            default: ''
-        },
         permissionId: {
             type: Schema.Types.ObjectId,
             ref: 'permissions'
-        },
-        avatar: {
-            type: String,
-            default: ''
         },
         ip: {
             type: String
@@ -77,10 +103,6 @@ const UsersSchema = new Schema(
             type: Number,
             default: 0
         },
-        isVerify: {
-            type: Boolean,
-            default: false,
-        },
         status: {
             type: Boolean,
             default: true
@@ -101,19 +123,23 @@ UsersSchema.methods.validPassword = (password: string, encrypted: string) => {
 };
 
 UsersSchema.pre('findOneAndUpdate', function () {
-    this.populate('permissionId', ['title']);
+    this.populate('permissionId', ['title', 'order']);
 });
 
 UsersSchema.pre('findOne', function () {
-    this.populate('permissionId', ['title']);
+    this.populate('permissionId', ['title', 'order']);
 });
 
 UsersSchema.pre('find', function () {
-    this.populate('permissionId', ['title']);
+    this.populate('permissionId', ['title', 'order']);
 });
 
 UsersSchema.pre('findById', function () {
-    this.populate('permissionId', ['title']);
+    this.populate('permissionId', ['title', 'order']);
+});
+
+UsersSchema.pre('findByIdAndUpdate', function () {
+    this.populate('permissionId', ['title', 'order']);
 });
 
 export const Users = model('users', UsersSchema);

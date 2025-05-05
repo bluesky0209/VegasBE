@@ -89,7 +89,9 @@ export const Validator = {
             CreateUser: Joi.object({
                 username: Joi.string().min(4).max(30).required(),
                 password: Joi.string().min(4).max(30).required(),
-                permissionId: Joi.string().min(24).max(24).required()
+                permissionId: Joi.string().min(24).max(24).required(),
+                userId: Joi.string().min(24).max(24).required(),
+                role: Joi.string().min(1).max(30).required()
             }),
             ChangePassword: Joi.object({
                 userId: Joi.string().min(24).max(24).required(),
@@ -102,13 +104,18 @@ export const Validator = {
                 status: Joi.boolean().optional(),
                 userId: Joi.string().min(24).max(24).optional(),
                 permission: Joi.string().min(24).max(24).optional(),
-                date: Joi.array().optional()
+                date: Joi.array().optional(),
+                role: Joi.string().required(),
+                permissionId: Joi.string().min(24).max(24).required(),
+                parentId: Joi.string().min(24).max(24).optional(),
+                playerId: Joi.string().min(24).max(24).optional()
             })
         },
         Permission: {
             List: Joi.object({
                 pageSize: Joi.number().min(1).max(100).optional(),
-                page: Joi.number().min(0).optional()
+                page: Joi.number().min(0).optional(),
+                order: Joi.number().min(0).optional()
             }),
             Update: Joi.object({
                 _id: Joi.string().min(24).max(24).optional(),

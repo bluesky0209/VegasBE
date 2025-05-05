@@ -2,11 +2,11 @@ import { Schema, model } from 'mongoose';
 
 const PermissionsSchema = new Schema(
     {
-        title: {
+        title: { //name
             type: String,
             required: true
         },
-        order: {
+        order: { //level
             type: Number,
             default: 0
         }

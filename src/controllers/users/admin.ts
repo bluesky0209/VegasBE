@@ -26,34 +26,14 @@ const aggregateQuery = [
         }
     },
     {
-        $lookup: {
-            from: 'balances',
-            localField: '_id',
-            foreignField: 'userId',
-            as: 'balance'
-        }
-    },
-    {
-        $lookup: {
-            from: 'currencies',
-            localField: 'balance.currency',
-            foreignField: '_id',
-            as: 'currency'
-        }
-    },
-    {
         $unwind: '$permission'
-    },
-    {
-        $project: {
-            'currency.abi': 0
-        }
     },
     {
         $sort: { createdAt: 1 }
     }
 ] as any;
 
+//admin panel login
 export const signin = async (req: Request, res: Response) => {
     const { password, username } = req.body;
     if (!password || !username) return res.status(400).json('Invalid field!');
@@ -75,7 +55,7 @@ export const signin = async (req: Request, res: Response) => {
     if (!user) {
         // checkLimiter(req, res);
         return res.status(400).json(`We can't find with this email or username.`);
-    } else if (user.permissionId.title !== 'admin') {
+    } else if (user.permissionId.order > 4) {
         // checkLimiter(req, res);
         return res.status(400).json(`You can't access here.`);
     } else if (!user.validPassword(password, user.password)) {
@@ -99,10 +79,9 @@ export const signin = async (req: Request, res: Response) => {
             _id: user._id,
             email: user.email,
             username: user.username,
+            permission: user.permissionId,
+            role: user.role,
             avatar: user.avatar,
-            cryptoAccount: user.cryptoAccount,
-            publicAddress: user.publicAddress,
-            oddsformat: user.oddsformat,
             token: process.env.ADMIN_TOKEN
         };
         const sessionData = {
@@ -153,41 +132,68 @@ export const signup = async (req: Request, res: Response) => {
     }
 };
 
-export const createUser = async (req: Request, res: Response) => {
+export const create = async (req: Request, res: Response) => {
+    const { role, userId, username, password, permissionId } = req.body;
     try {
-        const user = req.body;
+        const permission = await Permissions.findById(ObjectId(permissionId));
+        const createRole = await Permissions.findOne({ title: role });
+        if (createRole.order !== permission.order + 1) {
+            return res.status(403).json('You can\'t create this role.');
+        }
         const usernameExists = await Users.findOne({
-            username: { $regex: new RegExp('^' + user.username.toLowerCase(), 'i') }
+            username: { $regex: new RegExp('^' + username.toLowerCase(), 'i') }
         });
         if (usernameExists) {
-            return res.status(400).json(`An account named '${user.username}' already exists.`);
+            return res.status(400).json(`An account named '${username}' already exists.`);
         }
 
-        let newuser = new Users(user);
-        newuser.password = newuser.generateHash(user.password);
-        newuser.permissionId = ObjectId(user.permissionId);
+        // Update parent user's count
+        const parentUser = await Users.findByIdAndUpdate(
+            ObjectId(userId),
+            { $inc: { [`count.${role.toLowerCase()}`]: 1 } }
+        );
+
+        // Update all parent users' counts recursively
+        const updateParentCounts = async (parentPermissions: any) => {
+            for (const [roles, username] of Object.entries(parentPermissions)) {
+                await Users.findOneAndUpdate(
+                    { username },
+                    { $inc: { [`count.${role.toLowerCase()}`]: 1 } }
+                );
+            }
+        };
+        await updateParentCounts(parentUser.parent);
+
+        const parentPermissions = { ...parentUser.parent, [permission.title]: parentUser.username };
+
+        let newuser = new Users({
+            username,
+            password,
+            permissionId: createRole._id,
+            role,
+            parent: parentPermissions
+        });
+        newuser.password = newuser.generateHash(password);
         newuser.status = true;
-        let c2gaming = await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
-        if (!c2gaming) {
-            c2gaming = await setPlayer({ Id: user.username, BankGroupId: 'GoldenBet_USD', Nick: user.username });
-        }
-        if (!c2gaming) {
-            return res.status(400).json('error');
+        newuser.id = await Users.countDocuments() + 1;
+        if (createRole.title === 'player') {
+            let c2gaming = await setPlayer({ Id: username, BankGroupId: 'GoldenBet_USD', Nick: username });
+            if (!c2gaming) {
+                c2gaming = await setPlayer({ Id: username, BankGroupId: 'GoldenBet_USD', Nick: username });
+            }
+            if (!c2gaming) {
+                return res.status(400).json('error');
+            }
         }
         const u_result = await newuser.save();
         if (!u_result) {
             return res.status(400).json('error');
         } else {
-            const populatedUser = await Users.findById(u_result._id).populate('permissionId', ['title']).lean().then(doc => {
-                if (doc && doc.permissionId) {
-                    doc.permission = doc.permissionId;
-                    delete doc.permissionId;
-                }
-                return doc;
-            });
-            return res.json(
-                populatedUser
-            );
+            const result = await Users.aggregate([
+                { $match: { _id: u_result._id } },
+                ...aggregateQuery
+            ]);
+            return res.json(result[0]);
         }
     } catch (e) {
         console.log(e);
@@ -234,31 +240,37 @@ export const getOne = async (req: Request, res: Response) => {
     return res.json(result[0]);
 };
 
+//admin -> users list
 export const list = async (req: Request, res: Response) => {
-    const { status, pageSize = null, page = null, userId = null, permission = null, date = null, country = null } = req.body;
+    const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId } = req.body;
+    const permission = await Permissions.findById(ObjectId(permissionId));
+    const findRole = await Permissions.findOne({ title: role });
+    if (findRole.order <= permission.order) {
+        return res.status(403).json('You are not authorized to access this page.');
+    }
     let query = {} as any;
-    if (userId) {
-        query._id = ObjectId(userId);
+    if (role) {
+        query.role = role;
     }
-    if (permission) {
-        query.permissionId = ObjectId(permission);
+    if (parentId) {
+        query.parent[role] = ObjectId(parentId);
     }
-    if (country) {
-        query.country = {
-            $regex: new RegExp('^' + country.toLowerCase(), 'i')
-        };
+
+    if (playerId) {
+        query._id = ObjectId(playerId);
     }
+
     if (status !== '' && status !== undefined) {
         query.status = status;
     }
+
     if (date && date[0] && date[1]) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
     }
     const count = await Users.countDocuments(query);
     if (!pageSize || !page) {
         const results = await Users.aggregate([
-            { $match: query },
-            ...aggregateQuery
+            { $match: query }
         ]);
         const decryptedResults = results.map(user => ({
             ...user,

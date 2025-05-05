@@ -50,25 +50,25 @@ export const verifyAdminToken = async (req: any, res: Response, next: NextFuncti
     try {
         const token = req.headers.token;
         if (!token || token != process.env.ADMIN_TOKEN) {
-            return res.status(401).json({ error: 'Unauthorized' });
+            return res.status(401).json({ error: 'Unauthorized1' });
         } else if (adminPathList.includes(req.path)) {
             next();
         } else {
             const accessToken = req.headers.authorization;
             if (!accessToken) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return res.status(401).json({ error: 'Unauthorized2' });
             } else {
                 const user = await Sessions.findOneAndUpdate({ accessToken }, { expiration: getSessionTime() }).populate('userId');
-                if (user && user.userId && user.userId.status && user.userId.permissionId.title === 'admin') {
+                if (user && user.userId && user.userId.status && user.userId.permissionId.order < 4) {
                     req.user = user.userId;
                     next();
                 } else {
-                    return res.status(401).json({ error: 'Unauthorized' });
+                    return res.status(401).json({ error: 'Unauthorized3' });
                 }
             }
         }
     } catch (err) {
-        console.log('Unauthorized4')
+        console.log('Unauthorized')
         return res.status(401).json({ error: 'Unauthorized' });
     }
 };

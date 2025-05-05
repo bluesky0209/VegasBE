@@ -13,8 +13,11 @@ export const getOne = async (req: Request, res: Response) => {
 };
 
 export const list = async (req: Request, res: Response) => {
-    const { pageSize = null, page = null } = req.body;
-    let query = {};
+    const { pageSize = null, page = null, order = null } = req.body;
+    let query: any = {};
+    if (order) {
+        query.order = order;
+    }
     const count = await Permissions.countDocuments(query);
     if (!pageSize || !page) {
         const results = await Permissions.find(query);
