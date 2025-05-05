@@ -244,17 +244,26 @@ export const getOne = async (req: Request, res: Response) => {
 export const list = async (req: Request, res: Response) => {
     try {
         const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId } = req.body;
+
+        // Check permissions
         const permission = await Permissions.findById(ObjectId(permissionId));
         const findRole = await Permissions.findOne({ title: role });
         if (findRole.order <= permission.order) {
             return res.status(403).json('You are not authorized to access this page.');
         }
-        let query = {} as any;
+
+        // Build query
+        const query: any = {};
+
         if (role) {
             query.role = role;
         }
-        if (parentId) {
-            query.parent[role] = ObjectId(parentId);
+
+        if (permission.title !== 'admin' && parentId) {
+            const parent = await Users.findById(ObjectId(parentId));
+            query.parent = {
+                [permission.title]: parent.username
+            };
         }
 
         if (playerId) {
@@ -266,34 +275,38 @@ export const list = async (req: Request, res: Response) => {
         }
 
         if (date && date[0] && date[1]) {
-            query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+            query.createdAt = {
+                $gte: new Date(date[0]),
+                $lte: new Date(date[1])
+            };
         }
-        const count = await Users.countDocuments(query);
-        if (!pageSize || !page) {
-            const results = await Users.aggregate([
-                { $match: query }
-            ]);
-            const decryptedResults = results.map(user => ({
-                ...user,
-                password: decrypt(user.password)
-            }));
 
-            return res.json({ results: decryptedResults, count });
-        } else {
-            const results = await Users.aggregate([
-                { $match: query },
+        // Get total count
+        const count = await Users.countDocuments(query);
+
+        // Get paginated results
+        const aggregatePipeline = [
+            { $match: query },
+            ...(pageSize && page ? [
                 ...aggregateQuery,
                 { $skip: (page - 1) * pageSize },
                 { $limit: pageSize }
-            ]);
-            const decryptedResults = results.map(user => ({
-                ...user,
-                password: decrypt(user.password)
-            }));
-            return res.json({ results: decryptedResults, count });
-        }
+            ] : [])
+        ];
+
+        const results = await Users.aggregate(aggregatePipeline);
+
+        // Decrypt passwords
+        const decryptedResults = results.map(user => ({
+            ...user,
+            password: decrypt(user.password)
+        }));
+
+        return res.json({ results: decryptedResults, count });
+
     } catch (e) {
-        console.log(e, "error")
+        console.log(e, "error");
+        return res.status(500).json('Server error');
     }
 };
 

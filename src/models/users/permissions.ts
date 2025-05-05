@@ -8,7 +8,8 @@ const PermissionsSchema = new Schema(
         },
         order: { //level
             type: Number,
-            default: 0
+            default: 0,
+            unique: true
         }
     },
     { timestamps: true }

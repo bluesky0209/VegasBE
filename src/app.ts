@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import 'regenerator-runtime';
-import * as cors from 'cors';
 import * as path from 'path';
 import * as morgan from 'morgan';
+import * as cors from 'cors';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as bodyParser from 'body-parser';

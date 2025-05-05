@@ -59,7 +59,7 @@ export const launchGame = async (req: Request, rep: Response) => {
     const { PlayerId, GameId } = req.body;
     try {
         const res = await client.post(`/api/v1/game/launch?UserID=${PlayerId}&GameID=${GameId}&Language=en`);
-        console.log(res.data?.data, "url")
+        console.log(res.data?.data?.Url, "url")
         if (res.data?.data) {
             return rep.json({ result: { SessionUrl: res.data.data.Url } })
         }
