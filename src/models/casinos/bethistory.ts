@@ -19,7 +19,7 @@ const CasinoBetHistorySchema = new Schema({
     },
     amount: {
         type: Number,
-        required: true
+        default: 0
     },
     transactionRef: {
         type: String,
@@ -47,6 +47,9 @@ const CasinoBetHistorySchema = new Schema({
         type: String //bet and rollback
     },
     provider: {
+        type: String
+    },
+    aggregator: {
         type: String
     }
 }, { timestamps: true })
