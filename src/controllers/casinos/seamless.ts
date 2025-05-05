@@ -241,7 +241,7 @@ export const skyTransfer = async (req: Request, rep: Response) => {
                 gameRoundRef: RoundID,
                 currency: 'USD',
                 win: Reason === 'win' ? Amount : 0,
-                bet: Reason === 'bet' ? Amount : 0,
+                bet: Reason === 'bet' ? Math.abs(Amount) : 0,
                 gameId: GameID,
                 gameName: game.Name,
                 type: Reason,
