@@ -24,7 +24,7 @@ export const createPlayer = async (userId: String) => {
     }
 };
 
-export const getGameLists = async () => {
+export const getGameListSkyxspin = async () => {
     try {
         const type = ['Slot game', 'Multiplayer game', 'Card game', 'Lottery game'];
         const res = await client.post(`/api/v1/game/list?Language=en`);
@@ -39,7 +39,8 @@ export const getGameLists = async () => {
                             Name: game.Name,
                             Type: type[game.Type],
                             Icon: game.IconUrl,
-                            aggregator: 'skyxspin'
+                            aggregator: 'skyxspin',
+                            SectionId: game.ID.split("_")[0]
                         });
                     } catch (err) {
                         console.log("Error creating game:", err);

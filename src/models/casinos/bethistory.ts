@@ -5,6 +5,10 @@ const CasinoBetHistorySchema = new Schema({
         type: String,
         required: true,
     },
+    gameName: {
+        type: String,
+        required: true,
+    },
     username: {
         type: String,
         required: true,
@@ -21,12 +25,23 @@ const CasinoBetHistorySchema = new Schema({
         type: String,
         required: true
     },
+    gameRoundRef: {
+        type: String,
+    },
     currency: {
         type: String,
         default: "USD"
     },
     spinDetails: {
         type: Object
+    },
+    win: {
+        type: Number,
+        default: 0
+    },
+    bet: {
+        type: Number,
+        default: 0
     },
     type: {
         type: String //bet and rollback

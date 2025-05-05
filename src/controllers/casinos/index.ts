@@ -1,15 +1,12 @@
 
 import 'dotenv/config';
 import 'regenerator-runtime';
-import { CasinoBetHistory, CasinoCategories, CasinoGameLists, CasinoProviders, Users } from '../../models';
+import { CasinoGameLists, CasinoProviders } from '../../models';
 import { Request, Response } from 'express';
-import { CronJob } from 'cron';
-import moment = require('moment-timezone');
 
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
     const { id, provider, gname, page = 1, pageSize = 20, filter } = req.body;
     let query: any = { status: true }
-    const skyx = ['pp', 'tada', 'hacksaw', 'jdb', 'jili']
     if (provider) {
         if (provider === 'tablegames') {
             query.Tags = { $in: ["Table Game"] }
@@ -17,10 +14,6 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
             query.$or = [
                 { SectionId: "fishing" },
                 { SectionId: "spadegaming" }
-            ];
-        } else if (skyx.includes(provider)) {
-            query.$or = [
-                { aggregator: 'skyxspin', Id: { $regex: `^${provider}_` } }
             ];
         } else {
             query.SectionId = provider;

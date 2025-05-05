@@ -1,5 +1,5 @@
 import { generatInfo, handleBet, NumberFix, ObjectId } from '../base';
-import { CasinoBetHistory, CasinoProviders, Users } from '../../models';
+import { CasinoBetHistory, CasinoGameLists, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
 //c2gaming
@@ -28,17 +28,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
                 console.log("callerId =>", callerId, "playerName=>", playerName, "withdraw=>", withdraw, "deposit=>", deposit, "currency=>", currency, "transactionRef=>", transactionRef, "gameRoundRef=>", gameRoundRef, "gameId=>", gameId, "reason=>", reason, "sessionId=>", sessionId, "sessionAlternativeId=>", sessionAlternativeId, "chargeFreerounds=>", chargeFreerounds, "bonusId=>", bonusId, "spinDetails=>", spinDetails)
                 const amount = (deposit - withdraw) / 100;
-                // if (currency === 'USD') {
-                //     console.log("The currency is not supported.")
-                //     return rep.json({
-                //         jsonrpc: "2.0",
-                //         id: 0,
-                //         error: {
-                //             "code": 2,
-                //             "message": "The currency is not supported."
-                //         }
-                //     });
-                // }
+
                 if (deposit < 0) {
                     console.log("The depoist amount is not valid.")
                     return rep.json({
@@ -62,11 +52,14 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     });
                 }
                 // Run user check and transaction check in parallel
-                const [user, existingTransaction] = await Promise.all([
+                const [user, existingTransaction, game] = await Promise.all([
                     Users.findOne({ username: playerName }),
                     CasinoBetHistory.findOne({
                         transactionRef,
                         username: playerName
+                    }),
+                    CasinoGameLists.findOne({
+                        Id: gameId
                     })
                 ]);
 
@@ -106,13 +99,18 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     CasinoBetHistory.create({
                         username: playerName,
                         userId: user._id,
-                        amount,
+                        amount: -amount,
                         transactionRef,
                         currency,
                         gameId,
-                        type: 'bet',
+                        gameRoundRef,
+                        win: deposit,
+                        bet: withdraw,
+                        gameName: game.gameName,
+                        type: amount > 0 ? 'win' : 'bet',
                         spinDetails,
-                        provider: 'c2gaming'
+                        aggregator: 'c2gaming',
+                        provider: game.SectionId
                     })
                 ]);
                 console.log(req.body.id, NumberFix(updatedBalance.balance * 100, 5), betHistory.transactionRef, "updatedBalance.balance")
@@ -199,13 +197,30 @@ export const skyTransfer = async (req: Request, rep: Response) => {
     try {
         const { UserID, TransactionID, Amount, RoundID, GameID, ReqTime, Reason, IsEnd } = req.body;
         console.log(UserID, TransactionID, Amount, RoundID, GameID, ReqTime, Reason, IsEnd, "")
-        const [user, existingTransaction] = await Promise.all([
-            Users.findOne({ username: UserID }),
+
+        const user = await Users.findOne({ username: UserID });
+
+        if (Amount === 0) {
+            console.log("Amount is 0")
+            return rep.json({
+                "code": 0,
+                "error": "",
+                "data": {
+                    "Balance": NumberFix(user.balance, 5)
+                }
+            });
+        }
+
+        const [existingTransaction, game] = await Promise.all([
             CasinoBetHistory.findOne({
                 transactionRef: TransactionID,
                 username: UserID
+            }),
+            CasinoGameLists.findOne({
+                Id: GameID
             })
         ]);
+
         const [updatedBalance, betHistory] = await Promise.all([
             handleBet({
                 req,
@@ -216,26 +231,35 @@ export const skyTransfer = async (req: Request, rep: Response) => {
                 info: TransactionID,
                 status: true
             }),
-            CasinoBetHistory.create({
+            CasinoBetHistory.findOneAndUpdate({
+                transactionRef: TransactionID
+            }, {
                 username: UserID,
                 userId: user._id,
                 amount: Amount,
                 transactionRef: TransactionID,
+                gameRoundRef: RoundID,
                 currency: 'USD',
+                win: Reason === 'win' ? Amount : 0,
+                bet: Reason === 'bet' ? Amount : 0,
                 gameId: GameID,
+                gameName: game.gameName,
                 type: Reason,
-                provider: 'skyxspin'
+                aggregator: 'skyxspin',
+                provider: game.SectionId
+            }, {
+                upsert: true,
+                new: true
             })
         ]);
-        return rep.json(
-            {
-                "code": 0,
-                "error": "",
-                "data": {
-                    "Balance": NumberFix(updatedBalance.balance, 5)
-                }
+
+        return rep.json({
+            "code": 0,
+            "error": "",
+            "data": {
+                "Balance": NumberFix(updatedBalance.balance, 5)
             }
-        )
+        });
     } catch (e) {
         console.log(e)
         return rep.json({

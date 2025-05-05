@@ -1,6 +1,8 @@
 import { ObjectId } from '../base';
 import { CasinoGameLists } from '../../models';
 import { Request, Response } from 'express';
+import { getGameListSkyxspin } from './skyxspin';
+import { getGameListC2Gaming } from './api';
 
 export const get = async (req: Request, res: Response) => {
     const result = await CasinoGameLists.find().sort({ status: -1, order: 1, createdAt: -1 });
@@ -15,11 +17,14 @@ export const getOne = async (req: Request, res: Response) => {
 };
 
 export const list = async (req: Request, res: Response) => {
-    const { pageSize = null, page = null, providerId = null } = req.body;
-    console.log(pageSize, page, providerId, "pageSize, page, providerId");
+    const { pageSize = null, page = null, providerId = null, update = false } = req.body;
+    if (update) {
+        await getGameListSkyxspin();
+        await getGameListC2Gaming({ id: 1744970985003, BankGroupId: 'GoldenBet_USD' });
+    }
     let query = {} as any;
     if (providerId) {
-        query[""] = providerId;
+        query.SectionId = providerId;
     }
     const count = await CasinoGameLists.countDocuments(query);
     if (!pageSize || !page) {

@@ -167,7 +167,7 @@ export const createDemo = async (req: Request, rep: Response) => {
         console.error('❌ Error:', err.response?.data || err.message);
     }
 }
-export const getGameList = async ({ id, BankGroupId }: { id: Number, BankGroupId: string }) => {
+export const getGameListC2Gaming = async ({ id, BankGroupId }: { id: Number, BankGroupId: string }) => {
     // const { id, BankGroupId } = req.body;
     try {
         const res = await client.post('/', {
@@ -181,7 +181,7 @@ export const getGameList = async ({ id, BankGroupId }: { id: Number, BankGroupId
             for (const game of res.data.result.Games) {
                 const existingGame = await CasinoGameLists.findOne({ Id: game.Id });
                 if (!existingGame) {
-                    await CasinoGameLists.create(game);
+                    await CasinoGameLists.create({ ...game, aggregator: 'c2gaming' });
                 }
             }
         }

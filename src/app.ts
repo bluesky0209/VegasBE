@@ -20,8 +20,8 @@ import routes3 from './routes3';
 import { RetrunValidation } from './middlewares/validation';
 import { checkUrl, corsOptionsDelegate } from './middlewares/auth';
 import { clientErrorHandler, logErrors } from './controllers/base';
-import { createBankGroup, createDemo, createSession, getGameList, setPlayer } from './controllers/casinos/api';
-import { getGameLists } from './controllers/casinos/skyxspin';
+import { createBankGroup, createDemo, createSession, setPlayer } from './controllers/casinos/api';
+import { getGameListSkyxspin } from './controllers/casinos/skyxspin';
 const config = require('../config');
 
 const app = express();
