@@ -106,7 +106,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         gameRoundRef,
                         win: deposit,
                         bet: withdraw,
-                        gameName: game.gameName,
+                        gameName: game.Name,
                         type: amount > 0 ? 'win' : 'bet',
                         spinDetails,
                         aggregator: 'c2gaming',
@@ -243,7 +243,7 @@ export const skyTransfer = async (req: Request, rep: Response) => {
                 win: Reason === 'win' ? Amount : 0,
                 bet: Reason === 'bet' ? Amount : 0,
                 gameId: GameID,
-                gameName: game.gameName,
+                gameName: game.Name,
                 type: Reason,
                 aggregator: 'skyxspin',
                 provider: game.SectionId
