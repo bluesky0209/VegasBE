@@ -232,21 +232,23 @@ export const skyTransfer = async (req: Request, rep: Response) => {
                 status: true
             }),
             CasinoBetHistory.findOneAndUpdate({
-                transactionRef: TransactionID
+                gameRoundRef: RoundID
             }, {
-                username: UserID,
-                userId: user._id,
-                amount: Amount,
-                transactionRef: TransactionID,
-                gameRoundRef: RoundID,
-                currency: 'USD',
-                win: Reason === 'win' && Amount,
-                bet: Reason === 'bet' && Math.abs(Amount),
-                gameId: GameID,
-                gameName: game.Name,
-                type: Reason,
-                aggregator: 'skyxspin',
-                provider: game.SectionId
+                $inc: { amount: Amount },
+                $set: {
+                    username: UserID,
+                    userId: user._id,
+                    transactionRef: TransactionID,
+                    gameRoundRef: RoundID,
+                    currency: 'USD',
+                    win: Reason === 'win' && Amount,
+                    bet: Reason === 'bet' && Math.abs(Amount),
+                    gameId: GameID,
+                    gameName: game.Name,
+                    type: Reason,
+                    aggregator: 'skyxspin',
+                    provider: game.SectionId
+                }
             }, {
                 upsert: true,
                 new: true
