@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkkbl_vegas_app=self.webpackChunkkbl_vegas_app||[]).push([[919],{1919:(e,s,a)=>{a.r(s),a.d(s,{default:()=>c});var l=a(5043),p=a(2250),t=a(3003);const c=e=>{let{children:s}=e;const a=(0,p.Zp)(),{isLoggedIn:c}=(0,t.d4)((e=>e.auth));return(0,l.useEffect)((()=>{c||a("/login",{replace:!0})}),[c,a]),s}}}]);
-//# sourceMappingURL=919.ff589e5d.chunk.js.map
