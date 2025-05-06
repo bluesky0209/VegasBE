@@ -243,7 +243,7 @@ export const getOne = async (req: Request, res: Response) => {
 //admin -> users list
 export const list = async (req: Request, res: Response) => {
     try {
-        const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId } = req.body;
+        const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId, search } = req.body;
 
         // Check permissions
         const permission = await Permissions.findById(ObjectId(permissionId));
@@ -257,6 +257,10 @@ export const list = async (req: Request, res: Response) => {
 
         if (role) {
             query.role = role;
+        }
+
+        if (search) {
+            query.username = { $regex: new RegExp(search.toLowerCase(), 'i') };
         }
 
         if (permission.title !== 'admin' && parentId) {

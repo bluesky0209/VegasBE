@@ -1,4 +1,4 @@
-import { CasinoBankGroup, CasinoBonus, CasinoGameLists, Users } from '../../models';
+import { CasinoBankGroup, CasinoBonus, CasinoGameLists, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
 const axios = require('axios');
@@ -182,6 +182,13 @@ export const getGameListC2Gaming = async ({ id, BankGroupId }: { id: Number, Ban
                 const existingGame = await CasinoGameLists.findOne({ Id: game.Id });
                 if (!existingGame) {
                     await CasinoGameLists.create({ ...game, aggregator: 'c2gaming' });
+                }
+                const existingProvider = await CasinoProviders.findOne({ Id: game.SectionId });
+                if (!existingProvider) {
+                    await CasinoProviders.create({
+                        Id: game.SectionId,
+                        Name: game.SectionId
+                    });
                 }
             }
         }

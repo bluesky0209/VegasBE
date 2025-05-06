@@ -1,17 +1,13 @@
 import { Schema, model } from 'mongoose';
 
 const CasinoProvidersSchema = new Schema({
-    System: {
+    Id: {
         type: String,
     },
     Name: {
         type: String,
     },
-    Categories: {
-        type: Array,
-        default: []
-    },
-    Status: {
+    status: {
         type: Boolean,
         default: true
     }

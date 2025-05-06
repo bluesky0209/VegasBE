@@ -20,7 +20,7 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
         }
     }
     if (filter) {
-        query.Name = { $regex: `^${filter}`, $options: 'i' }
+        query.Name = { $regex: new RegExp(filter.toLowerCase(), 'i') }
     }
     const count = await CasinoGameLists.countDocuments(query);
     const result = await CasinoGameLists.find(query)

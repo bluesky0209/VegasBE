@@ -16,15 +16,22 @@ export const getOne = async (req: Request, res: Response) => {
     return res.json(result);
 };
 
+//admin panel game lists
 export const list = async (req: Request, res: Response) => {
-    const { pageSize = null, page = null, providerId = null, update = false } = req.body;
+    const { pageSize = null, page = null, provider = null, update = false, filter, aggregator } = req.body;
     if (update) {
         await getGameListSkyxspin();
         await getGameListC2Gaming({ id: 1744970985003, BankGroupId: 'GoldenBet_USD' });
     }
     let query = {} as any;
-    if (providerId) {
-        query.SectionId = providerId;
+    if (provider && provider !== 'all') {
+        query.SectionId = provider;
+    }
+    if (filter) {
+        query.Name = { $regex: new RegExp(filter.toLowerCase(), 'i') }
+    }
+    if (aggregator) {
+        query.aggregator = aggregator;
     }
     const count = await CasinoGameLists.countDocuments(query);
     if (!pageSize || !page) {
@@ -65,7 +72,7 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const updateOne = async (req: Request, res: Response) => {
-    const result = await CasinoGameLists.findByIdAndUpdate(ObjectId(req.params.id), req.body, { new: true }).populate('detail.system');
+    const result = await CasinoGameLists.findByIdAndUpdate(ObjectId(req.params.id), req.body, { new: true });
     return res.json(result);
 };
 

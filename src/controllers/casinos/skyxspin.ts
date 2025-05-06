@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
-import { CasinoGameLists } from '../../models/casinos';
+import { CasinoGameLists, CasinoProviders } from '../../models/casinos';
 
 const client = axios.create({
     baseURL: process.env.SKYXSPIN_ENDPOINT,
@@ -45,6 +45,13 @@ export const getGameListSkyxspin = async () => {
                     } catch (err) {
                         console.log("Error creating game:", err);
                     }
+                }
+                const existingProvider = await CasinoProviders.findOne({ Id: game.ID.split("_")[0] });
+                if (!existingProvider) {
+                    await CasinoProviders.create({
+                        Id: game.ID.split("_")[0],
+                        Name: game.ID.split("_")[0]
+                    });
                 }
             }
         } else {

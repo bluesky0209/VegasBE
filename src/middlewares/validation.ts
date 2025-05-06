@@ -108,7 +108,8 @@ export const Validator = {
                 role: Joi.string().required(),
                 permissionId: Joi.string().min(24).max(24).required(),
                 parentId: Joi.string().min(24).max(24).optional(),
-                playerId: Joi.string().min(24).max(24).optional()
+                playerId: Joi.string().min(24).max(24).optional(),
+                search: Joi.string().allow('').optional()
             })
         },
         Permission: {
