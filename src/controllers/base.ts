@@ -146,6 +146,7 @@ export const handleBet = async ({
         if (status && req) {
             const session = await Sessions.findOne({ userId });
             if (session?.socketId) {
+                console.log('session.socketId', req.app.get('io'));
                 req.app.get('io').to(session.socketId).emit('balance', {
                     balance: currentBalance
                 });
