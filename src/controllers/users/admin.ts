@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+    balanceUpdate,
     decrypt,
     encrypt,
     // checkLimiter, 
@@ -133,7 +134,7 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const create = async (req: Request, res: Response) => {
-    const { role, userId, username, password, permissionId } = req.body;
+    const { role, userId, username, password, permissionId, balance } = req.body;
     try {
         const permission = await Permissions.findById(ObjectId(permissionId));
         const createRole = await Permissions.findOne({ title: role });
@@ -186,7 +187,10 @@ export const create = async (req: Request, res: Response) => {
                 return res.status(400).json('error');
             }
         }
-        const u_result = await newuser.save();
+        let u_result = await newuser.save();
+        if (balance > 0) {
+            u_result = await balanceUpdate({ req, userId: u_result._id, amount: balance, type: 'In', payuserId: userId, typeDetail: 'deposit' });
+        }
         if (!u_result) {
             return res.status(400).json('error');
         } else {
