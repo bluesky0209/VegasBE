@@ -275,11 +275,10 @@ export const Validator = {
         },
         Games: {
             List: Joi.object({
-                cases: Joi.string().min(3).max(24).optional(),
                 userId: Joi.string().min(24).max(24).optional(),
                 currency: Joi.string().min(3).max(24).optional(),
-                gameId: Joi.string().min(0).max(15).optional(),
-                providerId: Joi.string().min(1).max(24).optional(),
+                gameName: Joi.string().min(0).max(15).optional(),
+                provider: Joi.string().min(1).max(24).optional(),
                 status: Joi.string().valid('BET', 'WIN').optional(),
                 sort: Joi.number().valid(-1, 1).optional(),
                 column: Joi.string().min(1).optional(),

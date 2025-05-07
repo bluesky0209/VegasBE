@@ -54,7 +54,7 @@ export const list = async (req: Request, res: Response) => {
         date = null,
         parentName
     } = req.body;
-    // const adminUser = await Users.findById(userId);
+    const adminUser = await Users.findById(userId);
     // if (adminUser.role !== 'admin') {
 
     // } else {
@@ -66,6 +66,10 @@ export const list = async (req: Request, res: Response) => {
     // }
     let query = {} as any;
     let sortQuery = { createdAt: -1 } as any;
+    if (userId && adminUser.role !== 'admin') {
+        query['parent.' + adminUser.role] = adminUser.username;
+    }
+    console.log('query', query);
     // if (type) {
     //     query.type = type;
     // }

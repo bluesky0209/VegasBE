@@ -6,51 +6,13 @@ const aggregateQuery = [
     {
         $lookup: {
             from: 'users',
-            localField: 'USERID',
+            localField: 'userId',
             foreignField: '_id',
             as: 'user'
         }
     },
     {
-        $lookup: {
-            from: 'currencies',
-            localField: 'betting.origin_currency',
-            foreignField: 'symbol',
-            as: 'currency'
-        }
-    },
-    {
-        $lookup: {
-            from: 'casino_providers',
-            localField: 'gameId',
-            foreignField: 'System',
-            as: 'provider'
-        }
-    },
-    // {
-    //     $lookup: {
-    //         from: 'casino_gamelists',
-    //         localField: 'GAMEID',
-    //         foreignField: 'gameId',
-    //         as: 'game'
-    //     }
-    // },
-    {
         $unwind: '$user'
-    },
-    // {
-    //     $unwind: '$game'
-    // }, 
-    {
-        $unwind: '$currency'
-    },
-    // {
-    //     $unwind: '$provider'
-    // },
-    {
-        $project: {
-            'currency.abi': 0
-        }
     },
     {
         $sort: { createdAt: -1 }
@@ -79,12 +41,12 @@ export const list = async (req: Request, res: Response) => {
         userId = null,
         currency = null,
         status = null,
-        providerId = null,
+        provider = null,
         date = null,
         sort = null,
         cases = null,
         column = null,
-        gameId = null
+        gameName = null
     } = req.body;
     let query = {} as any;
     let sortQuery = { createdAt: -1 } as any;
@@ -92,16 +54,13 @@ export const list = async (req: Request, res: Response) => {
         sortQuery = { [column]: sort ? sort : 1 };
     }
     if (userId) {
-        query.USERID = ObjectId(userId);
+        query.userId = ObjectId(userId);
     }
-    if (currency) {
-        query["betting.origin_currency"] = currency;
+    if (provider) {
+        query.provider = provider;
     }
-    if (providerId) {
-        query.GAMEID = providerId;
-    }
-    if (gameId) {
-        query["betting.i_gameid"] = gameId;
+    if (gameName) {
+        query.gameName = gameName;
     }
     if (status) {
         query.TYPE = status;
@@ -109,6 +68,7 @@ export const list = async (req: Request, res: Response) => {
     if (date && date[0] && date[1]) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
     }
+    console.log(query)
 
     let count = await CasinoBetHistory.countDocuments(query);
 
