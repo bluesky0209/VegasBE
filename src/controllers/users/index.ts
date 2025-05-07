@@ -66,6 +66,8 @@ export const signin = async (req: Request, res: Response) => {
     } else if (!user.status) {
         // checkLimiter(req, res);
         return res.status(400).json('Account has been blocked.');
+    } else if (user.role !== 'player') {
+        return res.status(400).json('You are not authorized to access this page.');
     } else {
         const session = signAccessToken(req, res, user._id);
         const LoginHistory = new LoginHistories({

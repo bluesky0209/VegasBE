@@ -175,7 +175,8 @@ export const create = async (req: Request, res: Response) => {
         });
         newuser.password = newuser.generateHash(password);
         newuser.status = true;
-        newuser.id = await Users.countDocuments() + 1;
+        const lastUser = await Users.findOne().sort({ id: -1 });
+        newuser.id = (lastUser?.id || 0) + 1;
         if (createRole.title === 'player') {
             let c2gaming = await setPlayer({ Id: username, BankGroupId: 'GoldenBet_USD', Nick: username });
             if (!c2gaming) {
@@ -265,9 +266,7 @@ export const list = async (req: Request, res: Response) => {
 
         if (permission.title !== 'admin' && parentId) {
             const parent = await Users.findById(ObjectId(parentId));
-            query.parent = {
-                [permission.title]: parent.username
-            };
+            query['parent.' + permission.title] = parent.username;
         }
 
         if (playerId) {
@@ -284,7 +283,6 @@ export const list = async (req: Request, res: Response) => {
                 $lte: new Date(date[1])
             };
         }
-
         // Get total count
         const count = await Users.countDocuments(query);
 

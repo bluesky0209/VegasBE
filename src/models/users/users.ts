@@ -63,6 +63,10 @@ const UsersSchema = new Schema(
             type: Number,
             default: 0
         },
+        bonus: {
+            type: Number,
+            default: 0
+        },
         permissionId: {
             type: Schema.Types.ObjectId,
             ref: 'permissions'

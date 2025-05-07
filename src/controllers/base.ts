@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 import 'dotenv/config';
 import mongoose, { ObjectId as ObjectIdType } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Sessions, Users, BalanceHistories } from '../models';
+import { Sessions, Users, BalanceHistories, Payments } from '../models';
 const config = require('../../config');
 
 export const maxFailsByLogin = 3;
@@ -166,6 +166,77 @@ export const toNumber = (number: number, fixed = 5) => {
         return Number(Number(number).toFixed(fixed));
     }
 };
+
+export const balanceUpdate = async ({
+    req,
+    userId,
+    amount,
+    type,
+    payuserId,
+    typeDetail
+}: {
+    req?: any | undefined;
+    userId: string;
+    amount: number;
+    type: string;
+    payuserId?: string;
+    typeDetail?: string;
+}) => {
+    // Find and update user balance
+    const result = await Users.findOneAndUpdate(
+        { _id: ObjectId(userId) },
+        { $inc: { balance: NumberFix(amount) } },
+        {
+            new: true,
+            populate: {
+                path: 'permissionId',
+                select: 'title',
+                model: 'permissions'
+            }
+        }
+    )
+        .select('+password')
+        .lean();
+
+    // Transform result if user found
+    if (result) {
+        // Decrypt password and restructure permission data
+        result.password = decrypt(result.password);
+        result.permission = result.permissionId;
+        delete result.permissionId;
+    }
+    const currentBalance = NumberFix(result.balance);
+    const beforeBalance = NumberFix(result.balance - amount);
+    const lastPayment = await Payments.findOne().sort({ id: -1 });
+    const nextId = lastPayment ? lastPayment.id + 1 : 1;
+    await Payments.create({
+        id: nextId,
+        userId,
+        parent: result.parent,
+        payuserId,
+        amount,
+        type,
+        typeDetail,
+        afterBalance: currentBalance,
+        afterBonus: 0
+    });
+    await BalanceHistories.create({
+        userId: userId,
+        amount: NumberFix(amount),
+        type,
+        currentBalance,
+        beforeBalance,
+        info: new Date().getTime() + Math.random(),
+        createdAt: new Date(Date.now()),
+        updatedAt: new Date(Date.now()),
+    });
+    if (result.status && !result.disabled && req) {
+        const session = await Sessions.findOne({ userId: result.userId });
+        if (session && session.socketId) req.app.get('io').to(session.socketId).emit('balance', { balance: result.balance });
+    }
+    return result;
+};
+
 
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
     try {

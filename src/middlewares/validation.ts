@@ -93,6 +93,16 @@ export const Validator = {
                 userId: Joi.string().min(24).max(24).required(),
                 role: Joi.string().min(1).max(30).required()
             }),
+            Deposit: Joi.object({
+                userId: Joi.string().min(24).max(24).required(),
+                amount: Joi.number().required(),
+                payuserId: Joi.string().min(24).max(24).required()
+            }),
+            Withdraw: Joi.object({
+                userId: Joi.string().min(24).max(24).required(),
+                amount: Joi.number().required(),
+                payuserId: Joi.string().min(24).max(24).required()
+            }),
             ChangePassword: Joi.object({
                 userId: Joi.string().min(24).max(24).required(),
                 newpass: Joi.string().min(8).max(30).required()

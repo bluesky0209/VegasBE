@@ -1,3 +1,4 @@
+import { Users } from "../../models";
 import { Payments } from "../../models/payments/payments";
 import { ObjectId } from "../base";
 import { Request, Response } from 'express';
@@ -14,23 +15,18 @@ const aggregateQuery = [
     },
     {
         $lookup: {
-            from: 'currencies',
-            localField: 'currencyId',
+            from: 'users',
+            localField: 'payuserId',
             foreignField: '_id',
-            as: 'currency'
+            as: 'payuser'
         }
     },
     {
         $unwind: '$user'
     },
     {
-        $unwind: '$currency'
+        $unwind: '$payuser'
     },
-    // {
-    //     $project: {
-    //         'currency.abi': 0
-    //     }
-    // },
     {
         $sort: { createdAt: -1 }
     }
@@ -52,32 +48,37 @@ export const list = async (req: Request, res: Response) => {
         page = null,
         userId = null,
         type = null,
-        currency = null,
+        payuserId = null,
         sort = null,
         column = null,
         date = null,
-        method
+        parentName
     } = req.body;
+    // const adminUser = await Users.findById(userId);
+    // if (adminUser.role !== 'admin') {
+
+    // } else {
+
+    // }
+    // const parentUser = await Users.findOne({ username: parentName });
+    // if (adminUser.role !== 'admin' && parentUser.parent[adminUser.role] !== adminUser.username) {
+    //     return res.json({ error: "You are not authorized to access this data" });
+    // }
     let query = {} as any;
     let sortQuery = { createdAt: -1 } as any;
-    if (userId) {
-        query.userId = ObjectId(userId);
-    }
-    if (type) {
-        query.ipn_type = type;
-    }
-    if (currency) {
-        query.currencyId = ObjectId(currency);
-    }
-    if (date && date[0] && date[1]) {
-        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
-    }
+    // if (type) {
+    //     query.type = type;
+    // }
+    // if (payuserId) {
+    //     query.payuserId = ObjectId(payuserId);
+    // }
+    // if (date && date[0] && date[1]) {
+    //     query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    // }
     if (column) {
         sortQuery = { [column]: sort ? sort : 1 };
     }
-    if (method !== '' && method !== undefined) {
-        query.method = method;
-    }
+
     const count = await Payments.countDocuments(query);
     if (!pageSize || !page) {
         const results = await Payments.aggregate([{ $match: query }, ...aggregateQuery, { $sort: sortQuery }]);
