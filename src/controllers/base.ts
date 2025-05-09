@@ -164,18 +164,18 @@ export const handleBet = async ({
                     { $set: { status: 'confirmed' } }
                 );
 
-                await Promise.all(bonusData.map(item =>
-                    balanceUpdate({
-                        req,
-                        userId,
-                        amount: item.amount,
-                        type: 'In',
-                        payuserId: item.payuserId,
-                        typeDetail: item.type === 'cashback' ? 'Cashback Bonus' : 'HappyHour Bonus',
-                        bonusType: 'general',
-                        bonus: -item.amount
-                    })
-                ));
+                const totalAmount = bonusData.reduce((sum, item) => sum + item.amount, 0);
+
+                await balanceUpdate({
+                    req,
+                    userId,
+                    amount: totalAmount,
+                    type: 'In',
+                    payuserId: bonusData[0]?.payuserId,
+                    typeDetail: 'Bonus Rewards',
+                    bonusType: 'general',
+                    bonus: -totalAmount
+                });
 
             }
         }
