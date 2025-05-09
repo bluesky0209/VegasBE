@@ -189,7 +189,7 @@ export const create = async (req: Request, res: Response) => {
         }
         let u_result = await newuser.save();
         if (balance > 0) {
-            u_result = await balanceUpdate({ req, userId: u_result._id, amount: balance, type: 'In', payuserId: userId, typeDetail: 'deposit' });
+            u_result = await balanceUpdate({ req, userId: u_result._id, amount: balance, type: 'In', payuserId: userId, typeDetail: 'deposit', bonusType: 'general', bonus: 0 });
         }
         if (!u_result) {
             return res.status(400).json('error');
