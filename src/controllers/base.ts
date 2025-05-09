@@ -173,14 +173,14 @@ export const handleBet = async ({
                         payuserId: item.payuserId,
                         typeDetail: item.type === 'cashback' ? 'Cashback Bonus' : 'HappyHour Bonus',
                         bonusType: 'general',
-                        bonus: 0
+                        bonus: -item.amount
                     })
                 ));
 
             }
         }
 
-        if (user.bonusType === 'wager' && (user.balance - user.wagerBonus) > user.bonus * 7) {
+        if (user.bonusType === 'wager' && (user.balance - user.beforeBalance) > user.wagerBonus * 7) {
             user = await Users.findOneAndUpdate(
                 { _id: ObjectId(userId) },
                 { $set: { bonus: 0, bonusType: 'general', wagerBonus: 0 } },
@@ -273,7 +273,7 @@ export const balanceUpdate = async ({
         type,
         typeDetail,
         afterBalance: currentBalance,
-        afterBonus: 0
+        afterBonus: result.bonus
     });
     await BalanceHistories.create({
         userId: userId,
