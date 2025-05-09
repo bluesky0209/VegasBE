@@ -61,7 +61,7 @@ export const deposit = async (req: Request, res: Response) => {
                         type: bonusType,
                         status: config.status
                     });
-                    await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: amount });
+                    await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: amount, beforeBalance: user.balance });
                     await balanceUpdate({
                         req,
                         userId,
