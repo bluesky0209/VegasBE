@@ -83,7 +83,7 @@ export const signin = async (req: Request, res: Response) => {
             permission: user.permissionId,
             role: user.role,
             avatar: user.avatar,
-            token: user.role !== 'cashier' && process.env.ADMIN_TOKEN
+            token: process.env.ADMIN_TOKEN
         };
         const sessionData = {
             accessToken: session.accessToken,
