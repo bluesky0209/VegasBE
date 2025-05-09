@@ -49,7 +49,7 @@ export const verifyToken = async (req: any, res: Response, next: NextFunction) =
 export const verifyAdminToken = async (req: any, res: Response, next: NextFunction) => {
     try {
         const token = req.headers.token;
-        if (!token || token != process.env.ADMIN_TOKEN) {
+        if ((!token || token != process.env.ADMIN_TOKEN)) {
             return res.status(401).json({ error: 'Unauthorized1' });
         } else if (adminPathList.includes(req.path)) {
             next();
