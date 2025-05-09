@@ -134,7 +134,7 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const create = async (req: Request, res: Response) => {
-    const { role, userId, username, password, permissionId, balance } = req.body;
+    const { role, userId, username, password, permissionId, balance, bonusType, bonus } = req.body;
     try {
         const permission = await Permissions.findById(ObjectId(permissionId));
         const createRole = await Permissions.findOne({ title: role });
@@ -189,7 +189,7 @@ export const create = async (req: Request, res: Response) => {
         }
         let u_result = await newuser.save();
         if (balance > 0) {
-            u_result = await balanceUpdate({ req, userId: u_result._id, amount: balance, type: 'In', payuserId: userId, typeDetail: 'deposit', bonusType: 'general', bonus: 0 });
+            u_result = await balanceUpdate({ req, userId: u_result._id, amount: balance, type: 'In', payuserId: userId, typeDetail: 'deposit', bonusType: bonusType, bonus: bonus });
         }
         if (!u_result) {
             return res.status(400).json('error');
