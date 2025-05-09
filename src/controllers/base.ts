@@ -180,7 +180,7 @@ export const handleBet = async ({
             }
         }
 
-        if (user.bonusType === 'wager' && (user.balance - user.beforeBalance) > user.bonus * 7) {
+        if (user.bonusType === 'wager' && (user.balance - user.wagerBonus) > user.bonus * 7) {
             user = await Users.findOneAndUpdate(
                 { _id: ObjectId(userId) },
                 { $set: { bonus: 0, bonusType: 'general', wagerBonus: 0 } },
