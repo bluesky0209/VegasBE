@@ -67,6 +67,14 @@ const UsersSchema = new Schema(
             type: Number,
             default: 0
         },
+        wagerBonus: {
+            type: Number,
+            default: 0
+        },
+        bonusType: {
+            type: String,
+            default: 'general' //cashback,happyhour,wager
+        },
         permissionId: {
             type: Schema.Types.ObjectId,
             ref: 'permissions'

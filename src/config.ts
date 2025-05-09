@@ -6,6 +6,7 @@ export const ENCRYPTION = {
   ivLength: Number(process.env.IV_LENGTH || 16)
 };
 
+export const BONUSTYPE = ['cashback', 'happyhour', 'wager'];
 export const GAMES = {
   exampleGame: {
     minBetAmount: 1, // Min bet amount (in coins)

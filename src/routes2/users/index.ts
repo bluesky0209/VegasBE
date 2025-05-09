@@ -40,7 +40,6 @@ router.post('/signout', V.body(Validator.UserId), signout);
 router.post('/r-password', loginLimiter, V.body(Validator.Users.Auth.PasswordReset), passwordReset);
 router.post('/c-password', loginLimiter, V.body(Validator.Users.Auth.ChangePassword), verifyToken, checkUser, changePassword);
 
-router.post('/info', info);
-// router.post('/info', V.body(Validator.Users.Auth.Info), verifyToken, checkUser, info);
+router.post('/info', V.body(Validator.Users.Auth.Info), verifyToken, checkUser, info);
 
 export default router;

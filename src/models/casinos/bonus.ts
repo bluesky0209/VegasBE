@@ -10,5 +10,5 @@ const CasinoBonusSchema = new Schema({
     }
 }, { timestamps: true })
 
-export const CasinoBonus = model('bonus', CasinoBonusSchema);
+export const CasinoBonus = model('casinobonus', CasinoBonusSchema);
 

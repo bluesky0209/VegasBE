@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 import 'dotenv/config';
 import mongoose, { ObjectId as ObjectIdType } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Sessions, Users, BalanceHistories, Payments } from '../models';
+import { Sessions, Users, BalanceHistories, Payments, Bonus } from '../models';
 const config = require('../../config');
 
 export const maxFailsByLogin = 3;
@@ -116,7 +116,7 @@ export const handleBet = async ({
         // Find and update user balance
         const currentUser = await Users.findOne({ _id: ObjectId(userId) });
         const newBalance = Math.round((currentUser.balance + NumberFix(amount, 5)) * 100000) / 100000;
-        const user = await Users.findOneAndUpdate(
+        let user = await Users.findOneAndUpdate(
             { _id: ObjectId(userId) },
             { $set: { balance: newBalance } },
             { new: true }
@@ -141,6 +141,53 @@ export const handleBet = async ({
             createdAt: new Date(),
             updatedAt: new Date()
         });
+
+        if (user.bonusType && user.bonusType !== 'general' && user.balance < 1) {
+            if (user.bonusType === 'wager') {
+                user = await Users.findOneAndUpdate(
+                    { _id: ObjectId(userId) },
+                    { $set: { bonus: 0, bonusType: 'general', wagerBonus: 0 } },
+                    { new: true }
+                );
+            } else {
+                user = await Users.findOneAndUpdate(
+                    { _id: ObjectId(userId) },
+                    { $inc: { balance: user.bonus }, $set: { bonus: 0, bonusType: 'general' } },
+                    { new: true }
+                );
+                const bonusData = await Bonus.find(
+                    { userId: ObjectId(userId), type: { $in: ['cashback', 'happyhour'] } }
+                );
+
+                await Bonus.updateMany(
+                    { userId: ObjectId(userId), type: { $in: ['cashback', 'happyhour'] } },
+                    { $set: { status: 'confirmed' } }
+                );
+
+                await Promise.all(bonusData.map(item =>
+                    balanceUpdate({
+                        req,
+                        userId,
+                        amount: item.amount,
+                        type: 'In',
+                        payuserId: item.payuserId,
+                        typeDetail: item.type === 'cashback' ? 'Cashback Bonus' : 'HappyHour Bonus',
+                        bonusType: 'general',
+                        bonus: 0
+                    })
+                ));
+
+            }
+        }
+
+        if (user.bonusType === 'wager' && (user.balance - user.beforeBalance) > user.bonus * 7) {
+            user = await Users.findOneAndUpdate(
+                { _id: ObjectId(userId) },
+                { $set: { bonus: 0, bonusType: 'general', wagerBonus: 0 } },
+                { new: true }
+            );
+
+        }
 
         // Emit socket event if session exists
         if (status && req) {
@@ -173,7 +220,9 @@ export const balanceUpdate = async ({
     amount,
     type,
     payuserId,
-    typeDetail
+    typeDetail,
+    bonus,
+    bonusType
 }: {
     req?: any | undefined;
     userId: string;
@@ -181,11 +230,17 @@ export const balanceUpdate = async ({
     type: string;
     payuserId?: string;
     typeDetail?: string;
+    bonus?: number;
+    bonusType?: string;
 }) => {
+
     // Find and update user balance
     const result = await Users.findOneAndUpdate(
         { _id: ObjectId(userId) },
-        { $inc: { balance: NumberFix(amount) } },
+        {
+            $inc: { balance: NumberFix(amount), bonus: bonus },
+            $set: { bonusType: bonusType }
+        },
         {
             new: true,
             populate: {
