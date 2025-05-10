@@ -16,6 +16,7 @@ import {
     Users
 } from '../../models';
 import { setPlayer } from '../casinos/api';
+import { deposit } from '../balances';
 
 const aggregateQuery = [
     {
@@ -134,7 +135,7 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const create = async (req: Request, res: Response) => {
-    const { role, userId, username, password, permissionId, balance, bonusType, bonus } = req.body;
+    const { role, userId, username, password, permissionId, balance, bonusType } = req.body;
     try {
         const permission = await Permissions.findById(ObjectId(permissionId));
         const createRole = await Permissions.findOne({ title: role });
@@ -189,7 +190,11 @@ export const create = async (req: Request, res: Response) => {
         }
         let u_result = await newuser.save();
         if (balance > 0) {
-            u_result = await balanceUpdate({ req, userId: u_result._id, amount: balance, type: 'In', payuserId: userId, typeDetail: 'deposit', bonusType: bonusType, bonus: bonus });
+            req.body.payuserId = userId;
+            req.body.amount = balance;
+            req.body.userId = u_result._id;
+            req.body.bonusType = bonusType;
+            u_result = await deposit(req, res);
         }
         if (!u_result) {
             return res.status(400).json('error');
