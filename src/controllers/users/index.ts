@@ -25,7 +25,8 @@ const userInfo = (user: any) => {
         email: user.email,
         username: user.username,
         avatar: user.avatar,
-        balance: user.balance
+        balance: user.balance,
+        bonus: user.bonus
     };
 };
 

@@ -52,7 +52,8 @@ export const list = async (req: Request, res: Response) => {
         sort = null,
         column = null,
         date = null,
-        parentName
+        parentName,
+        filter
     } = req.body;
     const adminUser = await Users.findById(userId);
     // if (adminUser.role !== 'admin') {
@@ -68,6 +69,11 @@ export const list = async (req: Request, res: Response) => {
     let sortQuery = { createdAt: -1 } as any;
     if (userId && adminUser.role !== 'admin') {
         query['parent.' + adminUser.role] = adminUser.username;
+    }
+    if (filter) {
+        query['$or'] = [
+            { 'user.username': { $regex: filter, $options: 'i' } }
+        ]
     }
     console.log('query', query);
     // if (type) {
