@@ -87,6 +87,7 @@ export const Validator = {
                 password: Joi.string().min(8).max(30).required()
             }),
             CreateUser: Joi.object({
+                name: Joi.string().min(1).max(30).optional(),
                 username: Joi.string().min(4).max(30).required(),
                 password: Joi.string().min(4).max(30).required(),
                 permissionId: Joi.string().min(24).max(24).required(),

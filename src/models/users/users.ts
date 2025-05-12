@@ -83,6 +83,10 @@ const UsersSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'permissions'
         },
+        game: {
+            type: String,
+            default: null
+        },
         ip: {
             type: String
         },

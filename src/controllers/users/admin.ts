@@ -84,7 +84,7 @@ export const signin = async (req: Request, res: Response) => {
             permission: user.permissionId,
             role: user.role,
             avatar: user.avatar,
-            token: process.env.ADMIN_TOKEN
+            token: user.role === 'cashier' ? process.env.CASHIER_TOKEN : process.env.ADMIN_TOKEN
         };
         const sessionData = {
             accessToken: session.accessToken,
@@ -135,7 +135,7 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const create = async (req: Request, res: Response) => {
-    const { role, userId, username, password, permissionId, balance, bonusType } = req.body;
+    const { role, userId, username, password, permissionId, balance, bonusType, name } = req.body;
     try {
         const permission = await Permissions.findById(ObjectId(permissionId));
         const createRole = await Permissions.findOne({ title: role });
@@ -179,6 +179,7 @@ export const create = async (req: Request, res: Response) => {
         newuser.status = true;
         const lastUser = await Users.findOne().sort({ id: -1 });
         newuser.id = (lastUser?.id || 0) + 1;
+        newuser.name = name ?? username;
         if (createRole.title === 'player') {
             let c2gaming = await setPlayer({ Id: username, BankGroupId: 'GoldenBet_USD', Nick: username });
             if (!c2gaming) {

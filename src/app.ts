@@ -15,6 +15,7 @@ import rateLimit from 'express-rate-limit';
 import * as fs from 'fs';
 // import { createStream } from 'rotating-file-stream';
 import socket from './socket';
+import routes1 from './router1';
 import routes2 from './routes2';
 import routes3 from './routes3';
 import { RetrunValidation } from './middlewares/validation';
@@ -75,8 +76,8 @@ if (process.env.MODE === 'dev') {
 }
 
 const apiV1Limiter = rateLimit({
-    windowMs: 5 * 1000,
-    max: 10,
+    windowMs: 60 * 60 * 1000,
+    max: 3000,
     standardHeaders: true,
     legacyHeaders: false
 });
@@ -95,6 +96,7 @@ const apiV3Limiter = rateLimit({
     legacyHeaders: false
 });
 
+app.use('/api/v1/', apiV1Limiter, routes1); //user action
 app.use('/api/v2/', apiV2Limiter, routes2); //user action
 app.use('/api/v3/', apiV3Limiter, routes3);
 app.get('*', apiV2Limiter, (req: express.Request, res: express.Response) =>

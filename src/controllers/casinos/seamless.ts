@@ -86,7 +86,8 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 }
 
                 // Run balance update and bet history creation in parallel
-                const [updatedBalance, betHistory] = await Promise.all([
+                const [updateuser, updatedBalance, betHistory] = await Promise.all([
+                    Users.updateOne({ username: playerName }, { $set: { game: gameId } }),
                     handleBet({
                         req,
                         userId: user._id,
@@ -221,7 +222,8 @@ export const skyTransfer = async (req: Request, rep: Response) => {
             })
         ]);
 
-        const [updatedBalance, betHistory] = await Promise.all([
+        const [updateuser, updatedBalance, betHistory] = await Promise.all([
+            Users.updateOne({ username: UserID }, { $set: { game: GameID } }),
             handleBet({
                 req,
                 userId: user._id,
