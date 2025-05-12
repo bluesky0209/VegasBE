@@ -9,7 +9,6 @@ import {
     label,
     addlabel,
     signin,
-    signup,
     signout,
     changePassword,
     create

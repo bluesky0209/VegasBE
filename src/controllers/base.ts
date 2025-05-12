@@ -228,7 +228,7 @@ export const balanceUpdate = async ({
     userId: string;
     amount: number;
     type: string;
-    payuserId?: string;
+    payuserId: string;
     typeDetail?: string;
     bonus?: number;
     bonusType?: string;
@@ -287,6 +287,25 @@ export const balanceUpdate = async ({
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now()),
     });
+    const payuser = await Users.findOneAndUpdate(
+        { _id: ObjectId(payuserId), role: { $ne: 'admin' } },
+        {
+            $inc: { balance: NumberFix(-amount) },
+        },
+        { new: true }
+    );
+    if (payuser) {
+        await BalanceHistories.create({
+            userId: payuserId,
+            amount: NumberFix(-amount),
+            type,
+            currentBalance: payuser.balance,
+            beforeBalance: payuser.balance + amount,
+            info: new Date().getTime() + Math.random(),
+            createdAt: new Date(Date.now()),
+            updatedAt: new Date(Date.now()),
+        });
+    }
     if (result.status && !result.disabled && req) {
         const session = await Sessions.findOne({ userId: result.userId });
         if (session && session.socketId) req.app.get('io').to(session.socketId).emit('balance', { balance: result.balance });

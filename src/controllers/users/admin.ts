@@ -57,7 +57,7 @@ export const signin = async (req: Request, res: Response) => {
     if (!user) {
         // checkLimiter(req, res);
         return res.status(400).json(`We can't find with this email or username.`);
-    } else if (user.permissionId.order > 4) {
+    } else if (user.permissionId.order > 2) {
         // checkLimiter(req, res);
         return res.status(400).json(`You can't access here.`);
     } else if (!user.validPassword(password, user.password)) {
@@ -81,10 +81,12 @@ export const signin = async (req: Request, res: Response) => {
             _id: user._id,
             email: user.email,
             username: user.username,
+            name: user.name,
             permission: user.permissionId,
             role: user.role,
             avatar: user.avatar,
-            token: user.role === 'cashier' ? process.env.CASHIER_TOKEN : process.env.ADMIN_TOKEN
+            balance: user.balance,
+            token: process.env.ADMIN_TOKEN
         };
         const sessionData = {
             accessToken: session.accessToken,

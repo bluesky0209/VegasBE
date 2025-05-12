@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Bonus, Users } from '../../models';
+import { Bonus, CashierHistory, Users } from '../../models';
 import { balanceUpdate, ObjectId } from '../base';
 import { BONUSTYPE } from '../../config';
 
@@ -11,6 +11,10 @@ export const deposit = async (req: Request, res: Response) => {
             Users.findById(userId),
             Users.findById(payuserId)
         ]);
+
+        if (payuser.role !== 'admin' && payuser.balance < amount) {
+            return res.status(400).json('Insufficient balance');
+        }
 
         if (!user || !payuser) {
             return res.status(404).json('User not found');
@@ -72,6 +76,13 @@ export const deposit = async (req: Request, res: Response) => {
                         bonusType,
                         bonus: 0
                     });
+                    if (payuser.role === 'cashier') {
+                        await CashierHistory.create({
+                            userId: ObjectId(payuserId),
+                            content: `2xBONUS IN: ${amount.toFixed(2)} Player:${user.username} Bonus: 0%`,
+                            type: 'In'
+                        });
+                    }
                 } else {
                     bonus = amount * config.multiplier;
                     await Bonus.create({
@@ -81,7 +92,22 @@ export const deposit = async (req: Request, res: Response) => {
                         type: bonusType,
                         status: config.status
                     });
+                    if (payuser.role === 'cashier') {
+                        await CashierHistory.create({
+                            userId: ObjectId(payuserId),
+                            content: `In: ${amount.toFixed(2)} Player: ${user.username} Bonus: ${config.detail * 100}%`,
+                            type: 'In'
+                        });
+                    }
                 }
+            }
+        } else {
+            if (payuser.role === 'cashier') {
+                await CashierHistory.create({
+                    userId: ObjectId(payuserId),
+                    content: `In: ${amount.toFixed(2)} Player: ${user.username}`,
+                    type: 'In'
+                });
             }
         }
 
@@ -123,10 +149,32 @@ export const withdraw = async (req: Request, res: Response) => {
                 { new: true }
             );
             await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { bonus: 0, bonusType: 'general' });
+            if (payuser.role === 'cashier') {
+                await CashierHistory.create({
+                    userId: ObjectId(payuserId),
+                    content: `Out: ${-amount.toFixed(2)} Player: ${user.username}`,
+                    type: 'Out'
+                });
+            }
         } else if (user.bonusType === 'wager') {
             await Bonus.findOneAndUpdate({ userId: ObjectId(userId), type: user.bonusType }, { $set: { status: 'cancel' } }, { new: true });
             await balanceUpdate({ req, userId, amount: -user.wagerBonus, type: 'Out', payuserId, typeDetail: 'Wager Bonus Cancel', bonusType, bonus });
             await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: 0 });
+            if (payuser.role === 'cashier') {
+                await CashierHistory.create({
+                    userId: ObjectId(payuserId),
+                    content: `Success: Player: ${user.username}. Bonus canceled successfully. ${-amount.toFixed(2)} + ${user.wagerBonus?.toFixed(2)}`,
+                    type: 'Out'
+                });
+            }
+        } else {
+            if (payuser.role === 'cashier') {
+                await CashierHistory.create({
+                    userId: ObjectId(payuserId),
+                    content: `Out: ${-amount.toFixed(2)} Player: ${user.username}`,
+                    type: 'Out'
+                });
+            }
         }
         const result = await balanceUpdate({ req, userId, amount, type: 'Out', payuserId, typeDetail: 'withdraw', bonusType, bonus });
         return res.status(200).json(result);
@@ -135,4 +183,5 @@ export const withdraw = async (req: Request, res: Response) => {
         return res.status(500).json('Internal server error');
     }
 };
+
 

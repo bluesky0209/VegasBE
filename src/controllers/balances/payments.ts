@@ -73,7 +73,6 @@ export const list = async (req: Request, res: Response) => {
     if (filter) {
         query.username = { $regex: filter, $options: 'i' }
     }
-    console.log('query', query);
     // if (type) {
     //     query.type = type;
     // }
@@ -103,52 +102,6 @@ export const list = async (req: Request, res: Response) => {
     }
 };
 
-export const csv = async (req: Request, res: Response) => {
-    const { userId = null, type = null, currency = null, sort = null, column = null, date = null, method } = req.body;
-    let query = {} as any;
-    let sortQuery = { createdAt: -1 } as any;
-    if (userId) {
-        query.userId = ObjectId(userId);
-    }
-    if (type) {
-        query.ipn_type = type;
-    }
-    if (date && date[0] && date[1]) {
-        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
-    }
-    if (column) {
-        sortQuery = { [column]: sort ? sort : 1 };
-    }
-    if (currency) {
-        query.currencyId = currency;
-    }
-    if (method !== '' && method !== undefined) {
-        query.method = method;
-    }
-    const results = await Payments.aggregate([
-        { $match: query },
-        ...aggregateQuery,
-        { $sort: sortQuery },
-        {
-            $project: {
-                _id: 0,
-                ID: '$_id',
-                Username: '$user.username',
-                Email: '$user.email',
-                TransactionHash: '$txn_id',
-                Amount: {
-                    $concat: [{ $convert: { input: '$amount', to: 'string' } }, ' ', '$currency.symbol']
-                },
-                Address: '$address',
-                Status: '$status_text',
-                Type: '$ipn_type',
-                CreatedAt: '$updatedAt'
-            }
-        }
-    ]);
-    return res.json(results);
-};
-
 export const create = async (req: Request, res: Response) => {
     const result = await Payments.create(req.body);
     return res.json(result);
@@ -166,25 +119,148 @@ export const deleteOne = async (req: Request, res: Response) => {
     return res.json(result);
 };
 
-// when the admin approve the withdraw
-export const approveWithdrawal = async (req: Request, res: Response) => {
-    const { status, paymentId, type, txn_id } = req.body;
-    if (status === 'pending') {
-        await Payments.updateOne({ _id: ObjectId(paymentId) }, { status: -2, status_text: 'pending' });
-        return res.json(true);
-    } else if (status === 'approve') {
-        //when the admin sends the money about withdraw requests
-        if (type === 1) {
-        } else {
-            await Payments.updateOne({ _id: ObjectId(paymentId) }, { txn_id, status: 105, status_text: 'approve' });
-            return res.json(true);
+export const paymentReport = async (req: Request, res: Response) => {
+    const { userId } = req.body;
+
+    const results = await Payments.aggregate([
+
+        {
+            $match: {
+                payuserId: ObjectId(userId),
+                $or: [
+                    { type: 'In', typeDetail: 'deposit' },
+                    { type: 'Out', typeDetail: 'withdraw' }
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalIn: {
+                    $sum: {
+                        $cond: [{ $eq: ['$type', 'In'] }, '$amount', 0]
+                    }
+                },
+                totalOut: {
+                    $sum: {
+                        $cond: [{ $eq: ['$type', 'Out'] }, '$amount', 0]
+                    }
+                },
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                totalIn: 1,
+                totalOut: 1,
+                total: { $add: ['$totalIn', '$totalOut'] },
+            }
         }
-    } else if (status === 'confirmed') {
-        //when the admin withdraws
-        await Payments.updateOne({ _id: ObjectId(paymentId) }, { status: 2, status_text: 'confirmed' });
-        return res.json(true);
-    } else if (status === 'canceled') {
-        const payment = await Payments.findOneAndUpdate({ _id: ObjectId(paymentId) }, { status: -1, status_text: 'canceled' });
-        return res.json(true);
+    ]);
+    return res.json(results[0]);
+};
+
+
+
+export const paymentReportUser = async (req: Request, res: Response) => {
+    const { userId, date } = req.body;
+    let query = {} as any;
+    if (date && date[0] && date[1]) {
+        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    }
+    const results = await Payments.aggregate([
+        { $match: query },
+        {
+            $match: {
+                payuserId: ObjectId(userId),
+                $or: [
+                    {
+                        type: 'In'
+                    },
+                    {
+                        type: 'Out',
+                        typeDetail: 'withdraw'
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'userId',
+                foreignField: '_id',
+                as: 'user'
+            }
+        },
+        {
+            $unwind: '$user'
+        },
+        {
+            $group: {
+                _id: {
+                    username: '$username'
+                },
+                In: {
+                    $sum: {
+                        $cond: [{ $and: [{ $eq: ['$type', 'In'] }, { $eq: ['$typeDetail', 'deposit'] }] }, '$amount', 0]
+                    }
+                },
+                Out: {
+                    $sum: {
+                        $cond: [{ $eq: ['$type', 'Out'] }, '$amount', 0]
+                    }
+                },
+                bonus: {
+                    $sum: {
+                        $cond: [{
+                            $and: [
+                                { $eq: ['$type', 'In'] },
+                                { $in: ['$typeDetail', ['Wager Bonus', 'Happy Hour Bonus', 'Cashback Bonus', 'Wager Bonus Cancel', 'Happy Hour Bonus Cancel', 'Cashback Bonus Cancel']] }
+                            ]
+                        }, '$amount', 0]
+                    }
+                },
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                username: '$_id.username',
+                In: 1,
+                Out: 1,
+                bonus: 1,
+                name: '$user.name',
+            }
+        }
+    ]);
+    return res.json(results);
+};
+
+
+export const paymentsList = async (req: Request, res: Response) => {
+    const {
+        pageSize = null,
+        page = null,
+        userId = null,
+    } = req.body;
+    let query = {} as any;
+    let sortQuery = { createdAt: -1 } as any;
+
+    if (userId) {
+        query.userId = ObjectId(userId);
+    }
+
+    const count = await Payments.countDocuments(query);
+    if (!pageSize || !page) {
+        const results = await Payments.aggregate([{ $match: query }, { $sort: sortQuery }]);
+        return res.json({ results, count });
+    } else {
+        const results = await Payments.aggregate([
+            { $match: query },
+            { $sort: sortQuery },
+            { $skip: (page - 1) * pageSize },
+            { $limit: pageSize }
+        ]);
+        return res.json({ results, count });
     }
 };

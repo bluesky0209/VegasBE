@@ -81,10 +81,12 @@ export const signin = async (req: Request, res: Response) => {
             _id: user._id,
             email: user.email,
             username: user.username,
+            name: user.name,
             permission: user.permissionId,
             role: user.role,
             avatar: user.avatar,
-            token: user.role === 'cashier' ? process.env.CASHIER_TOKEN : process.env.ADMIN_TOKEN
+            balance: user.balance,
+            token: process.env.CASHIER_TOKEN
         };
         const sessionData = {
             accessToken: session.accessToken,
@@ -98,40 +100,6 @@ export const signin = async (req: Request, res: Response) => {
         });
     }
     // }
-};
-
-export const signup = async (req: Request, res: Response) => {
-    if (req.headers.password !== process.env.ADMIN_PASSWORD?.toString()) return res.status(400).json(`You can't access here.`);
-    const user = req.body;
-    const emailExists = await Users.findOne({
-        email: { $regex: new RegExp('^' + user.email.toLowerCase(), 'i') }
-    });
-    if (emailExists) {
-        return res.status(400).json(`${user.email} is used by another account.`);
-    }
-    const usernameExists = await Users.findOne({
-        username: { $regex: new RegExp('^' + user.username.toLowerCase(), 'i') }
-    });
-    if (usernameExists) {
-        return res.status(400).json(`An account named '${user.username}' already exists.`);
-    }
-
-    let newuser = new Users(user);
-    const permission = await Permissions.findOne({ title: 'admin' });
-    newuser.password = newuser.generateHash(user.password);
-    newuser.permissionId = permission._id;
-    newuser.status = true;
-
-    const u_result = await newuser.save();
-    if (!u_result) {
-        return res.status(400).json('error');
-    } else {
-        const populatedUser = await Users.findById(u_result._id).populate('permissionId', 'title');
-        return res.json({
-            message: 'You have successfully created in as a user.',
-            user: populatedUser
-        });
-    }
 };
 
 export const create = async (req: Request, res: Response) => {
