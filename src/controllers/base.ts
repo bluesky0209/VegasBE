@@ -267,13 +267,15 @@ export const balanceUpdate = async ({
     await Payments.create({
         id: nextId,
         userId,
+        username: result.username,
         parent: result.parent,
         payuserId,
         amount,
         type,
         typeDetail,
         afterBalance: currentBalance,
-        afterBonus: result.bonus
+        afterBonus: result.bonus,
+        ip: getIPAddress(req).ip
     });
     await BalanceHistories.create({
         userId: userId,

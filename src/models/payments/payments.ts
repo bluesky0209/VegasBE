@@ -12,6 +12,10 @@ const PaymentsSchema = new Schema(
             required: true,
             ref: 'users'
         },
+        username: {
+            type: String,
+            ref: 'users'
+        },
         parent: {
             superagent: {
                 type: String,
@@ -49,6 +53,9 @@ const PaymentsSchema = new Schema(
         },
         afterBonus: {
             type: Number
+        },
+        ip: {
+            type: String
         }
     },
     { timestamps: true }

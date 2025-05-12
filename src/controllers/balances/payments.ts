@@ -71,9 +71,7 @@ export const list = async (req: Request, res: Response) => {
         query['parent.' + adminUser.role] = adminUser.username;
     }
     if (filter) {
-        query['$or'] = [
-            { 'user.username': { $regex: filter, $options: 'i' } }
-        ]
+        query.username = { $regex: filter, $options: 'i' }
     }
     console.log('query', query);
     // if (type) {

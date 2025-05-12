@@ -46,7 +46,8 @@ export const list = async (req: Request, res: Response) => {
         sort = null,
         cases = null,
         column = null,
-        gameName = null
+        gameName = null,
+        filter = null
     } = req.body;
     let query = {} as any;
     let sortQuery = { createdAt: -1 } as any;
@@ -55,6 +56,9 @@ export const list = async (req: Request, res: Response) => {
     }
     if (userId) {
         query.userId = ObjectId(userId);
+    }
+    if (filter) {
+        query.username = { $regex: filter, $options: 'i' }
     }
     if (provider) {
         query.provider = provider;

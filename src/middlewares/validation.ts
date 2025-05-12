@@ -119,8 +119,8 @@ export const Validator = {
                 userId: Joi.string().min(24).max(24).optional(),
                 permission: Joi.string().min(24).max(24).optional(),
                 date: Joi.array().optional(),
-                role: Joi.string().required(),
-                permissionId: Joi.string().min(24).max(24).required(),
+                role: Joi.string().optional(),
+                permissionId: Joi.string().min(24).max(24).optional(),
                 parentId: Joi.string().min(24).max(24).optional(),
                 playerId: Joi.string().min(24).max(24).optional(),
                 search: Joi.string().allow('').optional()
@@ -287,7 +287,8 @@ export const Validator = {
                 column: Joi.string().min(1).optional(),
                 date: Joi.array().optional(),
                 pageSize: Joi.number().min(1).max(100).optional(),
-                page: Joi.number().min(0).optional()
+                page: Joi.number().min(0).optional(),
+                filter: Joi.string().min(0).optional()
             }),
             Create: Joi.object({
                 userId: Joi.string().min(24).max(24).required(),
