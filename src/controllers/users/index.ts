@@ -25,7 +25,9 @@ const userInfo = (user: any) => {
         email: user.email,
         username: user.username,
         balance: user.balance,
-        bonus: user.bonus
+        bonus: user.bonus,
+        wagerBonus: user.wagerBonus,
+        name: user.name
     };
 };
 

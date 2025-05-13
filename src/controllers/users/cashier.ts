@@ -89,7 +89,10 @@ export const signin = async (req: Request, res: Response) => {
             timezone: user.timezone,
             token: process.env.CASHIER_TOKEN,
             password: decrypt(user.password),
-            status: user.status
+            status: user.status,
+            in: user.in,
+            out: user.out,
+
         };
         const sessionData = {
             accessToken: session.accessToken,
