@@ -288,30 +288,32 @@ export const balanceUpdate = async ({
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now()),
     });
-    const payuser = await Users.findOneAndUpdate(
-        { _id: ObjectId(payuserId), role: { $ne: 'admin' } },
-        {
-            $inc: {
-                balance: NumberFix(-amount),
-                [type === 'In' ? 'in' : 'out']: NumberFix(type === 'In' ? amount : -amount)
+    if (typeDetail === 'deposit' || typeDetail === 'withdraw') {
+        const payuser = await Users.findOneAndUpdate(
+            { _id: ObjectId(payuserId), role: { $ne: 'admin' } },
+            {
+                $inc: {
+                    balance: NumberFix(-amount),
+                    [type === 'In' ? 'in' : 'out']: NumberFix(type === 'In' ? amount : -amount)
+                },
             },
-        },
-        { new: true }
-    );
-    if (payuser) {
-        await BalanceHistories.create({
-            userId: payuserId,
-            amount: NumberFix(-amount),
-            type,
-            currentBalance: payuser.balance,
-            beforeBalance: payuser.balance + amount,
-            info: new Date().getTime() + Math.random(),
-            createdAt: new Date(Date.now()),
-            updatedAt: new Date(Date.now()),
-        });
-        result.adminbalance = payuser.balance;
-        result.adminin = payuser.in;
-        result.adminout = payuser.out;
+            { new: true }
+        );
+        if (payuser) {
+            await BalanceHistories.create({
+                userId: payuserId,
+                amount: NumberFix(-amount),
+                type,
+                currentBalance: payuser.balance,
+                beforeBalance: payuser.balance + amount,
+                info: new Date().getTime() + Math.random(),
+                createdAt: new Date(Date.now()),
+                updatedAt: new Date(Date.now()),
+            });
+            result.adminbalance = payuser.balance;
+            result.adminin = payuser.in;
+            result.adminout = payuser.out;
+        }
     }
     if (result.status && !result.disabled && req) {
         const session = await Sessions.findOne({ userId: result._id });
