@@ -99,6 +99,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     }),
                     CasinoBetHistory.create({
                         username: playerName,
+                        parent: user.parent,
                         userId: user._id,
                         amount: -amount,
                         transactionRef,
@@ -243,6 +244,7 @@ export const skyTransfer = async (req: Request, rep: Response) => {
                     transactionRef: TransactionID,
                     gameRoundRef: RoundID,
                     currency: 'USD',
+                    parent: user.parent,
                     ...(Reason === 'win' ? { win: Amount } : {}),
                     ...(Reason === 'bet' ? { bet: Math.abs(Amount) } : {}),
                     gameId: GameID,

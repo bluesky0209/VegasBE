@@ -13,6 +13,20 @@ const CasinoBetHistorySchema = new Schema({
         type: String,
         required: true,
     },
+    parent: {
+        superagent: {
+            type: String,
+            ref: 'users'
+        },
+        agent: {
+            type: String,
+            ref: 'users'
+        },
+        cashier: {
+            type: String,
+            ref: 'users'
+        }
+    },
     userId: {
         type: Schema.Types.ObjectId,
         required: true,

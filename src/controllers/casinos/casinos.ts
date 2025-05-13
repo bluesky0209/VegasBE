@@ -1,5 +1,5 @@
 import { ObjectId } from '../base';
-import { CasinoBetHistory } from '../../models';
+import { CasinoBetHistory, Users } from '../../models';
 import { Request, Response } from 'express';
 
 const aggregateQuery = [
@@ -49,13 +49,16 @@ export const list = async (req: Request, res: Response) => {
         gameName = null,
         filter = null
     } = req.body;
+    const adminUser = await Users.findById(userId);
+
     let query = {} as any;
     let sortQuery = { createdAt: -1 } as any;
     if (column) {
         sortQuery = { [column]: sort ? sort : 1 };
     }
-    if (userId) {
-        query.userId = ObjectId(userId);
+
+    if (userId && adminUser.role !== 'admin') {
+        query['parent.' + adminUser.role] = adminUser.username;
     }
     if (filter) {
         query.username = { $regex: filter, $options: 'i' }
@@ -67,7 +70,7 @@ export const list = async (req: Request, res: Response) => {
         query.gameName = gameName;
     }
     if (status) {
-        query.TYPE = status;
+        query.type = status;
     }
     if (date && date[0] && date[1]) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
