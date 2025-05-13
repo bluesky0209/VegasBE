@@ -216,7 +216,8 @@ export const paymentReportUser = async (req: Request, res: Response) => {
         {
             $group: {
                 _id: {
-                    username: '$username'
+                    username: '$username',
+                    name: '$user.name'
                 },
                 In: {
                     $sum: {
@@ -244,10 +245,10 @@ export const paymentReportUser = async (req: Request, res: Response) => {
             $project: {
                 _id: 0,
                 username: '$_id.username',
+                name: '$_id.name',
                 In: 1,
                 Out: 1,
-                bonus: 1,
-                name: '$user.name',
+                bonus: 1
             }
         }
     ]);
