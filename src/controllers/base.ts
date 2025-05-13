@@ -191,11 +191,12 @@ export const handleBet = async ({
 
         // Emit socket event if session exists
         if (status && req) {
-            const session = await Sessions.findOne({ userId });
+            const session = await Sessions.findOne({ userId: ObjectId(userId) });
             if (session?.socketId) {
                 req.app.get('io').to(session.socketId).emit('balance', {
                     balance: currentBalance
                 });
+                req.app.get('io').to(session.socketId).emit('bonus', { bonus: user.bonus });
             }
         }
 
@@ -307,8 +308,11 @@ export const balanceUpdate = async ({
         });
     }
     if (result.status && !result.disabled && req) {
-        const session = await Sessions.findOne({ userId: result.userId });
-        if (session && session.socketId) req.app.get('io').to(session.socketId).emit('balance', { balance: result.balance });
+        const session = await Sessions.findOne({ userId: result._id });
+        if (session && session.socketId) {
+            req.app.get('io').to(session.socketId).emit('balance', { balance: result.balance });
+            req.app.get('io').to(session.socketId).emit('bonus', { bonus: result.bonus });
+        }
     }
     return result;
 };
