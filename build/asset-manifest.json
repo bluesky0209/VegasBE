@@ -1,16 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.12edd760.css",
-    "main.js": "/static/js/main.6ba4a9a2.js",
+    "main.css": "/static/css/main.5fc146af.css",
+    "main.js": "/static/js/main.ae1ea871.js",
     "static/js/919.7ccbb1b4.chunk.js": "/static/js/919.7ccbb1b4.chunk.js",
-    "static/css/127.cb3de3c8.chunk.css": "/static/css/127.cb3de3c8.chunk.css",
-    "static/js/127.97a9bd78.chunk.js": "/static/js/127.97a9bd78.chunk.js",
+    "static/css/890.bc8de726.chunk.css": "/static/css/890.bc8de726.chunk.css",
+    "static/js/890.8550181f.chunk.js": "/static/js/890.8550181f.chunk.js",
     "static/js/910.c766fb4a.chunk.js": "/static/js/910.c766fb4a.chunk.js",
     "static/js/479.b3e544f2.chunk.js": "/static/js/479.b3e544f2.chunk.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
-    "static/css/701.60c072d9.chunk.css": "/static/css/701.60c072d9.chunk.css",
-    "static/js/701.fe62fde2.chunk.js": "/static/js/701.fe62fde2.chunk.js",
+    "static/css/286.860061be.chunk.css": "/static/css/286.860061be.chunk.css",
+    "static/js/286.a0c580da.chunk.js": "/static/js/286.a0c580da.chunk.js",
     "static/media/bgmusic.mp3": "/static/media/bgmusic.f79233631845e4bea9bc.mp3",
+    "static/media/logo_anim.png": "/static/media/logo_anim.b121a6688e38e17945bf.png",
     "static/media/intro.default.mp3": "/static/media/intro.default.ea3c24173413b1c61890.mp3",
     "static/media/background.default.png": "/static/media/background.default.e2e15c6471c8a36997d7.png",
     "static/media/vegas-logo.png": "/static/media/vegas-logo.440a6e8aabd66debdf73.png",
@@ -21,7 +22,6 @@
     "static/media/jackpot_info.png": "/static/media/jackpot_info.4ffb6c62f69ff6b33438.png",
     "static/media/stake.png": "/static/media/stake.a9ec07c38b21e7c7a9d3.png",
     "static/media/greentube.png": "/static/media/greentube.80b70a5828e74da02c8e.png",
-    "static/media/logo.png": "/static/media/logo.0274a1293a0376e29dca.png",
     "static/media/wheel-outer.default.png": "/static/media/wheel-outer.default.afa57fd9af045cd49779.png",
     "static/media/playtech.png": "/static/media/playtech.d381385a9502cf784c26.png",
     "static/media/lnw.png": "/static/media/lnw.37e18fea447685cf6ed4.png",
@@ -79,19 +79,19 @@
     "static/media/click.mp3": "/static/media/click.7ed8a16d3712767b0e61.mp3",
     "static/media/evoplay1.svg": "/static/media/evoplay1.1302dcf294295dbd8d8f289a616ef80a.svg",
     "index.html": "/index.html",
-    "main.12edd760.css.map": "/static/css/main.12edd760.css.map",
-    "main.6ba4a9a2.js.map": "/static/js/main.6ba4a9a2.js.map",
+    "main.5fc146af.css.map": "/static/css/main.5fc146af.css.map",
+    "main.ae1ea871.js.map": "/static/js/main.ae1ea871.js.map",
     "919.7ccbb1b4.chunk.js.map": "/static/js/919.7ccbb1b4.chunk.js.map",
-    "127.cb3de3c8.chunk.css.map": "/static/css/127.cb3de3c8.chunk.css.map",
-    "127.97a9bd78.chunk.js.map": "/static/js/127.97a9bd78.chunk.js.map",
+    "890.bc8de726.chunk.css.map": "/static/css/890.bc8de726.chunk.css.map",
+    "890.8550181f.chunk.js.map": "/static/js/890.8550181f.chunk.js.map",
     "910.c766fb4a.chunk.js.map": "/static/js/910.c766fb4a.chunk.js.map",
     "479.b3e544f2.chunk.js.map": "/static/js/479.b3e544f2.chunk.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map",
-    "701.60c072d9.chunk.css.map": "/static/css/701.60c072d9.chunk.css.map",
-    "701.fe62fde2.chunk.js.map": "/static/js/701.fe62fde2.chunk.js.map"
+    "286.860061be.chunk.css.map": "/static/css/286.860061be.chunk.css.map",
+    "286.a0c580da.chunk.js.map": "/static/js/286.a0c580da.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.12edd760.css",
-    "static/js/main.6ba4a9a2.js"
+    "static/css/main.5fc146af.css",
+    "static/js/main.ae1ea871.js"
   ]
 }
