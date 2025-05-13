@@ -187,19 +187,72 @@ export const paymentReportUser = async (req: Request, res: Response) => {
     if (date && date[0] && date[1]) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
     }
-    const count = await Payments.countDocuments({
-        ...query,
-        payuserId: ObjectId(userId),
-        $or: [
-            {
-                type: 'In'
-            },
-            {
-                type: 'Out',
-                typeDetail: 'withdraw'
+    const result = await Payments.aggregate([
+        { $match: query },
+        {
+            $match: {
+                payuserId: ObjectId(userId),
+                $or: [
+                    {
+                        type: 'In'
+                    },
+                    {
+                        type: 'Out',
+                        typeDetail: 'withdraw'
+                    }
+                ]
             }
-        ]
-    });
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'userId',
+                foreignField: '_id',
+                as: 'user'
+            }
+        },
+        {
+            $unwind: '$user'
+        },
+        {
+            $group: {
+                _id: {
+                    username: '$username',
+                    name: '$user.name'
+                },
+                In: {
+                    $sum: {
+                        $cond: [{ $and: [{ $eq: ['$type', 'In'] }, { $eq: ['$typeDetail', 'deposit'] }] }, '$amount', 0]
+                    }
+                },
+                Out: {
+                    $sum: {
+                        $cond: [{ $eq: ['$type', 'Out'] }, '$amount', 0]
+                    }
+                },
+                bonus: {
+                    $sum: {
+                        $cond: [{
+                            $and: [
+                                { $eq: ['$type', 'In'] },
+                                { $in: ['$typeDetail', ['Wager Bonus', 'Happy Hour Bonus', 'Cashback Bonus', 'Wager Bonus Cancel', 'Happy Hour Bonus Cancel', 'Cashback Bonus Cancel']] }
+                            ]
+                        }, '$amount', 0]
+                    }
+                },
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                username: '$_id.username',
+                name: '$_id.name',
+                In: 1,
+                Out: 1,
+                bonus: 1
+            }
+        }
+    ]);
 
     const results = await Payments.aggregate([
         { $match: query },
@@ -269,7 +322,7 @@ export const paymentReportUser = async (req: Request, res: Response) => {
         { $skip: (page - 1) * pageSize },
         { $limit: pageSize }
     ]);
-    return res.json({ results, count });
+    return res.json({ results, count: result.length });
 };
 
 
