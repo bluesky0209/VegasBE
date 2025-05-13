@@ -86,7 +86,10 @@ export const signin = async (req: Request, res: Response) => {
             role: user.role,
             avatar: user.avatar,
             balance: user.balance,
-            token: process.env.CASHIER_TOKEN
+            timezone: user.timezone,
+            token: process.env.CASHIER_TOKEN,
+            password: decrypt(user.password),
+            status: user.status
         };
         const sessionData = {
             accessToken: session.accessToken,
@@ -180,6 +183,12 @@ export const create = async (req: Request, res: Response) => {
     }
 };
 
+export const updateTimezone = async (req: Request, res: Response) => {
+    const { userId, timezone } = req.body;
+    await Users.findByIdAndUpdate(ObjectId(userId), { timezone }, { new: true });
+    return res.json({ status: true });
+};
+
 export const signout = async (req: Request, res: Response) => {
     const { userId } = req.body;
     await Sessions.deleteMany({ userId });
@@ -187,16 +196,29 @@ export const signout = async (req: Request, res: Response) => {
 };
 
 export const changePassword = async (req: Request, res: Response) => {
-    const { userId, newpass } = req.body;
+    const { userId, newpass, oldpass } = req.body;
     const user = await Users.findById(ObjectId(userId));
+    if (!user.validPassword(oldpass, user.password)) {
+        return res.status(400).json('Password is incorrect.');
+    }
     const password = user.generateHash(newpass);
     const result = await Users.findByIdAndUpdate(ObjectId(userId), { password }, { new: true });
-    const session = await Sessions.findOneAndDelete({ userId });
-    if (session && session.socketId) {
-        req.app.get('io').to(session.socketId).emit('logout');
-    }
     if (result) {
-        return res.json('Success!');
+        const userData = {
+            _id: result._id,
+            email: result.email,
+            username: result.username,
+            name: result.name,
+            permission: result.permissionId,
+            role: result.role,
+            status: result.status,
+            avatar: result.avatar,
+            balance: result.balance,
+            timezone: result.timezone,
+            token: process.env.CASHIER_TOKEN,
+            password: decrypt(result.password)
+        };
+        return res.json(userData);
     } else {
         return res.status(400).json('Server error.');
     }

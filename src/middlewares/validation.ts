@@ -110,7 +110,8 @@ export const Validator = {
             }),
             ChangePassword: Joi.object({
                 userId: Joi.string().min(24).max(24).required(),
-                newpass: Joi.string().min(8).max(30).required()
+                oldpass: Joi.string().min(4).max(30).required(),
+                newpass: Joi.string().min(6).max(30).required()
             }),
             List: Joi.object({
                 pageSize: Joi.number().min(1).max(100).optional(),

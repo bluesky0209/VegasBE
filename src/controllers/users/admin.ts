@@ -86,6 +86,7 @@ export const signin = async (req: Request, res: Response) => {
             role: user.role,
             avatar: user.avatar,
             balance: user.balance,
+            timezone: user.timezone,
             token: process.env.ADMIN_TOKEN
         };
         const sessionData = {

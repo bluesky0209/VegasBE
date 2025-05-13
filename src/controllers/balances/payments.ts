@@ -1,4 +1,4 @@
-import { Users } from "../../models";
+import { Shifts, Users } from "../../models";
 import { Payments } from "../../models/payments/payments";
 import { ObjectId } from "../base";
 import { Request, Response } from 'express';
@@ -160,7 +160,25 @@ export const paymentReport = async (req: Request, res: Response) => {
     return res.json(results[0]);
 };
 
+export const resetPayments = async (req: Request, res: Response) => {
+    const { userId } = req.body;
+    const user = await Users.findById(userId);
+    await Shifts.create({
+        userId: ObjectId(userId),
+        cashier: user.username,
+        in: user.in,
+        out: user.out,
+        sum: user.in - user.out
+    });
+    await Users.findByIdAndUpdate(ObjectId(userId), { $set: { in: 0, out: 0 } });
+    return res.json({ status: true });
+};
 
+export const getShifts = async (req: Request, res: Response) => {
+    const { userId } = req.body;
+    const results = await Shifts.find({ userId: ObjectId(userId) }).sort({ createdAt: -1 });
+    return res.json(results);
+};
 
 export const paymentReportUser = async (req: Request, res: Response) => {
     const { userId, date } = req.body;

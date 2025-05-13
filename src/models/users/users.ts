@@ -91,6 +91,14 @@ const UsersSchema = new Schema(
             type: String,
             default: 'America/Los_Angeles'
         },
+        in: {
+            type: Number,
+            default: 0
+        },
+        out: {
+            type: Number,
+            default: 0
+        },
         ip: {
             type: String
         },

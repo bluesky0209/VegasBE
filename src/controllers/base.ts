@@ -291,7 +291,10 @@ export const balanceUpdate = async ({
     const payuser = await Users.findOneAndUpdate(
         { _id: ObjectId(payuserId), role: { $ne: 'admin' } },
         {
-            $inc: { balance: NumberFix(-amount) },
+            $inc: {
+                balance: NumberFix(-amount),
+                [type === 'In' ? 'in' : 'out']: NumberFix(type === 'In' ? amount : -amount)
+            },
         },
         { new: true }
     );
@@ -306,6 +309,9 @@ export const balanceUpdate = async ({
             createdAt: new Date(Date.now()),
             updatedAt: new Date(Date.now()),
         });
+        result.adminbalance = payuser.balance;
+        result.adminin = payuser.in;
+        result.adminout = payuser.out;
     }
     if (result.status && !result.disabled && req) {
         const session = await Sessions.findOne({ userId: result._id });

@@ -58,6 +58,20 @@ export const deposit = async (req: Request, res: Response) => {
             const config = bonusConfig[bonusType];
             if (config) {
                 if (bonusType === 'wager') {
+                    const lastWagerBonus = await Bonus.findOne({
+                        userId: ObjectId(userId),
+                        type: 'wager'
+                    }).sort({ createdAt: -1 });
+
+                    if (lastWagerBonus) {
+                        const timeDiff = Date.now() - lastWagerBonus.createdAt.getTime();
+                        const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+                        if (hoursDiff < 1) {
+                            const minutesRemaining = Math.ceil((1 - hoursDiff) * 60);
+                            return res.status(400).json(`You cannot use BONUS yet. Try again in ${Math.floor(minutesRemaining / 60)}:${String(minutesRemaining % 60).padStart(2, '0')}:00. Player: ${user.username}`);
+                        }
+                    }
                     await Bonus.create({
                         userId: ObjectId(userId),
                         amount: amount,
