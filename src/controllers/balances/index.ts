@@ -95,7 +95,7 @@ export const deposit = async (req: Request, res: Response) => {
                     if (payuser.role === 'cashier') {
                         await CashierHistory.create({
                             userId: ObjectId(payuserId),
-                            content: `In: ${amount.toFixed(2)} Player: ${user.username} Bonus: ${config.detail * 100}%`,
+                            content: `In: ${amount.toFixed(2)} Player: ${user.username} Bonus: ${config.multiplier * 100}%`,
                             type: 'In'
                         });
                     }

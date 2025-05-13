@@ -87,6 +87,10 @@ const UsersSchema = new Schema(
             type: String,
             default: null
         },
+        timezone: {
+            type: String,
+            default: 'America/Los_Angeles'
+        },
         ip: {
             type: String
         },
