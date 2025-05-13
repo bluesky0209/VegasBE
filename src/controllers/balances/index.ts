@@ -110,7 +110,6 @@ export const deposit = async (req: Request, res: Response) => {
                 });
             }
         }
-
         const result = await balanceUpdate({
             req,
             userId,
