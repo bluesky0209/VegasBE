@@ -25,6 +25,10 @@ export const deposit = async (req: Request, res: Response) => {
             return res.status(403).json('You are not allowed to deposit to this user');
         }
 
+        if (bonusType === 'wager' && user.balance > 0.0001) {
+            return res.status(400).json(`Error: Player has credits, first play all credits Player: ${user.username}`);
+        }
+
         if (user.bonusType === 'wager') {
             return res.status(400).json('Deposit is not allowed to this user because of wager bonus');
         }
@@ -79,7 +83,7 @@ export const deposit = async (req: Request, res: Response) => {
                         type: bonusType,
                         status: config.status
                     });
-                    await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: amount, beforeBalance: user.balance });
+                    await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: amount });
                     await balanceUpdate({
                         req,
                         userId,

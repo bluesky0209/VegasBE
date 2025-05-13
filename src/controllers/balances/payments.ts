@@ -175,17 +175,32 @@ export const resetPayments = async (req: Request, res: Response) => {
 };
 
 export const getShifts = async (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const results = await Shifts.find({ userId: ObjectId(userId) }).sort({ createdAt: -1 });
-    return res.json(results);
+    const { userId, page, pageSize } = req.body;
+    const count = await Shifts.countDocuments({ userId: ObjectId(userId) });
+    const results = await Shifts.find({ userId: ObjectId(userId) }).sort({ createdAt: -1 }).skip((page - 1) * pageSize).limit(pageSize);
+    return res.json({ results, count });
 };
 
 export const paymentReportUser = async (req: Request, res: Response) => {
-    const { userId, date } = req.body;
+    const { userId, date, page, pageSize } = req.body;
     let query = {} as any;
     if (date && date[0] && date[1]) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
     }
+    const count = await Payments.countDocuments({
+        ...query,
+        payuserId: ObjectId(userId),
+        $or: [
+            {
+                type: 'In'
+            },
+            {
+                type: 'Out',
+                typeDetail: 'withdraw'
+            }
+        ]
+    });
+
     const results = await Payments.aggregate([
         { $match: query },
         {
@@ -250,9 +265,11 @@ export const paymentReportUser = async (req: Request, res: Response) => {
                 Out: 1,
                 bonus: 1
             }
-        }
+        },
+        { $skip: (page - 1) * pageSize },
+        { $limit: pageSize }
     ]);
-    return res.json(results);
+    return res.json({ results, count });
 };
 
 
