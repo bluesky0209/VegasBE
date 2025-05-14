@@ -9,6 +9,7 @@ import {
     maxFailsByLogin, ObjectId, signAccessToken,
 } from '../base';
 import {
+    BalanceHistories,
     CasinoBetHistory,
     LoginHistories,
     Permissions,
@@ -180,6 +181,7 @@ export const create = async (req: Request, res: Response) => {
         });
         newuser.password = newuser.generateHash(password);
         newuser.status = true;
+        newuser.parentId = ObjectId(userId);
         const lastUser = await Users.findOne().sort({ id: -1 });
         newuser.id = (lastUser?.id || 0) + 1;
         newuser.name = name ?? username;
@@ -381,9 +383,12 @@ export const deleteOne = async (req: Request, res: Response) => {
     if (user.role !== 'admin') {
         return res.status(403).json('You are not allowed to delete this user');
     }
+
     const result = await Users.deleteOne({ _id: userId });
     await Sessions.deleteMany({ userId });
     await CasinoBetHistory.deleteMany({ userId });
+    await BalanceHistories.deleteMany({ userId });
     await LoginHistories.deleteMany({ userId });
+
     return res.json(result);
 };

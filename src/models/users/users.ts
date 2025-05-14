@@ -8,6 +8,10 @@ const UsersSchema = new Schema(
             type: Number,
             unique: true
         },
+        parentId: {
+            type: Schema.Types.ObjectId,
+            ref: 'users'
+        },
         parent: {
             superagent: {
                 type: String,
@@ -21,7 +25,6 @@ const UsersSchema = new Schema(
                 type: String,
                 ref: 'users'
             }
-
         },
         count: {
             superagent: {
