@@ -14,7 +14,7 @@ export const RetrunValidation = (error: any, req: Request, res: Response, next: 
 
 export const Validator = {
     ObjectId: Joi.object({
-        id: Joi.string().min(24).max(24).required()
+        id: Joi.string().min(24).max(24).required(),
     }),
     UserId: Joi.object({
         userId: Joi.string().min(24).max(24).required()

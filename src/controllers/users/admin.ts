@@ -376,6 +376,11 @@ export const updateOne = async (req: Request, res: Response) => {
 
 export const deleteOne = async (req: Request, res: Response) => {
     const userId = ObjectId(req.params.id);
+    const { userId: adminId } = req.body;
+    const user = await Users.findOne({ _id: ObjectId(adminId) });
+    if (user.role !== 'admin') {
+        return res.status(403).json('You are not allowed to delete this user');
+    }
     const result = await Users.deleteOne({ _id: userId });
     await Sessions.deleteMany({ userId });
     await CasinoBetHistory.deleteMany({ userId });

@@ -28,7 +28,7 @@ router.post('/list', verifyAdminToken, V.body(Validator.Users.Admin.List), list)
 router.post('/label', verifyAdminToken, label);
 router.post('/addlabel', verifyAdminToken, addlabel);
 router.put('/:id', verifyAdminToken, V.params(Validator.ObjectId), updateOne);
-router.delete('/:id', verifyAdminToken, V.params(Validator.ObjectId), deleteOne);
+router.delete('/:id', verifyAdminToken, V.params(Validator.ObjectId), V.body(Validator.UserId), deleteOne);
 router.post('/create', verifyAdminToken, V.body(Validator.Users.Admin.CreateUser), create);
 
 export default router;

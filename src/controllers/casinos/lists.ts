@@ -1,5 +1,5 @@
 import { ObjectId } from '../base';
-import { CasinoGameLists } from '../../models';
+import { CasinoGameLists, Users } from '../../models';
 import { Request, Response } from 'express';
 import { getGameListSkyxspin } from './skyxspin';
 import { getGameListC2Gaming } from './api';
@@ -18,7 +18,12 @@ export const getOne = async (req: Request, res: Response) => {
 
 //admin panel game lists
 export const list = async (req: Request, res: Response) => {
-    const { pageSize = null, page = null, provider = null, update = false, filter, aggregator } = req.body;
+    const { pageSize = null, page = null, provider = null, update = false, filter, aggregator, userId } = req.body;
+    const user = await Users.findOne({ _id: ObjectId(userId) });
+
+    if (user.role !== 'admin') {
+        return res.status(403).json('You are not allowed to access this page');
+    }
     if (update) {
         await getGameListSkyxspin();
         await getGameListC2Gaming({ id: 1744970985003, BankGroupId: 'GoldenBet_USD' });
