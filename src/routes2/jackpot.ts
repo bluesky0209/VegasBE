@@ -4,6 +4,6 @@ import { checkUser, verifyToken } from '../middlewares/auth';
 
 const router = routerx();
 
-router.post('/getJackpot', verifyToken, checkUser, getJackpot);
+router.post('/getJackpot', getJackpot);
 
 export default router;
