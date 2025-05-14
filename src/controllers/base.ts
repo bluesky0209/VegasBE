@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 import 'dotenv/config';
 import mongoose, { ObjectId as ObjectIdType } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Sessions, Users, BalanceHistories, Payments, Bonus, Jackpots } from '../models';
+import { Sessions, Users, BalanceHistories, Payments, Bonus, Jackpots, Jackpothistories } from '../models';
 const config = require('../../config');
 
 export const maxFailsByLogin = 3;
@@ -152,10 +152,13 @@ const calculateJackpot = async (amount: number) => {
     if (jackpotWon) {
         if (jackpotWon === 'gold') {
             jackpotAmount = updatedJackpot.gold;
+            await Jackpots.findOneAndUpdate({}, { $set: { gold: 5 } });
         } else if (jackpotWon === 'silver') {
             jackpotAmount = updatedJackpot.silver;
+            await Jackpots.findOneAndUpdate({}, { $set: { silver: 3 } });
         } else if (jackpotWon === 'bronze') {
             jackpotAmount = updatedJackpot.bronze;
+            await Jackpots.findOneAndUpdate({}, { $set: { bronze: 1 } });
         }
         return {
             type: jackpotWon,
@@ -262,15 +265,18 @@ export const handleBet = async ({
         if (amount < 0) {
             const jackpot = await calculateJackpot(-amount);
             if (jackpot) {
-                await balanceUpdate({
-                    req,
+                await Jackpothistories.create({
                     userId,
+                    username: user.username,
+                    parent: user.parent,
                     amount: jackpot.amount,
-                    type: 'In',
-                    payuserId: userId,
-                    typeDetail: 'Jackpot(' + jackpot.type + ')',
-                    bonus: jackpot.amount
+                    type: jackpot.type,
                 });
+                user = await Users.findOneAndUpdate(
+                    { _id: ObjectId(userId) },
+                    { $inc: { balance: jackpot.amount } },
+                    { new: true }
+                );
             }
         }
 

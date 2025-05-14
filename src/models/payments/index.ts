@@ -3,3 +3,4 @@ export * from './payments';
 export * from './bonus'
 export * from './cashierhistory'
 export * from './shifts'
+export * from './jackpothistories'
