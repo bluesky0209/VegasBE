@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 import 'dotenv/config';
 import mongoose, { ObjectId as ObjectIdType } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Sessions, Users, BalanceHistories, Payments, Bonus } from '../models';
+import { Sessions, Users, BalanceHistories, Payments, Bonus, Jackpots } from '../models';
 const config = require('../../config');
 
 export const maxFailsByLogin = 3;
@@ -94,6 +94,76 @@ export const dataSave = async (data: any, model: any) => {
 export const NumberFix = (number: number, decimal = 10): number => {
     return Number(Number(number).toFixed(decimal));
 };
+
+const calculateJackpot = async (amount: number) => {
+    const random = Math.random();
+    let jackpotWon = null;
+    let jackpotAmount = 0;
+
+    if (random < 0.00001) {
+        jackpotWon = 'gold';
+    } else if (random < 0.0001) {
+        jackpotWon = 'silver';
+    } else if (random < 0.001) {
+        jackpotWon = 'bronze';
+    }
+
+    const updatedJackpot = await Jackpots.findOneAndUpdate({}, {
+        $inc: {
+            goldbet: amount,
+            silverbet: amount,
+            bronzebet: amount
+        }
+    });
+
+    const updatePromises = [];
+
+    if (updatedJackpot.goldbet >= 100) {
+        updatePromises.push(
+            Jackpots.findOneAndUpdate({}, {
+                $inc: { gold: 3 },
+                $set: { goldbet: 0 }
+            })
+        );
+    }
+
+    if (updatedJackpot.silverbet >= 100) {
+        updatePromises.push(
+            Jackpots.findOneAndUpdate({}, {
+                $inc: { silver: 2 },
+                $set: { silverbet: 0 }
+            })
+        );
+    }
+
+    if (updatedJackpot.bronzebet >= 100) {
+        updatePromises.push(
+            Jackpots.findOneAndUpdate({}, {
+                $inc: { bronze: 1 },
+                $set: { bronzebet: 0 }
+            })
+        );
+    }
+
+    if (updatePromises.length > 0) {
+        await Promise.all(updatePromises);
+    }
+
+    if (jackpotWon) {
+        if (jackpotWon === 'gold') {
+            jackpotAmount = updatedJackpot.gold;
+        } else if (jackpotWon === 'silver') {
+            jackpotAmount = updatedJackpot.silver;
+        } else if (jackpotWon === 'bronze') {
+            jackpotAmount = updatedJackpot.bronze;
+        }
+        return {
+            type: jackpotWon,
+            amount: jackpotAmount
+        };
+    }
+    return null;
+}
 
 export const handleBet = async ({
     req = undefined,
@@ -189,6 +259,21 @@ export const handleBet = async ({
 
         }
 
+        if (amount < 0) {
+            const jackpot = await calculateJackpot(-amount);
+            if (jackpot) {
+                await balanceUpdate({
+                    req,
+                    userId,
+                    amount: jackpot.amount,
+                    type: 'In',
+                    payuserId: userId,
+                    typeDetail: 'Jackpot(' + jackpot.type + ')',
+                    bonus: jackpot.amount
+                });
+            }
+        }
+
         // Emit socket event if session exists
         if (status && req) {
             const session = await Sessions.findOne({ userId: ObjectId(userId) });
@@ -240,7 +325,7 @@ export const balanceUpdate = async ({
         { _id: ObjectId(userId) },
         {
             $inc: { balance: NumberFix(amount), bonus: bonus },
-            $set: { bonusType: bonusType }
+            ...(bonusType ? { $set: { bonusType: bonusType } } : {})
         },
         {
             new: true,
