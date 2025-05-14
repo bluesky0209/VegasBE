@@ -7,6 +7,9 @@ const CasinoProvidersSchema = new Schema({
     Name: {
         type: String,
     },
+    aggregator: {
+        type: String,
+    },
     status: {
         type: Boolean,
         default: true

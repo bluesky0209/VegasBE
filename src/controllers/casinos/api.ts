@@ -187,7 +187,8 @@ export const getGameListC2Gaming = async ({ id, BankGroupId }: { id: Number, Ban
                 if (!existingProvider) {
                     await CasinoProviders.create({
                         Id: game.SectionId,
-                        Name: game.SectionId
+                        Name: game.SectionId,
+                        aggregator: 'c2gaming'
                     });
                 }
             }

@@ -50,7 +50,8 @@ export const getGameListSkyxspin = async () => {
                 if (!existingProvider) {
                     await CasinoProviders.create({
                         Id: game.ID.split("_")[0],
-                        Name: game.ID.split("_")[0]
+                        Name: game.ID.split("_")[0],
+                        aggregator: 'skyxspin'
                     });
                 }
             }

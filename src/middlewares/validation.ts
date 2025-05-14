@@ -220,7 +220,10 @@ export const Validator = {
         Providers: {
             List: Joi.object({
                 pageSize: Joi.number().min(1).max(100).optional(),
-                page: Joi.number().min(0).optional()
+                page: Joi.number().min(0).optional(),
+                userId: Joi.string().min(24).max(24).required(),
+                filter: Joi.string().min(0).optional(),
+                aggregator: Joi.string().min(0).optional()
             }),
             Create: Joi.object({
                 name: Joi.string().required(),
@@ -232,15 +235,7 @@ export const Validator = {
                 status: Joi.boolean().required()
             }),
             Update: Joi.object({
-                _id: Joi.string().min(24).max(24).optional(),
-                __v: Joi.number().optional(),
-                createdAt: Joi.date().optional(),
-                updatedAt: Joi.date().optional(),
-                Name: Joi.string().optional(),
-                System: Joi.string().optional(),
-                Categories: Joi.array().optional(),
-                order: Joi.number().optional(),
-                Status: Joi.boolean().optional()
+                status: Joi.boolean().optional()
             })
         },
         Lists: {

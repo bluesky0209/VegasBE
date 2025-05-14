@@ -39,21 +39,7 @@ export const getCasinoGamesListByCategory = async (req: Request, res: Response) 
 }
 
 export const getCasinoProviders = async (req: Request, res: Response) => {
-    let query = { Categories: req.body.id, Status: true }
-    const result = await CasinoProviders.aggregate([
-        {
-            $match: query,
-        },
-        {
-            $addFields: {
-                isSystem960: { $eq: ['$System', '960'] },
-            },
-        },
-        {
-            $sort: {
-                isSystem960: -1,
-            },
-        },
-    ]);
+    let query = { status: true }
+    const result = await CasinoProviders.find(query);
     return res.json(result)
 }
