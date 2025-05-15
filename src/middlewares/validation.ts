@@ -54,8 +54,8 @@ export const Validator = {
             }),
             ChangePassword: Joi.object({
                 userId: Joi.string().min(24).max(24).required(),
-                'Current Password': Joi.string().min(1).required(),
-                Password: Joi.string().min(8).max(30).message('').required()
+                currentpass: Joi.string().min(1).required(),
+                newpass: Joi.string().min(1).required()
             }),
             PasswordReset: Joi.object({
                 userId: Joi.string().min(24).max(24).required(),

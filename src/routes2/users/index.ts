@@ -9,6 +9,7 @@ import {
     signout,
     info,
     passwordReset,
+    changeEmail
 } from '../../controllers/users';
 const router = routerx();
 
@@ -39,7 +40,7 @@ router.post('/signout', V.body(Validator.UserId), signout);
 
 router.post('/r-password', loginLimiter, V.body(Validator.Users.Auth.PasswordReset), passwordReset);
 router.post('/c-password', loginLimiter, V.body(Validator.Users.Auth.ChangePassword), verifyToken, checkUser, changePassword);
-
+router.post('/c-email', verifyToken, checkUser, changeEmail);
 router.post('/info', V.body(Validator.Users.Auth.Info), verifyToken, checkUser, info);
 
 export default router;

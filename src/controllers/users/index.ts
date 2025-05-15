@@ -191,10 +191,10 @@ export const info = async (req: Request, res: Response) => {
 export const changePassword = async (req: Request, res: Response) => {
     const { userId } = req.body;
     const user = await Users.findById(ObjectId(userId));
-    if (!user.validPassword(req.body['Current Password'], user.password)) {
+    if (!user.validPassword(req.body['currentpass'], user.password)) {
         return res.status(400).json('Passwords do not match.');
     }
-    const password = user.generateHash(req.body['New Password']);
+    const password = user.generateHash(req.body['newpass']);
     const result = await Users.findOneAndUpdate({ _id: ObjectId(userId), status: true }, { password }, { new: true });
     if (result) {
         return res.json('Success!');
@@ -202,6 +202,22 @@ export const changePassword = async (req: Request, res: Response) => {
         return res.status(400).json('Server error.');
     }
 };
+
+export const changeEmail = async (req: Request, res: Response) => {
+    const { userId, email } = req.body;
+    const emailExists = await Users.findOne({
+        _id: { $ne: ObjectId(userId) },
+        email: { $regex: new RegExp('^' + email.toLowerCase(), 'i') }
+    });
+    if (emailExists) {
+        return res.status(400).json(`${email} is used by another account.`);
+    }
+    const user = await Users.findById(ObjectId(userId));
+    if (!user) return res.status(400).json('User not found');
+    user.email = email;
+    await user.save();
+    return res.json({ status: true, message: 'Email changed successfully.' });
+}
 
 export const passwordReset = async (req: Request, res: Response) => {
     const { userId, token, password } = req.body;
