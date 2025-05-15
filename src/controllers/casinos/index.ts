@@ -1,7 +1,7 @@
 
 import 'dotenv/config';
 import 'regenerator-runtime';
-import { CasinoGameLists, CasinoProviders } from '../../models';
+import { CasinoGameLists, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
@@ -28,6 +28,13 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
         .limit(pageSize);
 
     return res.json({ result, count });
+}
+
+export const getFavoriteGame = async (req: Request, res: Response) => {
+    const { userId } = req.body;
+    const user = await Users.findOne({ _id: userId });
+    const result = await CasinoGameLists.find({ Id: { $in: user.favoriteGame } });
+    return res.json({ result });
 }
 
 export const getCasinoGamesListByCategory = async (req: Request, res: Response) => {

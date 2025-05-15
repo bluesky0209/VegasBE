@@ -1,5 +1,6 @@
 import { CasinoBankGroup, CasinoBonus, CasinoGameLists, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
+import { addFavoriteGame } from '../base';
 
 const axios = require('axios');
 const https = require('https');
@@ -100,8 +101,10 @@ export const setBonus = async ({ Id }: { Id: string }) => {
 
 export const createSession = async (req: Request, rep: Response) => {
     const { PlayerId, GameId } = req.body;
-    console.log(PlayerId, GameId, "createSession")
+
     try {
+        await addFavoriteGame({ PlayerId, GameId });
+
         const id = new Date().getTime();
         const res = await client.post('/', {
             jsonrpc: "2.0",

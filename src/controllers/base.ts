@@ -168,6 +168,25 @@ const calculateJackpot = async (amount: number) => {
     return null;
 }
 
+export const addFavoriteGame = async ({
+    PlayerId,
+    GameId
+}: {
+    PlayerId: string;
+    GameId: string;
+}) => {
+    const user = await Users.findOne({ username: PlayerId });
+    let favoriteGames = user.favoriteGame || [];
+
+    if (!favoriteGames.includes(GameId)) {
+        favoriteGames.push(GameId);
+        if (favoriteGames.length > 10) {
+            favoriteGames.shift();
+        }
+        await Users.findByIdAndUpdate(user._id, { favoriteGame: favoriteGames });
+    }
+}
+
 export const handleBet = async ({
     req = undefined,
     userId,

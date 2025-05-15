@@ -2,7 +2,7 @@ import routerx from 'express-promise-router';
 import skyxspin from "./skyxspin";
 import { V, Validator } from '../../middlewares/validation';
 import { checkUser, verifyToken } from '../../middlewares/auth';
-import { getCasinoGamesListByCategory, getCasinoGamesLists, getCasinoProviders } from '../../controllers/casinos';
+import { getCasinoGamesListByCategory, getCasinoGamesLists, getCasinoProviders, getFavoriteGame } from '../../controllers/casinos';
 import { deleteMany } from '../../controllers/casinos/casinos';
 import { createBankGroup, createSession, createDemo, setPlayer, closeSession } from '../../controllers/casinos/api';
 import { getSeamless } from "../../controllers/casinos/seamless";
@@ -17,6 +17,8 @@ router.post('/get-gamelists', getCasinoGamesLists);
 
 router.post('/get-gamelistsbycategory', getCasinoGamesListByCategory);
 router.post('/get-providers', getCasinoProviders)
+router.post('/get-favorite-game', getFavoriteGame)
+
 router.post('/createSession', async (req, res) => {
     const { provider } = req.body;
     if (provider === 'skyxspin') {

@@ -98,6 +98,10 @@ const UsersSchema = new Schema(
             type: Number,
             default: 0
         },
+        favoriteGame: {
+            type: Array,
+            default: []
+        },
         ip: {
             type: String
         },

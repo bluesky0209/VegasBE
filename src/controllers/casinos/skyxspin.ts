@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { CasinoGameLists, CasinoProviders } from '../../models/casinos';
+import { Users } from '../../models';
+import { addFavoriteGame } from '../base';
 
 const client = axios.create({
     baseURL: process.env.SKYXSPIN_ENDPOINT,
@@ -67,6 +69,8 @@ export const getGameListSkyxspin = async () => {
 export const launchGame = async (req: Request, rep: Response) => {
     const { PlayerId, GameId } = req.body;
     try {
+        await addFavoriteGame({ PlayerId, GameId });
+
         const res = await client.post(`/api/v1/game/launch?UserID=${PlayerId}&GameID=${GameId}&Language=en`);
         console.log(res.data, "res")
         console.log(res.data?.data?.Url, "url")
