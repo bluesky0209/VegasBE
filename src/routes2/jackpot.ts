@@ -1,9 +1,8 @@
 import routerx from 'express-promise-router';
-import { getJackpot } from '../controllers/balances/jackpothistory';
-import { checkUser, verifyToken } from '../middlewares/auth';
+import { getJackpot, spinJackpot } from '../controllers/balances/jackpothistory';
 
 const router = routerx();
 
 router.post('/getJackpot', getJackpot);
-
+router.post('/spinJackpot', spinJackpot);
 export default router;

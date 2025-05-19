@@ -22,4 +22,38 @@ export const getJackpotHistory = async (req: Request, res: Response) => {
 }
 
 
+export const spinJackpot = async (req: Request, res: Response) => {
+    const { userId } = req.body;
+    const user = await Users.findById(userId);
+    if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+    }
+    if (user.luckyNumber.length === 0) {
+        return res.status(400).json({ message: 'User lucky number not found' });
+    }
 
+    const randomNumber = Math.floor(Math.random() * 50);
+    const firstLuckyNumber = user.luckyNumber[0];
+    const amount = firstLuckyNumber === randomNumber ? 500 : 250;
+
+    const [updatedUser] = await Promise.all([
+        Users.findByIdAndUpdate(userId, {
+            $pull: { luckyNumber: firstLuckyNumber },
+            $inc: { balance: amount }
+        }, { new: true }),
+        Jackpothistories.create({
+            userId,
+            username: user.username,
+            parent: user.parent,
+            amount,
+            type: 'lucky-spin'
+        })
+    ]);
+
+    return res.json({
+        number: randomNumber,
+        count: updatedUser.luckyNumber.length,
+        luckyNumber: updatedUser.luckyNumber,
+        balance: updatedUser.balance
+    });
+}

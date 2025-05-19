@@ -27,7 +27,8 @@ const userInfo = (user: any) => {
         balance: user.balance,
         bonus: user.bonus,
         wagerBonus: user.wagerBonus,
-        name: user.name
+        name: user.name,
+        luckyNumber: user.luckyNumber
     };
 };
 

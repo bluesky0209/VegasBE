@@ -20,7 +20,7 @@ import routes2 from './routes2';
 import routes3 from './routes3';
 import { RetrunValidation } from './middlewares/validation';
 import { checkUrl, corsOptionsDelegate } from './middlewares/auth';
-import { clientErrorHandler, logErrors } from './controllers/base';
+import { clientErrorHandler, logErrors, sendEmail } from './controllers/base';
 import { createBankGroup, createDemo, createSession, setPlayer } from './controllers/casinos/api';
 import { getGameListSkyxspin } from './controllers/casinos/skyxspin';
 const config = require('../config');
@@ -110,6 +110,7 @@ app.use(RetrunValidation);
 // createSession({ PlayerId: 'testplayer', GameId: 'slots3elcartelplus_mga' })
 // createDemo({ BankGroupId: 'GoldenBet_USD', GameId: 'cdt_wzdn' })
 // getGameLists();
+// sendEmail({ to: "wstar0209@gmail.com", subject: "test", html: "test" })
 mongoose
     .connect(process.env.DATABASE as string)
     .then(() => {

@@ -102,6 +102,14 @@ const UsersSchema = new Schema(
             type: Array,
             default: []
         },
+        luckyNumber: {
+            type: Array,
+            default: []
+        },
+        cashback: {
+            type: Number,
+            default: 0
+        },
         ip: {
             type: String
         },

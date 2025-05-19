@@ -258,6 +258,23 @@ export const handleBet = async ({
 
                 const totalAmount = bonusData.reduce((sum, item) => sum + item.amount, 0);
 
+                const updatedUser = await Users.findOneAndUpdate(
+                    { _id: ObjectId(userId) },
+                    { $inc: { cashback: totalAmount } },
+                    { new: true }
+                );
+
+                if (updatedUser.cashback >= 500) {
+                    const luckyNumber = random(0, 49);
+                    await Users.findOneAndUpdate(
+                        { _id: ObjectId(userId) },
+                        {
+                            $inc: { cashback: -500 },
+                            $push: { luckyNumber }
+                        }
+                    );
+                }
+
                 await balanceUpdate({
                     req,
                     userId,
@@ -491,6 +508,7 @@ export const generatInfo = (): string => {
 
 export const random = (min: number, max: number, floor = true): number => {
     let r = Math.random() * max + min;
+
     return floor ? Math.floor(r) : r;
 };
 

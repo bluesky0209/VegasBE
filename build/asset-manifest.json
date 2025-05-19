@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/static/css/main.3c4603ef.css",
-    "main.js": "/static/js/main.1d27e8f2.js",
+    "main.css": "/static/css/main.6fc87dd7.css",
+    "main.js": "/static/js/main.e4e14a5f.js",
     "static/js/919.7ccbb1b4.chunk.js": "/static/js/919.7ccbb1b4.chunk.js",
     "static/css/890.027424da.chunk.css": "/static/css/890.027424da.chunk.css",
-    "static/js/890.cbce016c.chunk.js": "/static/js/890.cbce016c.chunk.js",
+    "static/js/890.a5de3823.chunk.js": "/static/js/890.a5de3823.chunk.js",
     "static/js/910.c766fb4a.chunk.js": "/static/js/910.c766fb4a.chunk.js",
     "static/js/479.b3e544f2.chunk.js": "/static/js/479.b3e544f2.chunk.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
@@ -15,14 +15,15 @@
     "static/media/intro.default.mp3": "/static/media/intro.default.ea3c24173413b1c61890.mp3",
     "static/media/background.default.png": "/static/media/background.default.e2e15c6471c8a36997d7.png",
     "static/media/vegas-logo.png": "/static/media/vegas-logo.440a6e8aabd66debdf73.png",
+    "static/media/wheel-outer.default.png": "/static/media/wheel-outer.default.607dd657ceb404c1f2c0.png",
     "static/media/impact.ttf": "/static/media/impact.0294f8285a2493417c09.ttf",
     "static/media/wheel-frame.default.png": "/static/media/wheel-frame.default.bb803595955db27f6354.png",
     "static/media/apollo.png": "/static/media/apollo.46fc8ec99509bb758454.png",
     "static/media/1_OIIv4FEjJQMqh-zEPhtlYA.png": "/static/media/1_OIIv4FEjJQMqh-zEPhtlYA.de325dbbc4da84f6efbd.png",
     "static/media/jackpot_info.png": "/static/media/jackpot_info.4ffb6c62f69ff6b33438.png",
+    "static/media/wheel-inner.default.png": "/static/media/wheel-inner.default.efd13720d8174839b533.png",
     "static/media/stake.png": "/static/media/stake.a9ec07c38b21e7c7a9d3.png",
     "static/media/greentube.png": "/static/media/greentube.80b70a5828e74da02c8e.png",
-    "static/media/wheel-outer.default.png": "/static/media/wheel-outer.default.afa57fd9af045cd49779.png",
     "static/media/playtech.png": "/static/media/playtech.d381385a9502cf784c26.png",
     "static/media/lnw.png": "/static/media/lnw.37e18fea447685cf6ed4.png",
     "static/media/fishing.png": "/static/media/fishing.6aa8a955af697a466d3e.png",
@@ -31,7 +32,6 @@
     "static/media/lvl_progress.png": "/static/media/lvl_progress.08561f88a62b29059db6.png",
     "static/media/igt.png": "/static/media/igt.5b49445bd4165680843e.png",
     "static/media/jili.svg": "/static/media/jili.a69ee0cf69188554372af67fdf9e4c63.svg",
-    "static/media/wheel-inner.default.png": "/static/media/wheel-inner.default.d7be4810c28f1b2067e6.png",
     "static/media/jackpot_warning.png": "/static/media/jackpot_warning.a6e8352dcfa125fa0aad.png",
     "static/media/all.png": "/static/media/all.7aa09bb2f9732b7daa18.png",
     "static/media/jackpot.png": "/static/media/jackpot.42c69fcdab61e5ea0aa9.png",
@@ -39,8 +39,8 @@
     "static/media/table.png": "/static/media/table.1a290a31bbd438e23bc0.png",
     "static/media/blueprint.png": "/static/media/blueprint.5a629a6689413cf3e784.png",
     "static/media/konami.png": "/static/media/konami.acfa3935b34aea9aa5e9.png",
-    "static/media/wheel-marker.default.png": "/static/media/wheel-marker.default.5ffda4d5a67dcba38392.png",
     "static/media/racing.png": "/static/media/racing.8e1c7d0ebefc797eed49.png",
+    "static/media/wheel-marker.default.png": "/static/media/wheel-marker.default.59542ae367bb2dbf91c7.png",
     "static/media/bomba.png": "/static/media/bomba.18c675e986ad18b0e317.png",
     "static/media/ssg.png": "/static/media/ssg.daf5f6ba27c77a360b08.png",
     "static/media/myjp_icon.png": "/static/media/myjp_icon.94fc7732cb70c14e2283.png",
@@ -79,11 +79,11 @@
     "static/media/click.mp3": "/static/media/click.7ed8a16d3712767b0e61.mp3",
     "static/media/evoplay1.svg": "/static/media/evoplay1.1302dcf294295dbd8d8f289a616ef80a.svg",
     "index.html": "/index.html",
-    "main.3c4603ef.css.map": "/static/css/main.3c4603ef.css.map",
-    "main.1d27e8f2.js.map": "/static/js/main.1d27e8f2.js.map",
+    "main.6fc87dd7.css.map": "/static/css/main.6fc87dd7.css.map",
+    "main.e4e14a5f.js.map": "/static/js/main.e4e14a5f.js.map",
     "919.7ccbb1b4.chunk.js.map": "/static/js/919.7ccbb1b4.chunk.js.map",
     "890.027424da.chunk.css.map": "/static/css/890.027424da.chunk.css.map",
-    "890.cbce016c.chunk.js.map": "/static/js/890.cbce016c.chunk.js.map",
+    "890.a5de3823.chunk.js.map": "/static/js/890.a5de3823.chunk.js.map",
     "910.c766fb4a.chunk.js.map": "/static/js/910.c766fb4a.chunk.js.map",
     "479.b3e544f2.chunk.js.map": "/static/js/479.b3e544f2.chunk.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map",
@@ -91,7 +91,7 @@
     "727.3bec06ab.chunk.js.map": "/static/js/727.3bec06ab.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3c4603ef.css",
-    "static/js/main.1d27e8f2.js"
+    "static/css/main.6fc87dd7.css",
+    "static/js/main.e4e14a5f.js"
   ]
 }
