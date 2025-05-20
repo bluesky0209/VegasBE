@@ -115,12 +115,12 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         provider: game.SectionId
                     })
                 ]);
-                console.log(req.body.id, NumberFix(updatedBalance.balance * 100, 5), betHistory.transactionRef, "updatedBalance.balance")
+                console.log(req.body.id, Math.floor(updatedBalance.balance * 100), betHistory.transactionRef, "updatedBalance.balance")
                 return rep.status(200).json({
                     jsonrpc: "2.0",
                     id: req.body.id,
                     "result": {
-                        "newBalance": (NumberFix(updatedBalance.balance * 100, 5)),
+                        "newBalance": Math.floor(updatedBalance.balance * 100),
                         "transactionId": betHistory.transactionRef
                     }
                 });
