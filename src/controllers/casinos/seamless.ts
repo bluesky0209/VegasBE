@@ -12,7 +12,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 const user = await Users.findOne({ username: playerName });
                 console.log(NumberFix(user.balance * 100, 5), "balance")
                 if (user.balance) {
-                    return rep.json({
+                    return rep.status(200).json({
                         "jsonrpc": "2.0",
                         "id": req.body.id,
                         "result": {
@@ -116,7 +116,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     })
                 ]);
                 console.log(req.body.id, NumberFix(updatedBalance.balance * 100, 5), betHistory.transactionRef, "updatedBalance.balance")
-                return rep.json({
+                return rep.status(200).json({
                     jsonrpc: "2.0",
                     id: req.body.id,
                     "result": {
@@ -161,7 +161,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         CasinoBetHistory.updateOne({ transactionRef }, { type: 'rollback' })
                     ]);
                     console.log(updatedBalance.balance, "rollback")
-                    return rep.json({
+                    return rep.status(200).json({
                         "jsonrpc": "2.0",
                         "id": req.body.id,
                         "result": {}
