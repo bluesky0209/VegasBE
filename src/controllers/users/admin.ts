@@ -313,13 +313,17 @@ export const list = async (req: Request, res: Response) => {
 
         const results = await Users.aggregate(aggregatePipeline);
 
-        // Decrypt passwords
-        const decryptedResults = results.map(user => ({
-            ...user,
-            password: decrypt(user.password)
+        // Get active status for each user
+        const resultsWithActiveStatus = await Promise.all(results.map(async user => {
+            const session = await Sessions.findOne({ userId: user._id });
+            return {
+                ...user,
+                password: decrypt(user.password),
+                isActive: !!session
+            };
         }));
 
-        return res.json({ results: decryptedResults, count });
+        return res.json({ results: resultsWithActiveStatus, count });
 
     } catch (e) {
         console.log(e, "error");
@@ -392,3 +396,20 @@ export const deleteOne = async (req: Request, res: Response) => {
 
     return res.json(result);
 };
+
+export const getReport = async (req: Request, res: Response) => {
+    const { date } = req.body;
+    let query: any = {};
+    if (date && date[0] && date[1]) {
+        query.createdAt = {
+            $gte: new Date(date[0]),
+            $lte: new Date(date[1])
+        };
+    }
+    const [activeusers, registeredusers, loginedusers] = await Promise.all([
+        Sessions.countDocuments(query),
+        Users.countDocuments(query),
+        LoginHistories.countDocuments(query)
+    ]);
+    return res.json({ activeusers, registeredusers, loginedusers })
+}

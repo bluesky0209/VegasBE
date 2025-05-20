@@ -12,7 +12,8 @@ import {
     signup,
     signout,
     changePassword,
-    create
+    create,
+    getReport
 } from '../../controllers/users/admin';
 import { verifyAdminToken } from '../../middlewares/auth';
 const router = routerx();
@@ -21,7 +22,7 @@ router.post('/signin', V.body(Validator.Users.Admin.Signin), signin);
 router.post('/signup', verifyAdminToken, V.body(Validator.Users.Admin.Signup), signup);
 router.post('/signout', verifyAdminToken, V.body(Validator.UserId), signout);
 router.post('/changePassword', verifyAdminToken, V.body(Validator.Users.Admin.ChangePassword), changePassword);
-
+router.post('/report', verifyAdminToken, getReport)
 router.get('/', verifyAdminToken, get);
 router.get('/:id', verifyAdminToken, V.params(Validator.ObjectId), getOne);
 router.post('/list', verifyAdminToken, V.body(Validator.Users.Admin.List), list);
