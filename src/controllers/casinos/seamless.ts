@@ -10,13 +10,13 @@ export const getSeamless = async (req: Request, rep: Response) => {
             console.log("getBalance=> ", req.body.id, callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId)
             if (callerId && playerName && currency) {
                 const user = await Users.findOne({ username: playerName });
-                console.log(NumberFix(user.balance * 100, 5), "balance")
+                console.log(Math.floor(user.balance * 100), "balance")
                 if (user.balance) {
                     return rep.status(200).json({
                         "jsonrpc": "2.0",
                         "id": req.body.id,
                         "result": {
-                            "balance": NumberFix(user.balance * 100, 5),
+                            "balance": Math.floor(user.balance * 100),
                         }
                     })
                 }
