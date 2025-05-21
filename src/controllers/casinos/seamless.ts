@@ -223,8 +223,11 @@ export const skyTransfer = async (req: Request, rep: Response) => {
         if (Amount === 0) {
             console.log("Amount is 0")
             return rep.json({
-                "code": 1,
-                "error": "some error occur!!"
+                "code": 0,
+                "error": "",
+                "data": {
+                    "Balance": NumberFix(user.balance, 5)
+                }
             });
         }
 
