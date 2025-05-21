@@ -206,11 +206,8 @@ export const skyTransfer = async (req: Request, rep: Response) => {
         if (user.balance < 0) {
             console.log("Balance is less than 0")
             return rep.json({
-                "code": 0,
-                "error": "",
-                "data": {
-                    "Balance": NumberFix(user.balance, 5)
-                }
+                "code": 1,
+                "error": "some error occur!!"
             });
         }
 
@@ -218,22 +215,16 @@ export const skyTransfer = async (req: Request, rep: Response) => {
         if (newBalance < 0) {
             console.log("Updated Balance is less than 0")
             return rep.json({
-                "code": 0,
-                "error": "",
-                "data": {
-                    "Balance": NumberFix(user.balance, 5)
-                }
+                "code": 1,
+                "error": "some error occur!!"
             });
         }
 
         if (Amount === 0) {
             console.log("Amount is 0")
             return rep.json({
-                "code": 0,
-                "error": "",
-                "data": {
-                    "Balance": NumberFix(user.balance, 5)
-                }
+                "code": 1,
+                "error": "some error occur!!"
             });
         }
 
