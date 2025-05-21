@@ -208,6 +208,10 @@ export const handleBet = async ({
         // Find and update user balance
         const currentUser = await Users.findOne({ _id: ObjectId(userId) });
         const newBalance = Math.round((currentUser.balance + NumberFix(amount, 5)) * 100000) / 100000;
+        if (newBalance < 0) {
+            console.log("Balance is less than 0")
+            return false;
+        }
         let user = await Users.findOneAndUpdate(
             { _id: ObjectId(userId) },
             { $set: { balance: newBalance } },

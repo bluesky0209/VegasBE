@@ -203,6 +203,29 @@ export const skyTransfer = async (req: Request, rep: Response) => {
 
         const user = await Users.findOne({ username: UserID });
 
+        if (user.balance < 0) {
+            console.log("Balance is less than 0")
+            return rep.json({
+                "code": 0,
+                "error": "",
+                "data": {
+                    "Balance": NumberFix(user.balance, 5)
+                }
+            });
+        }
+
+        const newBalance = Math.round((user.balance + NumberFix(Amount, 5)) * 100000) / 100000;
+        if (newBalance < 0) {
+            console.log("Updated Balance is less than 0")
+            return rep.json({
+                "code": 0,
+                "error": "",
+                "data": {
+                    "Balance": NumberFix(user.balance, 5)
+                }
+            });
+        }
+
         if (Amount === 0) {
             console.log("Amount is 0")
             return rep.json({
