@@ -5,19 +5,8 @@ import { Users, Sessions, Permissions, LoginHistories } from '../../models';
 import {
     signAccessToken,
     ObjectId,
-    getIPAddress,
-    sendEmail,
-    getSessionTime,
-    // usernameLimiter,
-    maxFailsByLogin,
-    // checkLimiter,
-    // ipLimiter,
-    getUserBalance,
+    getIPAddress
 } from '../base';
-import { sign } from 'tweetnacl';
-import { decode } from 'bs58';
-import io from '../../socket';
-import socket from '../../socket';
 
 const userInfo = (user: any) => {
     return {
@@ -33,69 +22,59 @@ const userInfo = (user: any) => {
 };
 
 export const signin = async (req: Request, res: Response) => {
-    const { password, email } = req.body;
-    // const rlResIp = await ipLimiter.get(req.ip);
-    // const rlResUsername = await usernameLimiter.get(email);
-    // if (rlResUsername !== null && rlResUsername.consumedPoints > maxFailsByLogin) {
-    //     const retrySecs = Math.round(rlResUsername.msBeforeNext / 1000);
-    //     res.set('Retry-After', String(retrySecs));
-    //     return res.status(429).send('Too Many Requests.');
-    // } else if (rlResIp !== null && rlResIp.consumedPoints > maxFailsByLogin) {
-    //     const retrySecs = Math.round(rlResIp.msBeforeNext / 1000) || 1;
-    //     res.set('Retry-After', String(retrySecs));
-    //     return res.status(429).send('Too Many Requests.');
-    // } else {
-
-    const user = await Users.findOne({
-        $or: [
-            {
-                username: {
-                    $regex: new RegExp('^' + email.toLowerCase(), 'i')
+    try {
+        const { password, email } = req.body;
+        const ip = getIPAddress(req);
+        const user = await Users.findOne({
+            $or: [
+                {
+                    username: {
+                        $regex: new RegExp('^' + email.toLowerCase(), 'i')
+                    }
+                },
+                {
+                    email: {
+                        $regex: new RegExp('^' + email.toLowerCase(), 'i')
+                    }
                 }
-            },
-            {
-                email: {
-                    $regex: new RegExp('^' + email.toLowerCase(), 'i')
-                }
-            }
-        ]
-    });
-    if (!user) {
-        // checkLimiter(req, res);
-        return res.status(400).json(`We can't find with this email or username.`);
-    } else if (!user.validPassword(password, user.password)) {
-        // checkLimiter(req, res);
-        return res.status(400).json('Passwords do not match.');
-    } else if (!user.status) {
-        // checkLimiter(req, res);
-        return res.status(400).json('Account has been blocked.');
-    } else if (user.role !== 'player') {
-        return res.status(400).json('You are not authorized to access this page.');
-    } else {
-        const session = signAccessToken(req, res, user._id);
-        const LoginHistory = new LoginHistories({
-            userId: user._id,
-            ...session,
-            data: req.body
+            ]
         });
-        await LoginHistory.save();
-        await Sessions.updateOne({ userId: user._id }, session, {
-            new: true,
-            upsert: true
-        });
-        const userData = userInfo(user);
-        const sessionData = {
-            accessToken: session.accessToken,
-            refreshToken: session.refreshToken
-        };
-        // await usernameLimiter.delete(email);
-        return res.json({
-            status: true,
-            session: sessionData,
-            user: userData
-        });
+        if (!user) {
+            return res.status(400).json(`We can't find with this email or username.`);
+        } else if (!user.validPassword(password, user.password)) {
+            return res.status(400).json('Passwords do not match.');
+        } else if (!user.status) {
+            return res.status(400).json('Account has been blocked.');
+        } else if (user.role !== 'player') {
+            return res.status(400).json('You are not authorized to access this page.');
+        } else {
+            const session = signAccessToken(req, res, user._id);
+            await Promise.all([
+                Users.updateOne({ _id: ObjectId(user._id) }, { $set: { active: true, ip: ip.ip } }),
+                LoginHistories.create({
+                    userId: user._id,
+                    ...session,
+                    data: req.body
+                }),
+                await Sessions.updateOne({ userId: user._id }, session, {
+                    new: true,
+                    upsert: true
+                })
+            ]);
+            const userData = userInfo(user);
+            const sessionData = {
+                accessToken: session.accessToken,
+                refreshToken: session.refreshToken
+            };
+            return res.json({
+                status: true,
+                session: sessionData,
+                user: userData
+            });
+        }
+    } catch (e) {
+        console.log(e)
     }
-    // }
 };
 
 export const signup = async (req: Request, res: Response) => {
@@ -113,7 +92,6 @@ export const signup = async (req: Request, res: Response) => {
             Permissions.findOne({ title: 'player' })
         ]);
 
-        // Validation checks
         if (emailExists) {
             return res.status(400).json(`${email} is used by another account.`);
         }
@@ -121,7 +99,6 @@ export const signup = async (req: Request, res: Response) => {
             return res.status(400).json(`An account named '${username}' already exists.`);
         }
 
-        // Create new user
         const iReferral = randomString.generate(10);
         const newuser = new Users({
             ...req.body,
@@ -132,92 +109,94 @@ export const signup = async (req: Request, res: Response) => {
             status: true
         });
         newuser.save()
-
         return res.json('You have successfully created in as a user');
 
     } catch (e) {
-        console.log("===error===")
-        console.log(req.body)
         console.log(e)
     }
 };
 
 export const signout = async (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const result = await Sessions.deleteMany({ userId });
-    res.json(result);
+    try {
+        const { userId } = req.body;
+        console.log(userId, "userId")
+        const [result] = await Promise.all([
+            Sessions.deleteMany({ userId }),
+            Users.updateOne({ _id: ObjectId(userId) }, { $set: { active: false } })
+        ]);
+        res.json(result);
+    } catch (e) {
+        console.log(e)
+    }
 };
 
 export const info = async (req: Request, res: Response) => {
-    let result = {};
-    if (req.body.update) {
-        const { userId, email, username, avatar } = req.body;
-        // const emailExists = await Users.findOne({
-        //     _id: { $ne: ObjectId(userId) },
-        //     email: { $regex: new RegExp('^' + email.toLowerCase(), 'i') }
-        // });
-        // if (emailExists) {
-        //     return res.status(400).json(`${email} is used by another account.`);
-        // }
-        const usernameExists = await Users.findOne({
-            _id: { $ne: ObjectId(userId) },
-            username: { $regex: new RegExp('^' + username.toLowerCase(), 'i') }
-        });
-        if (usernameExists) {
-            return res.status(400).json(`An account named '${username}' already exists.`);
+    try {
+        let result = {};
+        if (req.body.update) {
+            const { userId, email, username, avatar } = req.body;
+            const usernameExists = await Users.findOne({
+                _id: { $ne: ObjectId(userId) },
+                username: { $regex: new RegExp('^' + username.toLowerCase(), 'i') }
+            });
+            if (usernameExists) {
+                return res.status(400).json(`An account named '${username}' already exists.`);
+            }
+            const userData = await Users.findById(ObjectId(userId));
+            if (!userData.status) {
+                return res.status(400).json('Account has been blocked.');
+            }
+            const user = await Users.findByIdAndUpdate(ObjectId(userId), req.body, { new: true });
+            result = userInfo(user);
+        } else {
+            const user = await Users.findOneAndUpdate({ _id: ObjectId(req.body.userId), status: true }, req.body, { new: true });
+            result = userInfo(user);
         }
-        const userData = await Users.findById(ObjectId(userId));
-        if (!userData.status) {
-            return res.status(400).json('Account has been blocked.');
-        }
-        const user = await Users.findByIdAndUpdate(ObjectId(userId), req.body, { new: true });
-        result = userInfo(user);
-        // if (userData.publicAddress === email || userData.publicAddress === username) {
-        //     const user = await Users.findByIdAndUpdate(ObjectId(userId), { avatar }, { new: true });
-        //     result = userInfo(user);
-        // } else {
-        //     const user = await Users.findByIdAndUpdate(ObjectId(userId), req.body, {
-        //         new: true
-        //     });
-        //     result = userInfo(user);
-        // }
-    } else {
-        const user = await Users.findOneAndUpdate({ _id: ObjectId(req.body.userId), status: true }, req.body, { new: true });
-        result = userInfo(user);
+        return res.json(result);
+    } catch (e) {
+        console.log(e)
     }
-    return res.json(result);
 
 };
 
 export const changePassword = async (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const user = await Users.findById(ObjectId(userId));
-    if (!user.validPassword(req.body['currentpass'], user.password)) {
-        return res.status(400).json('Passwords do not match.');
-    }
-    const password = user.generateHash(req.body['newpass']);
-    const result = await Users.findOneAndUpdate({ _id: ObjectId(userId), status: true }, { password }, { new: true });
-    if (result) {
-        return res.json('Success!');
-    } else {
-        return res.status(400).json('Server error.');
+    try {
+        const { userId } = req.body;
+        const user = await Users.findById(ObjectId(userId));
+        if (!user.validPassword(req.body['currentpass'], user.password)) {
+            return res.status(400).json('Passwords do not match.');
+        }
+        const password = user.generateHash(req.body['newpass']);
+        const result = await Users.findOneAndUpdate({ _id: ObjectId(userId), status: true }, { password }, { new: true });
+        if (result) {
+            return res.json('Success!');
+        } else {
+            return res.status(400).json('Server error.');
+        }
+    } catch (e) {
+        console.log(e)
     }
 };
 
 export const changeEmail = async (req: Request, res: Response) => {
-    const { userId, email } = req.body;
-    const emailExists = await Users.findOne({
-        _id: { $ne: ObjectId(userId) },
-        email: { $regex: new RegExp('^' + email.toLowerCase(), 'i') }
-    });
-    if (emailExists) {
-        return res.status(400).json(`${email} is used by another account.`);
+    try {
+        const { userId, email } = req.body;
+        const emailExists = await Users.findOne({
+            _id: { $ne: ObjectId(userId) },
+            email: { $regex: new RegExp('^' + email.toLowerCase(), 'i') }
+        });
+        if (emailExists) {
+            return res.status(400).json(`${email} is used by another account.`);
+        }
+        const user = await Users.findById(ObjectId(userId));
+        if (!user) return res.status(400).json('User not found');
+        user.email = email;
+        await user.save();
+        return res.json({ status: true, message: 'Email changed successfully.' });
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json(e);
     }
-    const user = await Users.findById(ObjectId(userId));
-    if (!user) return res.status(400).json('User not found');
-    user.email = email;
-    await user.save();
-    return res.json({ status: true, message: 'Email changed successfully.' });
 }
 
 export const passwordReset = async (req: Request, res: Response) => {

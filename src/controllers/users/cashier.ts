@@ -1,15 +1,11 @@
 import { Request, Response } from 'express';
 import {
-    balanceUpdate,
     decrypt,
     encrypt,
-    // checkLimiter, 
-    // usernameLimiter, 
-    // ipLimiter,
-    maxFailsByLogin, ObjectId, signAccessToken,
+    ObjectId,
+    signAccessToken,
 } from '../base';
 import {
-    BalanceHistories,
     CasinoBetHistory,
     LoginHistories,
     Permissions,
@@ -36,76 +32,69 @@ const aggregateQuery = [
     }
 ] as any;
 
-//admin panel login
 export const signin = async (req: Request, res: Response) => {
-    const { password, username } = req.body;
-    if (!password || !username) return res.status(400).json('Invalid field!');
-    if (!req.headers.admin) return res.status(400).json(`You can't access here.`);
-    const user = await Users.findOne({
-        $or: [
-            {
-                username: {
-                    $regex: new RegExp('^' + username.toLowerCase(), 'i')
+    try {
+        const { password, username } = req.body;
+        if (!password || !username) return res.status(400).json('Invalid field!');
+        if (!req.headers.admin) return res.status(400).json(`You can't access here.`);
+        const user = await Users.findOne({
+            $or: [
+                {
+                    username: {
+                        $regex: new RegExp('^' + username.toLowerCase(), 'i')
+                    }
+                },
+                {
+                    email: {
+                        $regex: new RegExp('^' + username.toLowerCase(), 'i')
+                    }
                 }
-            },
-            {
-                email: {
-                    $regex: new RegExp('^' + username.toLowerCase(), 'i')
-                }
-            }
-        ]
-    });
-    if (!user) {
-        // checkLimiter(req, res);
-        return res.status(400).json(`We can't find with this email or username.`);
-    } else if (user.role !== 'cashier') {
-        // checkLimiter(req, res);
-        return res.status(400).json(`You can't access here.`);
-    } else if (!user.validPassword(password, user.password)) {
-        // checkLimiter(req, res);
-        return res.status(400).json('Passwords do not match.');
-    } else if (!user.status) {
-        // checkLimiter(req, res);
-        return res.status(400).json('Account has been blocked.');
-    } else {
-        const session = signAccessToken(req, res, user._id);
-        // const LoginHistory = new LoginHistories({
-        //     userId: user._id,
-        //     ...session
-        // });
-        // await LoginHistory.save();
-        await Sessions.updateOne({ userId: user._id }, session, {
-            new: true,
-            upsert: true
+            ]
         });
-        const userData = {
-            _id: user._id,
-            email: user.email,
-            username: user.username,
-            name: user.name,
-            permission: user.permissionId,
-            role: user.role,
-            avatar: user.avatar,
-            balance: user.balance,
-            timezone: user.timezone,
-            token: process.env.CASHIER_TOKEN,
-            password: decrypt(user.password),
-            status: user.status,
-            in: user.in,
-            out: user.out,
-        };
-        const sessionData = {
-            accessToken: session.accessToken,
-            refreshToken: session.refreshToken
-        };
-        // await usernameLimiter.delete(email);
-        return res.json({
-            status: true,
-            session: sessionData,
-            user: userData
-        });
+        if (!user) {
+            return res.status(400).json(`We can't find with this email or username.`);
+        } else if (user.role !== 'cashier') {
+            return res.status(400).json(`You can't access here.`);
+        } else if (!user.validPassword(password, user.password)) {
+            return res.status(400).json('Passwords do not match.');
+        } else if (!user.status) {
+            return res.status(400).json('Account has been blocked.');
+        } else {
+            const session = signAccessToken(req, res, user._id);
+            await Sessions.updateOne({ userId: user._id }, session, {
+                new: true,
+                upsert: true
+            });
+            await Users.findByIdAndUpdate(user._id, { $set: { active: true } });
+            const userData = {
+                _id: user._id,
+                email: user.email,
+                username: user.username,
+                name: user.name,
+                permission: user.permissionId,
+                role: user.role,
+                avatar: user.avatar,
+                balance: user.balance,
+                timezone: user.timezone,
+                token: process.env.CASHIER_TOKEN,
+                password: decrypt(user.password),
+                status: user.status,
+                in: user.in,
+                out: user.out,
+            };
+            const sessionData = {
+                accessToken: session.accessToken,
+                refreshToken: session.refreshToken
+            };
+            return res.json({
+                status: true,
+                session: sessionData,
+                user: userData
+            });
+        }
+    } catch (e) {
+        console.log(e)
     }
-    // }
 };
 
 export const create = async (req: Request, res: Response) => {
@@ -123,13 +112,11 @@ export const create = async (req: Request, res: Response) => {
             return res.status(400).json(`An account named '${username}' already exists.`);
         }
 
-        // Update parent user's count
         const parentUser = await Users.findByIdAndUpdate(
             ObjectId(userId),
             { $inc: { [`count.${role.toLowerCase()}`]: 1 } }
         );
 
-        // Update all parent users' counts recursively
         const updateParentCounts = async (parentPermissions: any) => {
             for (const [roles, username] of Object.entries(parentPermissions)) {
                 await Users.findOneAndUpdate(
@@ -188,43 +175,58 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const updateTimezone = async (req: Request, res: Response) => {
-    const { userId, timezone } = req.body;
-    await Users.findByIdAndUpdate(ObjectId(userId), { timezone }, { new: true });
-    return res.json({ status: true });
+    try {
+        const { userId, timezone } = req.body;
+        await Users.findByIdAndUpdate(ObjectId(userId), { timezone }, { new: true });
+        return res.json({ status: true });
+    } catch (e) {
+        console.log(e)
+    }
 };
 
 export const signout = async (req: Request, res: Response) => {
-    const { userId } = req.body;
-    await Sessions.deleteMany({ userId });
-    res.json({ status: true });
+    try {
+        const { userId } = req.body;
+        await Promise.all([
+            Sessions.deleteMany({ userId }),
+            Users.findByIdAndUpdate(ObjectId(userId), { $set: { active: false } })
+        ])
+        res.json({ status: true });
+    } catch (e) {
+        console.log(e)
+    }
 };
 
 export const changePassword = async (req: Request, res: Response) => {
-    const { userId, newpass, oldpass } = req.body;
-    const user = await Users.findById(ObjectId(userId));
-    if (!user.validPassword(oldpass, user.password)) {
-        return res.status(400).json('Password is incorrect.');
-    }
-    const password = user.generateHash(newpass);
-    const result = await Users.findByIdAndUpdate(ObjectId(userId), { password }, { new: true });
-    if (result) {
-        const userData = {
-            _id: result._id,
-            email: result.email,
-            username: result.username,
-            name: result.name,
-            permission: result.permissionId,
-            role: result.role,
-            status: result.status,
-            avatar: result.avatar,
-            balance: result.balance,
-            timezone: result.timezone,
-            token: process.env.CASHIER_TOKEN,
-            password: decrypt(result.password)
-        };
-        return res.json(userData);
-    } else {
-        return res.status(400).json('Server error.');
+    try {
+        const { userId, newpass, oldpass } = req.body;
+        const user = await Users.findById(ObjectId(userId));
+        if (!user.validPassword(oldpass, user.password)) {
+            return res.status(400).json('Password is incorrect.');
+        }
+        const password = user.generateHash(newpass);
+        const result = await Users.findByIdAndUpdate(ObjectId(userId), { password }, { new: true });
+        if (result) {
+            const userData = {
+                _id: result._id,
+                email: result.email,
+                username: result.username,
+                name: result.name,
+                permission: result.permissionId,
+                role: result.role,
+                status: result.status,
+                avatar: result.avatar,
+                balance: result.balance,
+                timezone: result.timezone,
+                token: process.env.CASHIER_TOKEN,
+                password: decrypt(result.password)
+            };
+            return res.json(userData);
+        } else {
+            return res.status(400).json('Server error.');
+        }
+    } catch (e) {
+        console.log(e)
     }
 };
 
@@ -242,22 +244,20 @@ export const getOne = async (req: Request, res: Response) => {
         },
         ...aggregateQuery
     ]);
+    result[0].password = decrypt(result[0].password);
     return res.json(result[0]);
 };
 
-//admin -> users list
 export const list = async (req: Request, res: Response) => {
     try {
         const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId, search } = req.body;
 
-        // Check permissions
         const permission = await Permissions.findById(ObjectId(permissionId));
         const findRole = await Permissions.findOne({ title: role });
         if (findRole.order <= permission.order) {
             return res.status(403).json('You are not authorized to access this page.');
         }
 
-        // Build query
         const query: any = {};
 
         if (role) {
@@ -287,10 +287,7 @@ export const list = async (req: Request, res: Response) => {
                 $lte: new Date(date[1])
             };
         }
-        // Get total count
-        const count = await Users.countDocuments(query);
 
-        // Get paginated results
         const aggregatePipeline = [
             { $match: query },
             ...(pageSize && page ? [
@@ -300,15 +297,12 @@ export const list = async (req: Request, res: Response) => {
             ] : [])
         ];
 
-        const results = await Users.aggregate(aggregatePipeline);
+        const [count, results] = await Promise.all([
+            Users.countDocuments(query),
+            Users.aggregate(aggregatePipeline)
+        ]);
 
-        // Decrypt passwords
-        const decryptedResults = results.map(user => ({
-            ...user,
-            password: decrypt(user.password)
-        }));
-
-        return res.json({ results: decryptedResults, count });
+        return res.json({ results, count });
 
     } catch (e) {
         console.log(e, "error");
@@ -370,7 +364,6 @@ export const deleteOne = async (req: Request, res: Response) => {
     const result = await Users.deleteOne({ _id: userId });
     await Sessions.deleteMany({ userId });
     await CasinoBetHistory.deleteMany({ userId });
-    await BalanceHistories.deleteMany({ userId });
     await LoginHistories.deleteMany({ userId });
     return res.json(result);
 };

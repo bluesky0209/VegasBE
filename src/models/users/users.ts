@@ -122,29 +122,13 @@ const UsersSchema = new Schema(
         rReferral: {
             type: String
         },
-        referralRewards: {
-            type: Number,
-            default: 0
-        },
-        commissionRewards: {
-            type: Number,
-            default: 0
-        },
-        friends: {
-            type: Number,
-            default: 0
-        },
-        friendsRewards: {
-            type: Number,
-            default: 0
-        },
         wager: {
             type: Number,
             default: 0
         },
-        friendsWager: {
-            type: Number,
-            default: 0
+        active: {
+            type: Boolean,
+            default: false
         },
         status: {
             type: Boolean,

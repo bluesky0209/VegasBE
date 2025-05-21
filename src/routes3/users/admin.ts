@@ -9,7 +9,6 @@ import {
     label,
     addlabel,
     signin,
-    signup,
     signout,
     changePassword,
     create,
@@ -19,7 +18,6 @@ import { verifyAdminToken } from '../../middlewares/auth';
 const router = routerx();
 
 router.post('/signin', V.body(Validator.Users.Admin.Signin), signin);
-router.post('/signup', verifyAdminToken, V.body(Validator.Users.Admin.Signup), signup);
 router.post('/signout', verifyAdminToken, V.body(Validator.UserId), signout);
 router.post('/changePassword', verifyAdminToken, V.body(Validator.Users.Admin.ChangePassword), changePassword);
 router.post('/report', verifyAdminToken, getReport)

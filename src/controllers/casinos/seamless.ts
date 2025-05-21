@@ -7,10 +7,9 @@ export const getSeamless = async (req: Request, rep: Response) => {
     switch (req.body.method) {
         case 'getBalance': {
             const { callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId } = req.body.params;
-            console.log("getBalance=> ", req.body.id, callerId, playerName, currency, gameId, bonusId, sessionId, sessionAlternativeId)
             if (callerId && playerName && currency) {
                 const user = await Users.findOne({ username: playerName });
-                console.log(Math.floor(user.balance * 100), "balance")
+                console.log(Math.floor(user.balance * 100), "c2gaming balance")
                 if (user.balance) {
                     return rep.status(200).json({
                         "jsonrpc": "2.0",
@@ -26,7 +25,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
         case 'withdrawAndDeposit': {
             try {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
-                console.log("callerId =>", callerId, "playerName=>", playerName, "withdraw=>", withdraw, "deposit=>", deposit, "currency=>", currency, "transactionRef=>", transactionRef, "gameRoundRef=>", gameRoundRef, "gameId=>", gameId, "reason=>", reason, "sessionId=>", sessionId, "sessionAlternativeId=>", sessionAlternativeId, "chargeFreerounds=>", chargeFreerounds, "bonusId=>", bonusId, "spinDetails=>", spinDetails)
+                console.log("playerName=>", playerName, "withdraw=>", withdraw, "deposit=>", deposit, "c2gaming")
                 const amount = (deposit - withdraw) / 100;
 
                 if (deposit < 0) {
@@ -116,7 +115,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         provider: game.SectionId
                     })
                 ]);
-                console.log(req.body.id, Math.floor(updatedBalance.balance * 100), betHistory.transactionRef, "updatedBalance.balance")
+                console.log(Math.floor(updatedBalance.balance * 100), "updatedBalance c2gaming")
                 return rep.status(200).json({
                     jsonrpc: "2.0",
                     id: req.body.id,

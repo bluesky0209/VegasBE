@@ -51,7 +51,13 @@ export const UpdateSession = async (io: any) => {
         expiration: { $lte: globalTime() }
     }).populate('userId');
     if (sessions.length) {
-        await Sessions.deleteMany({ expiration: { $lte: globalTime() } });
+        await Promise.all([
+            Sessions.deleteMany({ expiration: { $lte: globalTime() } }),
+            Users.updateMany(
+                { _id: { $in: sessions.map(session => session.userId._id) } },
+                { active: false }
+            )
+        ]);
         for (const i in sessions) {
             io.to(sessions[i].socketId).emit('logout');
         }

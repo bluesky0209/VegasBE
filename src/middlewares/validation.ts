@@ -125,7 +125,10 @@ export const Validator = {
                 permissionId: Joi.string().min(24).max(24).optional(),
                 parentId: Joi.string().min(24).max(24).optional(),
                 playerId: Joi.string().min(24).max(24).optional(),
-                search: Joi.string().allow('').optional()
+                search: Joi.string().allow('').optional(),
+                cashier: Joi.string().min(0).max(24).optional(),
+                agent: Joi.string().min(0).max(24).optional(),
+                superagent: Joi.string().min(0).max(24).optional()
             })
         },
         Permission: {

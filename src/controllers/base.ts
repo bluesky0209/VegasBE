@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 import 'dotenv/config';
 import mongoose, { ObjectId as ObjectIdType } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Sessions, Users, BalanceHistories, Payments, Bonus, Jackpots, Jackpothistories } from '../models';
+import { Sessions, Users, Payments, Bonus, Jackpots, Jackpothistories } from '../models';
 const config = require('../../config');
 
 export const maxFailsByLogin = 3;
@@ -220,20 +220,6 @@ export const handleBet = async ({
         }
 
         const currentBalance = NumberFix(user.balance, 5);
-        const beforeBalance = NumberFix(currentBalance - amount, 5);
-
-        // Create balance history record
-        await BalanceHistories.create({
-            userId,
-            amount: NumberFix(amount, 5),
-            currency,
-            type,
-            currentBalance,
-            beforeBalance,
-            info,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        });
 
         if (user.bonusType && user.bonusType !== 'general' && user.balance < 1) {
             if (user.bonusType === 'wager') {
@@ -324,7 +310,6 @@ export const handleBet = async ({
                 req.app.get('io').to(session.socketId).emit('balance', {
                     balance: currentBalance
                 });
-                req.app.get('io').to(session.socketId).emit('bonus', { bonus: user.bonus });
             }
         }
 
@@ -406,16 +391,7 @@ export const balanceUpdate = async ({
         afterBonus: result.bonus,
         ip: getIPAddress(req).ip
     });
-    await BalanceHistories.create({
-        userId: userId,
-        amount: NumberFix(amount),
-        type,
-        currentBalance,
-        beforeBalance,
-        info: new Date().getTime() + Math.random(),
-        createdAt: new Date(Date.now()),
-        updatedAt: new Date(Date.now()),
-    });
+
     if (typeDetail === 'deposit' || typeDetail === 'withdraw') {
         const payuser = await Users.findOneAndUpdate(
             { _id: ObjectId(payuserId), role: { $ne: 'admin' } },
@@ -428,16 +404,6 @@ export const balanceUpdate = async ({
             { new: true }
         );
         if (payuser) {
-            await BalanceHistories.create({
-                userId: payuserId,
-                amount: NumberFix(-amount),
-                type,
-                currentBalance: payuser.balance,
-                beforeBalance: payuser.balance + amount,
-                info: new Date().getTime() + Math.random(),
-                createdAt: new Date(Date.now()),
-                updatedAt: new Date(Date.now()),
-            });
             result.adminbalance = payuser.balance;
             result.adminin = payuser.in;
             result.adminout = payuser.out;

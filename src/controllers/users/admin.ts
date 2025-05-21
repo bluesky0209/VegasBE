@@ -1,15 +1,11 @@
 import { Request, Response } from 'express';
 import {
-    balanceUpdate,
     decrypt,
     encrypt,
-    // checkLimiter, 
-    // usernameLimiter, 
-    // ipLimiter,
-    maxFailsByLogin, ObjectId, signAccessToken,
+    ObjectId,
+    signAccessToken
 } from '../base';
 import {
-    BalanceHistories,
     CasinoBetHistory,
     LoginHistories,
     Permissions,
@@ -38,106 +34,67 @@ const aggregateQuery = [
 
 //admin panel login
 export const signin = async (req: Request, res: Response) => {
-    const { password, username } = req.body;
-    if (!password || !username) return res.status(400).json('Invalid field!');
-    if (!req.headers.admin) return res.status(400).json(`You can't access here.`);
-    const user = await Users.findOne({
-        $or: [
-            {
-                username: {
-                    $regex: new RegExp('^' + username.toLowerCase(), 'i')
+    try {
+        const { password, username } = req.body;
+        if (!password || !username) return res.status(400).json('Invalid field!');
+        if (!req.headers.admin) return res.status(400).json(`You can't access here.`);
+        const user = await Users.findOne({
+            $or: [
+                {
+                    username: {
+                        $regex: new RegExp('^' + username.toLowerCase(), 'i')
+                    }
+                },
+                {
+                    email: {
+                        $regex: new RegExp('^' + username.toLowerCase(), 'i')
+                    }
                 }
-            },
-            {
-                email: {
-                    $regex: new RegExp('^' + username.toLowerCase(), 'i')
-                }
-            }
-        ]
-    });
-    if (!user) {
-        // checkLimiter(req, res);
-        return res.status(400).json(`We can't find with this email or username.`);
-    } else if (user.permissionId.order > 2) {
-        // checkLimiter(req, res);
-        return res.status(400).json(`You can't access here.`);
-    } else if (!user.validPassword(password, user.password)) {
-        // checkLimiter(req, res);
-        return res.status(400).json('Passwords do not match.');
-    } else if (!user.status) {
-        // checkLimiter(req, res);
-        return res.status(400).json('Account has been blocked.');
-    } else {
-        const session = signAccessToken(req, res, user._id);
-        // const LoginHistory = new LoginHistories({
-        //     userId: user._id,
-        //     ...session
-        // });
-        // await LoginHistory.save();
-        await Sessions.updateOne({ userId: user._id }, session, {
-            new: true,
-            upsert: true
+            ]
         });
-        const userData = {
-            _id: user._id,
-            email: user.email,
-            username: user.username,
-            name: user.name,
-            permission: user.permissionId,
-            role: user.role,
-            avatar: user.avatar,
-            balance: user.balance,
-            timezone: user.timezone,
-            token: process.env.ADMIN_TOKEN
-        };
-        const sessionData = {
-            accessToken: session.accessToken,
-            refreshToken: session.refreshToken
-        };
-        // await usernameLimiter.delete(email);
-        return res.json({
-            status: true,
-            session: sessionData,
-            user: userData
-        });
-    }
-    // }
-};
-
-export const signup = async (req: Request, res: Response) => {
-    if (req.headers.password !== process.env.ADMIN_PASSWORD?.toString()) return res.status(400).json(`You can't access here.`);
-    const user = req.body;
-    const emailExists = await Users.findOne({
-        email: { $regex: new RegExp('^' + user.email.toLowerCase(), 'i') }
-    });
-    if (emailExists) {
-        return res.status(400).json(`${user.email} is used by another account.`);
-    }
-    const usernameExists = await Users.findOne({
-        username: { $regex: new RegExp('^' + user.username.toLowerCase(), 'i') }
-    });
-    if (usernameExists) {
-        return res.status(400).json(`An account named '${user.username}' already exists.`);
-    }
-
-    let newuser = new Users(user);
-    const permission = await Permissions.findOne({ title: 'admin' });
-    newuser.password = newuser.generateHash(user.password);
-    newuser.permissionId = permission._id;
-    newuser.status = true;
-
-    const u_result = await newuser.save();
-    if (!u_result) {
-        return res.status(400).json('error');
-    } else {
-        const populatedUser = await Users.findById(u_result._id).populate('permissionId', 'title');
-        return res.json({
-            message: 'You have successfully created in as a user.',
-            user: populatedUser
-        });
+        if (!user) {
+            return res.status(400).json(`We can't find with this email or username.`);
+        } else if (user.permissionId.order > 2) {
+            return res.status(400).json(`You can't access here.`);
+        } else if (!user.validPassword(password, user.password)) {
+            return res.status(400).json('Passwords do not match.');
+        } else if (!user.status) {
+            return res.status(400).json('Account has been blocked.');
+        } else {
+            const session = signAccessToken(req, res, user._id);
+            await Sessions.updateOne({ userId: user._id }, session, {
+                new: true,
+                upsert: true
+            });
+            await Users.updateOne({ _id: user._id }, { $set: { active: true } });
+            const userData = {
+                _id: user._id,
+                email: user.email,
+                username: user.username,
+                name: user.name,
+                permission: user.permissionId,
+                role: user.role,
+                avatar: user.avatar,
+                balance: user.balance,
+                timezone: user.timezone,
+                token: process.env.ADMIN_TOKEN
+            };
+            const sessionData = {
+                accessToken: session.accessToken,
+                refreshToken: session.refreshToken
+            };
+            return res.json({
+                status: true,
+                session: sessionData,
+                user: userData
+            });
+        }
+    } catch (e) {
+        console.log(e);
     }
 };
 
+//create the children role
 export const create = async (req: Request, res: Response) => {
     const { role, userId, username, password, permissionId, balance, bonusType, name } = req.body;
     try {
@@ -153,13 +110,11 @@ export const create = async (req: Request, res: Response) => {
             return res.status(400).json(`An account named '${username}' already exists.`);
         }
 
-        // Update parent user's count
         const parentUser = await Users.findByIdAndUpdate(
             ObjectId(userId),
             { $inc: { [`count.${role.toLowerCase()}`]: 1 } }
         );
 
-        // Update all parent users' counts recursively
         const updateParentCounts = async (parentPermissions: any) => {
             for (const [roles, username] of Object.entries(parentPermissions)) {
                 await Users.findOneAndUpdate(
@@ -218,24 +173,36 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const signout = async (req: Request, res: Response) => {
-    const { userId } = req.body;
-    await Sessions.deleteMany({ userId });
-    res.json({ status: true });
+    try {
+        const { userId } = req.body;
+        await Promise.all([
+            Sessions.deleteMany({ userId }),
+            Users.updateOne({ _id: ObjectId(userId) }, { $set: { active: false } })
+        ])
+        res.json({ status: true });
+    } catch (e) {
+        console.log(e)
+    }
 };
 
 export const changePassword = async (req: Request, res: Response) => {
-    const { userId, newpass } = req.body;
-    const user = await Users.findById(ObjectId(userId));
-    const password = user.generateHash(newpass);
-    const result = await Users.findByIdAndUpdate(ObjectId(userId), { password }, { new: true });
-    const session = await Sessions.findOneAndDelete({ userId });
-    if (session && session.socketId) {
-        req.app.get('io').to(session.socketId).emit('logout');
-    }
-    if (result) {
-        return res.json('Success!');
-    } else {
-        return res.status(400).json('Server error.');
+    try {
+        const { userId, newpass } = req.body;
+        const user = await Users.findById(ObjectId(userId));
+        const password = user.generateHash(newpass);
+        const result = await Users.findByIdAndUpdate(ObjectId(userId), { password }, { new: true });
+        const session = await Sessions.findOneAndDelete({ userId });
+        await Users.updateOne({ _id: ObjectId(userId) }, { $set: { active: false } });
+        if (session && session.socketId) {
+            req.app.get('io').to(session.socketId).emit('logout');
+        }
+        if (result) {
+            return res.json('Success!');
+        } else {
+            return res.status(400).json('Server error.');
+        }
+    } catch (e) {
+        console.log(e)
     }
 };
 
@@ -253,22 +220,21 @@ export const getOne = async (req: Request, res: Response) => {
         },
         ...aggregateQuery
     ]);
+    result[0].password = decrypt(result[0].password);
     return res.json(result[0]);
 };
 
 //admin -> users list
 export const list = async (req: Request, res: Response) => {
     try {
-        const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId, search } = req.body;
+        const { status, pageSize, page, userId, parentId, playerId, date, role, permissionId, search, cashier, agent, superagent } = req.body;
 
-        // Check permissions
         const permission = await Permissions.findById(ObjectId(permissionId));
         const findRole = await Permissions.findOne({ title: role });
         if (findRole.order <= permission.order) {
             return res.status(403).json('You are not authorized to access this page.');
         }
 
-        // Build query
         const query: any = {};
 
         if (role) {
@@ -282,6 +248,18 @@ export const list = async (req: Request, res: Response) => {
         if (permission.title !== 'admin' && parentId) {
             const parent = await Users.findById(ObjectId(parentId));
             query['parent.' + permission.title] = parent.username;
+        }
+
+        if (cashier) {
+            query['parent.cashier'] = cashier;
+        }
+
+        if (agent) {
+            query['parent.agent'] = agent;
+        }
+
+        if (superagent) {
+            query['parent.superagent'] = superagent;
         }
 
         if (playerId) {
@@ -298,10 +276,7 @@ export const list = async (req: Request, res: Response) => {
                 $lte: new Date(date[1])
             };
         }
-        // Get total count
-        const count = await Users.countDocuments(query);
 
-        // Get paginated results
         const aggregatePipeline = [
             { $match: query },
             ...(pageSize && page ? [
@@ -311,19 +286,12 @@ export const list = async (req: Request, res: Response) => {
             ] : [])
         ];
 
-        const results = await Users.aggregate(aggregatePipeline);
+        const [count, results] = await Promise.all([
+            Users.countDocuments(query),
+            Users.aggregate(aggregatePipeline)
+        ]);
 
-        // Get active status for each user
-        const resultsWithActiveStatus = await Promise.all(results.map(async user => {
-            const session = await Sessions.findOne({ userId: user._id });
-            return {
-                ...user,
-                password: decrypt(user.password),
-                isActive: !!session
-            };
-        }));
-
-        return res.json({ results: resultsWithActiveStatus, count });
+        return res.json({ results, count });
 
     } catch (e) {
         console.log(e, "error");
@@ -391,25 +359,28 @@ export const deleteOne = async (req: Request, res: Response) => {
     const result = await Users.deleteOne({ _id: userId });
     await Sessions.deleteMany({ userId });
     await CasinoBetHistory.deleteMany({ userId });
-    await BalanceHistories.deleteMany({ userId });
     await LoginHistories.deleteMany({ userId });
 
     return res.json(result);
 };
 
 export const getReport = async (req: Request, res: Response) => {
-    const { date } = req.body;
-    let query: any = {};
-    if (date && date[0] && date[1]) {
-        query.createdAt = {
-            $gte: new Date(date[0]),
-            $lte: new Date(date[1])
-        };
+    try {
+        const { date } = req.body;
+        let query: any = {};
+        if (date && date[0] && date[1]) {
+            query.createdAt = {
+                $gte: new Date(date[0]),
+                $lte: new Date(date[1])
+            };
+        }
+        const [activeusers, registeredusers, loginedusers] = await Promise.all([
+            Sessions.countDocuments(query),
+            Users.countDocuments(query),
+            LoginHistories.countDocuments(query)
+        ]);
+        return res.json({ activeusers, registeredusers, loginedusers })
+    } catch (e) {
+        console.log(e)
     }
-    const [activeusers, registeredusers, loginedusers] = await Promise.all([
-        Sessions.countDocuments(query),
-        Users.countDocuments(query),
-        LoginHistories.countDocuments(query)
-    ]);
-    return res.json({ activeusers, registeredusers, loginedusers })
 }
