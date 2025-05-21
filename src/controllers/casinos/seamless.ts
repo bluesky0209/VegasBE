@@ -63,6 +63,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                     })
                 ]);
 
+                console.log(user.balance * 100, withdraw, user.balance * 100 < withdraw, "bet")
                 if (user.balance * 100 < withdraw) {
                     console.log("The player doesn't have enough money to do the bet action.")
                     return rep.json({
