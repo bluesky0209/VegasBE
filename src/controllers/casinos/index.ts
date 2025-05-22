@@ -5,7 +5,7 @@ import { CasinoGameLists, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
 
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
-    const { id, provider, gname, page = 1, pageSize = 20, filter } = req.body;
+    const { id, provider, gname, page, pageSize, filter } = req.body;
     let query: any = { status: true }
     if (provider) {
         if (provider === 'tablegames') {
@@ -23,9 +23,15 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
         query.Name = { $regex: new RegExp(filter.toLowerCase(), 'i') }
     }
     const count = await CasinoGameLists.countDocuments(query);
-    const result = await CasinoGameLists.find(query)
-        .skip((page - 1) * pageSize)
-        .limit(pageSize);
+    let result;
+
+    if (page && pageSize) {
+        result = await CasinoGameLists.find(query)
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+    } else {
+        result = await CasinoGameLists.find(query);
+    }
 
     return res.json({ result, count });
 }

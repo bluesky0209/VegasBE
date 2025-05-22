@@ -115,8 +115,6 @@ export const createSession = async (req: Request, rep: Response) => {
                 GameId,
                 Params: {
                     "language": "en",
-                    // "freeround_bet": 2,
-                    // "freeround_denomination": 0.3
                 }
             }
         });
