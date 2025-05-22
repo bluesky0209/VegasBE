@@ -26,10 +26,10 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
     const [count, result] = await Promise.all([
         CasinoGameLists.countDocuments(query),
         page && pageSize
-            ? CasinoGameLists.find(query, { Id: 1, Name: 1, SectionId: 1, aggregator: 1, _id: 0 })
+            ? CasinoGameLists.find(query, { Id: 1, Name: 1, SectionId: 1, aggregator: 1, Icon: 1, _id: 0 })
                 .skip((page - 1) * pageSize)
                 .limit(pageSize)
-            : CasinoGameLists.find(query, { Id: 1, Name: 1, SectionId: 1, aggregator: 1, _id: 0 })
+            : CasinoGameLists.find(query, { Id: 1, Name: 1, SectionId: 1, aggregator: 1, Icon: 1, _id: 0 })
     ]);
 
     return res.json({ result, count });
