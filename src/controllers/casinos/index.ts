@@ -22,16 +22,15 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
     if (filter) {
         query.Name = { $regex: new RegExp(filter.toLowerCase(), 'i') }
     }
-    const count = await CasinoGameLists.countDocuments(query);
-    let result;
 
-    if (page && pageSize) {
-        result = await CasinoGameLists.find(query)
-            .skip((page - 1) * pageSize)
-            .limit(pageSize);
-    } else {
-        result = await CasinoGameLists.find(query);
-    }
+    const [count, result] = await Promise.all([
+        CasinoGameLists.countDocuments(query),
+        page && pageSize
+            ? CasinoGameLists.find(query, { Id: 1, Name: 1, SectionId: 1, aggregator: 1, _id: 0 })
+                .skip((page - 1) * pageSize)
+                .limit(pageSize)
+            : CasinoGameLists.find(query, { Id: 1, Name: 1, SectionId: 1, aggregator: 1, _id: 0 })
+    ]);
 
     return res.json({ result, count });
 }
