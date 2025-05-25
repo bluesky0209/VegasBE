@@ -225,17 +225,12 @@ export const handleBet = async ({
             if (user.bonusType === 'wager') {
                 user = await Users.findOneAndUpdate(
                     { _id: ObjectId(userId) },
-                    { $set: { bonus: 0, bonusType: 'general', wagerBonus: 0 } },
+                    { $set: { wagerBonus: 0 } },
                     { new: true }
                 );
             } else {
-                user = await Users.findOneAndUpdate(
-                    { _id: ObjectId(userId) },
-                    { $inc: { balance: user.bonus }, $set: { bonus: 0, bonusType: 'general' } },
-                    { new: true }
-                );
                 const bonusData = await Bonus.find(
-                    { userId: ObjectId(userId), type: { $in: ['cashback', 'happyhour'] } }
+                    { userId: ObjectId(userId), type: { $in: ['cashback', 'happyhour'] }, status: 'pending' }
                 );
 
                 await Bonus.updateMany(

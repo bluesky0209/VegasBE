@@ -3,6 +3,7 @@ import 'dotenv/config';
 import 'regenerator-runtime';
 import { CasinoGameLists, CasinoProviders, Users } from '../../models';
 import { Request, Response } from 'express';
+import { ObjectId } from '../base';
 
 export const getCasinoGamesLists = async (req: Request, res: Response) => {
     const { id, provider, gname, page, pageSize, filter } = req.body;
@@ -36,10 +37,23 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
 }
 
 export const getFavoriteGame = async (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const user = await Users.findOne({ _id: userId });
-    const result = await CasinoGameLists.find({ Id: { $in: user.favoriteGame } });
-    return res.json({ result });
+    try {
+        const { userId } = req.body;
+        const user = await Users.findOne({ _id: ObjectId(userId) });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if (!user.favoriteGame) {
+            return res.json({ result: [] });
+        }
+
+        const result = await CasinoGameLists.find({ Id: { $in: user.favoriteGame } });
+        return res.json({ result });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error" });
+    }
 }
 
 export const getCasinoGamesListByCategory = async (req: Request, res: Response) => {
