@@ -6,7 +6,8 @@ import { getCasinoGamesListByCategory, getCasinoGamesLists, getCasinoProviders, 
 import { deleteMany } from '../../controllers/casinos/casinos';
 import { createBankGroup, createSession, createDemo, setPlayer, closeSession } from '../../controllers/casinos/api';
 import { getSeamless } from "../../controllers/casinos/seamless";
-import { launchGame } from '../../controllers/casinos/skyxspin';
+import { launchGame as launchSkyxspinGame } from '../../controllers/casinos/skyxspin';
+import { launchGame as launchPlayxspinGame } from '../../controllers/casinos/playxspin';
 
 const router = routerx();
 //provider
@@ -20,9 +21,11 @@ router.post('/get-providers', getCasinoProviders)
 router.post('/get-favorite-game', getFavoriteGame)
 
 router.post('/createSession', async (req, res) => {
-    const { provider } = req.body;
-    if (provider === 'skyxspin') {
-        launchGame(req, res);
+    const { aggregator } = req.body;
+    if (aggregator === 'skyxspin') {
+        launchSkyxspinGame(req, res);
+    } else if (aggregator === 'playxspin') {
+        launchPlayxspinGame(req, res);
     } else {
         createSession(req, res);
     }

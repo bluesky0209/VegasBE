@@ -8,6 +8,9 @@ const UsersSchema = new Schema(
             type: Number,
             unique: true
         },
+        code: {
+            type: Number,
+        },
         parentId: {
             type: Schema.Types.ObjectId,
             ref: 'users'

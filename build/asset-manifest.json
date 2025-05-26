@@ -1,10 +1,10 @@
 {
   "files": {
     "main.css": "/static/css/main.6fc87dd7.css",
-    "main.js": "/static/js/main.e4e14a5f.js",
+    "main.js": "/static/js/main.956dcd5b.js",
     "static/js/919.7ccbb1b4.chunk.js": "/static/js/919.7ccbb1b4.chunk.js",
-    "static/css/890.027424da.chunk.css": "/static/css/890.027424da.chunk.css",
-    "static/js/890.a5de3823.chunk.js": "/static/js/890.a5de3823.chunk.js",
+    "static/css/811.ebc9eac6.chunk.css": "/static/css/811.ebc9eac6.chunk.css",
+    "static/js/811.b4c5b302.chunk.js": "/static/js/811.b4c5b302.chunk.js",
     "static/js/910.c766fb4a.chunk.js": "/static/js/910.c766fb4a.chunk.js",
     "static/js/479.b3e544f2.chunk.js": "/static/js/479.b3e544f2.chunk.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
@@ -18,6 +18,7 @@
     "static/media/wheel-outer.default.png": "/static/media/wheel-outer.default.607dd657ceb404c1f2c0.png",
     "static/media/impact.ttf": "/static/media/impact.0294f8285a2493417c09.ttf",
     "static/media/wheel-frame.default.png": "/static/media/wheel-frame.default.bb803595955db27f6354.png",
+    "static/media/aviatrix.png": "/static/media/aviatrix.e816ffc2afb64bdfea6e.png",
     "static/media/apollo.png": "/static/media/apollo.46fc8ec99509bb758454.png",
     "static/media/1_OIIv4FEjJQMqh-zEPhtlYA.png": "/static/media/1_OIIv4FEjJQMqh-zEPhtlYA.de325dbbc4da84f6efbd.png",
     "static/media/jackpot_info.png": "/static/media/jackpot_info.4ffb6c62f69ff6b33438.png",
@@ -27,7 +28,10 @@
     "static/media/playtech.png": "/static/media/playtech.d381385a9502cf784c26.png",
     "static/media/lnw.png": "/static/media/lnw.37e18fea447685cf6ed4.png",
     "static/media/fishing.png": "/static/media/fishing.6aa8a955af697a466d3e.png",
+    "static/media/xgaming.png": "/static/media/xgaming.a86c488ee0f2af600a87.png",
     "static/media/redrake.png": "/static/media/redrake.d36a02079c4be580c063.png",
+    "static/media/inout.png": "/static/media/inout.88cdd0141a713d5feae8.png",
+    "static/media/spadeGaming.png": "/static/media/spadeGaming.a07b2e572d46064dd61c.png",
     "static/media/preloader.png": "/static/media/preloader.8ad9a7e346dcd4d159d4.png",
     "static/media/lvl_progress.png": "/static/media/lvl_progress.08561f88a62b29059db6.png",
     "static/media/igt.png": "/static/media/igt.5b49445bd4165680843e.png",
@@ -51,6 +55,7 @@
     "static/media/wheel-btn.default.png": "/static/media/wheel-btn.default.589d0b9047d6a7962643.png",
     "static/media/goldbonusbg.png": "/static/media/goldbonusbg.c4f042fd81e4b58c8ed7.png",
     "static/media/msgbox.png": "/static/media/msgbox.de06e5967165b3a75512.png",
+    "static/media/playson.png": "/static/media/playson.4308792b824a50e75fd9.png",
     "static/media/gaminator.png": "/static/media/gaminator.11d3098281e0b4df8769.png",
     "static/media/jp_bronze_logo.png": "/static/media/jp_bronze_logo.a75b6e6692f6a574a79b.png",
     "static/media/wazdan.png": "/static/media/wazdan.f8756e9076e5ec45632e.png",
@@ -58,6 +63,7 @@
     "static/media/pragmatic.png": "/static/media/pragmatic.108ea33711ade2cee069.png",
     "static/media/leftarrow.png": "/static/media/leftarrow.46e16d34ea14eb63a75b.png",
     "static/media/rightarrow.png": "/static/media/rightarrow.ad96778d425141a3a62b.png",
+    "static/media/playstar.svg": "/static/media/playstar.07e022446972a0fd083a89796b8817a6.svg",
     "static/media/wmg.png": "/static/media/wmg.f6c1cf63cc4296cf15f1.png",
     "static/media/botbutton_main.png": "/static/media/botbutton_main.df20c1a8d5ebfbdd120c.png",
     "static/media/catarrowright.png": "/static/media/catarrowright.0f3767eafff67cb56410.png",
@@ -80,10 +86,10 @@
     "static/media/evoplay1.svg": "/static/media/evoplay1.1302dcf294295dbd8d8f289a616ef80a.svg",
     "index.html": "/index.html",
     "main.6fc87dd7.css.map": "/static/css/main.6fc87dd7.css.map",
-    "main.e4e14a5f.js.map": "/static/js/main.e4e14a5f.js.map",
+    "main.956dcd5b.js.map": "/static/js/main.956dcd5b.js.map",
     "919.7ccbb1b4.chunk.js.map": "/static/js/919.7ccbb1b4.chunk.js.map",
-    "890.027424da.chunk.css.map": "/static/css/890.027424da.chunk.css.map",
-    "890.a5de3823.chunk.js.map": "/static/js/890.a5de3823.chunk.js.map",
+    "811.ebc9eac6.chunk.css.map": "/static/css/811.ebc9eac6.chunk.css.map",
+    "811.b4c5b302.chunk.js.map": "/static/js/811.b4c5b302.chunk.js.map",
     "910.c766fb4a.chunk.js.map": "/static/js/910.c766fb4a.chunk.js.map",
     "479.b3e544f2.chunk.js.map": "/static/js/479.b3e544f2.chunk.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map",
@@ -92,6 +98,6 @@
   },
   "entrypoints": [
     "static/css/main.6fc87dd7.css",
-    "static/js/main.e4e14a5f.js"
+    "static/js/main.956dcd5b.js"
   ]
 }

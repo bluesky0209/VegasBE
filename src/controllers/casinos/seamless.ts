@@ -27,7 +27,17 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
                 console.log("playerName=>", playerName, "withdraw=>", withdraw, "deposit=>", deposit, "c2gaming")
                 const amount = (deposit - withdraw) / 100;
-
+                if (amount <= 0) {
+                    console.log("The amount is not valid.")
+                    return rep.json({
+                        jsonrpc: "2.0",
+                        id: 0,
+                        error: {
+                            "code": 3,
+                            "message": "The amount is not valid."
+                        }
+                    });
+                }
                 if (deposit < 0) {
                     console.log("The depoist amount is not valid.")
                     return rep.json({
@@ -318,5 +328,240 @@ export const skyBalance = async (req: Request, rep: Response) => {
     }
 }
 
+export const playxspin = async (req: Request, rep: Response) => {
+    const { command, data, timestamp, check } = req.body;
+    console.log(command, data, timestamp, check, "playxspin")
+    switch (command) {
+        case "authenticate": {
+            const user = await Users.findOne({ username: data.account });
+            if (user) {
+                return rep.json({
+                    "result": 0,
+                    "status": "OK",
+                    "data": {
+                        "account": user.username,
+                        "balance": NumberFix(user.balance, 5),
+                    }
+                })
+            } else {
+                return rep.json({
+                    "result": 1,
+                    "status": "ERROR",
+                })
+            }
+        }
+        case "balance": {
+            const user = await Users.findOne({ username: data.account });
+            if (user) {
+                return rep.json({
+                    "result": 0,
+                    "status": "OK",
+                    "data": {
+                        "balance": NumberFix(user.balance, 5),
+                    }
+                })
+            } else {
+                return rep.json({
+                    "result": 1,
+                    "status": "ERROR",
+                })
+            }
+        }
+        case "bet": {
+            const user = await Users.findOne({ username: data.account });
 
+            if (user.balance < 0) {
+                console.log("Balance is less than 0")
+                return rep.json({
+                    "code": 1,
+                    "error": "some error occur!!"
+                });
+            }
+
+            const newBalance = Math.round((user.balance + data.amount) * 100000) / 100000;
+            if (newBalance < 0) {
+                console.log("Updated Balance is less than 0")
+                return rep.json({
+                    "code": 1,
+                    "error": "some error occur!!"
+                });
+            }
+
+            const game = await CasinoGameLists.findOne({
+                Id: data.game_code
+            });
+
+            const [updateuser, updatedBalance, betHistory] = await Promise.all([
+                Users.updateOne({ username: data.account }, { $set: { game: data.game_code } }),
+                handleBet({
+                    req,
+                    userId: user._id,
+                    amount: -data.amount,
+                    currency: 'TRY',
+                    type: `playxspin-casino-bet`,
+                    info: data.trans_id,
+                    status: true
+                }),
+                CasinoBetHistory.findOneAndUpdate({
+                    gameRoundRef: data.round_id,
+                    aggregator: 'playxspin',
+                }, {
+                    $inc: { amount: -data.amount },
+                    $set: {
+                        username: data.account,
+                        userId: user._id,
+                        transactionRef: data.trans_id,
+                        gameRoundRef: data.round_id,
+                        currency: 'TRY',
+                        parent: user.parent,
+                        bet: data.amount,
+                        gameId: data.game_code,
+                        gameName: game.Name,
+                        type: 'bet',
+                        provider: game.SectionId
+                    }
+                }, {
+                    upsert: true,
+                    new: true
+                })
+            ]);
+            return rep.json({
+                "result": 0,
+                "status": "OK",
+                "data": {
+                    "balance": updatedBalance.balance
+                }
+            });
+        }
+        case "win": {
+            const user = await Users.findOne({ username: data.account });
+
+            if (user.balance < 0) {
+                console.log("Balance is less than 0")
+                return rep.json({
+                    "code": 1,
+                    "error": "some error occur!!"
+                });
+            }
+
+            const newBalance = Math.round((user.balance + data.amount) * 100000) / 100000;
+            if (newBalance < 0) {
+                console.log("Updated Balance is less than 0")
+                return rep.json({
+                    "code": 1,
+                    "error": "some error occur!!"
+                });
+            }
+
+            const game = await CasinoGameLists.findOne({
+                Id: data.game_code
+            });
+
+            const [updateuser, updatedBalance, betHistory] = await Promise.all([
+                Users.updateOne({ username: data.account }, { $set: { game: data.game_code } }),
+                handleBet({
+                    req,
+                    userId: user._id,
+                    amount: data.amount,
+                    currency: 'TRY',
+                    type: `playxspin-casino-win`,
+                    info: data.trans_id,
+                    status: true
+                }),
+                CasinoBetHistory.findOneAndUpdate({
+                    gameRoundRef: data.round_id
+                }, {
+                    $inc: { amount: data.amount },
+                    $set: {
+                        username: data.account,
+                        userId: user._id,
+                        transactionRef: data.trans_id,
+                        gameRoundRef: data.round_id,
+                        currency: 'TRY',
+                        parent: user.parent,
+                        win: data.amount,
+                        gameId: data.game_code,
+                        gameName: game.Name,
+                        type: 'win',
+                        aggregator: 'playxspin',
+                        provider: game.SectionId
+                    }
+                }, {
+                    upsert: true,
+                    new: true
+                })
+            ]);
+            return rep.json({
+                "result": 0,
+                "status": "OK",
+                "data": {
+                    "balance": updatedBalance.balance
+                }
+            });
+        }
+        case "cancel": {
+            const [user, existingTransaction, game] = await Promise.all([
+                Users.findOne({ username: data.account }),
+                CasinoBetHistory.findOne({
+                    transactionRef: data.trans_id,
+                    username: data.account
+                }),
+                CasinoGameLists.findOne({
+                    Id: data.game_code
+                })
+            ]);
+            const [updateuser, updatedBalance, betHistory] = await Promise.all([
+                Users.updateOne({ username: data.account }, { $set: { game: data.game_code } }),
+                handleBet({
+                    req,
+                    userId: user._id,
+                    amount: -existingTransaction.amount,
+                    currency: 'TRY',
+                    type: `playxspin-casino-cancel`,
+                    info: data.trans_id,
+                    status: true
+                }),
+                CasinoBetHistory.findOneAndUpdate({
+                    gameRoundRef: data.round_id
+                }, {
+                    $inc: { amount: -existingTransaction.amount },
+                    $set: {
+                        username: data.account,
+                        userId: user._id,
+                        transactionRef: data.trans_id,
+                        gameRoundRef: data.round_id,
+                        currency: 'TRY',
+                        parent: user.parent,
+                        gameId: data.game_code,
+                        gameName: game.Name,
+                        type: 'cancel',
+                        aggregator: 'playxspin',
+                        provider: game.SectionId
+                    }
+                }, {
+                    upsert: true,
+                    new: true
+                })
+            ]);
+            return rep.json({
+                "result": 0,
+                "status": "OK",
+                "data": {
+                    "balance": updatedBalance.balance
+                }
+            });
+        }
+        case "status": {
+            return rep.json({
+                "result": 0,
+                "status": "OK",
+                "data": {
+                    "account": data.account,
+                    "trans_id": data.trans_id,
+                    "trans_status": "OK",
+                }
+            });
+        }
+    }
+}
 
