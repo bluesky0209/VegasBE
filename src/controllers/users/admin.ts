@@ -14,6 +14,7 @@ import {
 } from '../../models';
 import { setPlayer } from '../casinos/api';
 import { deposit } from '../balances';
+import { createPlayer } from '../casinos/playxspin';
 
 const aggregateQuery = [
     {
@@ -150,6 +151,14 @@ export const create = async (req: Request, res: Response) => {
             }
         }
         let u_result = await newuser.save();
+        if (u_result) {
+            let playxspin = await createPlayer({
+                name: username
+            });
+            if (playxspin?.data?.code) {
+                await Users.updateOne({ _id: u_result._id }, { $set: { code: playxspin.data.code } });
+            }
+        }
         if (balance > 0) {
             req.body.payuserId = userId;
             req.body.amount = balance;
