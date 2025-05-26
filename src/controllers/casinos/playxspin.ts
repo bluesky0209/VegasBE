@@ -83,6 +83,7 @@ export const launchGame = async (req: Request, rep: Response) => {
         let updateuser = await createPlayer({
             name: user.username,
         });
+        console.log(updateuser, "updateuser.data.user_code");
         user = await Users.findOneAndUpdate({ username: PlayerId }, { $set: { code: updateuser.data.user_code } });
     }
 
