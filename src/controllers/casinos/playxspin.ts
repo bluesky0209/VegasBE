@@ -74,33 +74,23 @@ export const getGameListPlayxspin = async () => {
 }
 
 export const launchGame = async (req: Request, rep: Response) => {
+    const { PlayerId, GameId } = req.body;
+    let [game, user] = await Promise.all([
+        CasinoGameLists.findOne({ Id: GameId, aggregator: 'playxspin' }),
+        Users.findOne({ username: PlayerId })
+    ]);
+    if (!user.code) {
+        let updateuser = await createPlayer({
+            name: user.username,
+        });
+        await Users.findOneAndUpdate({ username: PlayerId }, { $set: { code: updateuser.data.user_code } });
+        user = await Users.findOne({ username: PlayerId });
+    }
+
+    console.log(user.code, user, "user");
+    const provider_id = providers.find(p => p.provider_name === game.SectionId)?.provider_id;
+
     try {
-        const { PlayerId, GameId } = req.body;
-        let [game, user] = await Promise.all([
-            CasinoGameLists.findOne({ Id: GameId, aggregator: 'playxspin' }),
-            Users.findOne({ username: PlayerId })
-        ]);
-        const provider_id = providers.find(p => p.provider_name === game.SectionId)?.provider_id;
-
-        if (!user.code) {
-            let updateuser = await createPlayer({
-                name: user.username,
-            });
-            user = await Users.findOneAndUpdate({ username: PlayerId }, { $set: { code: updateuser.data.user_code } });
-            console.log(user.code, user, "user");
-            let result = await client.post(`/v4/game/game-url`, {
-                "user_code": user.code,
-                "provider_id": provider_id,
-                "game_symbol": GameId,
-                "lang": 1,
-                "return_url": "https://bcasino24.com",
-                "win_ratio": 0
-            });
-            console.log(result.data.data.game_url, "playxspin");
-            return rep.json({ result: { SessionUrl: result.data.data.game_url } })
-
-        }
-
         let result = await client.post(`/v4/game/game-url`, {
             "user_code": user.code,
             "provider_id": provider_id,
