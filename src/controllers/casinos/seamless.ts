@@ -34,7 +34,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         id: 0,
                         error: {
                             "code": 3,
-                            "message": "The amount is not valid."
+                            "message": "The depoist amount is not valid."
                         }
                     });
                 }
@@ -177,14 +177,10 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         "result": {}
                     });
                 } else {
-                    console.log("already done")
-                    return rep.json({
-                        jsonrpc: "2.0",
-                        id: req.body.id,
-                        error: {
-                            code: 7,
-                            message: "Transaction not found or already rolled back"
-                        }
+                    return rep.status(200).json({
+                        "jsonrpc": "2.0",
+                        "id": req.body.id,
+                        "result": {}
                     });
                 }
             } catch (error) {
