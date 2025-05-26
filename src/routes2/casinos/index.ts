@@ -5,7 +5,7 @@ import { checkUser, verifyToken } from '../../middlewares/auth';
 import { getCasinoGamesListByCategory, getCasinoGamesLists, getCasinoProviders, getFavoriteGame } from '../../controllers/casinos';
 import { deleteMany } from '../../controllers/casinos/casinos';
 import { createBankGroup, createSession, createDemo, setPlayer, closeSession } from '../../controllers/casinos/api';
-import { getSeamless } from "../../controllers/casinos/seamless";
+import { getSeamless, playxspin } from "../../controllers/casinos/seamless";
 import { launchGame as launchSkyxspinGame } from '../../controllers/casinos/skyxspin';
 import { launchGame as launchPlayxspinGame } from '../../controllers/casinos/playxspin';
 
@@ -34,6 +34,7 @@ router.post('/closeSession', closeSession)
 router.post('/set-player', setPlayer)
 //callback
 router.post('/seamless', getSeamless)
+router.post('/playxspin', playxspin)
 router.use('/skyxspin', async (req, res, next) => {
     const { AppID, AppSecret } = req.body;
     if (AppID === process.env.SKYXSPIN_Appid && AppSecret === process.env.SKYXSPIN_Appsecret) {
