@@ -3,6 +3,7 @@ import { CasinoGameLists, Users } from '../../models';
 import { Request, Response } from 'express';
 import { getGameListSkyxspin } from './skyxspin';
 import { getGameListC2Gaming } from './api';
+import { getGameListPlayxspin } from './playxspin';
 
 export const get = async (req: Request, res: Response) => {
     const result = await CasinoGameLists.find().sort({ status: -1, order: 1, createdAt: -1 });
@@ -27,6 +28,7 @@ export const list = async (req: Request, res: Response) => {
     if (update) {
         await getGameListSkyxspin();
         await getGameListC2Gaming({ id: 1744970985003, BankGroupId: 'GoldenBet_USD' });
+        await getGameListPlayxspin();
     }
     let query = {} as any;
     if (provider && provider !== 'all') {
