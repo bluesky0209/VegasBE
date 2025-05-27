@@ -95,6 +95,79 @@ export const list = async (req: Request, res: Response) => {
     }
 };
 
+export const reportByGame = async (req: Request, rep: Response) => {
+    const { date, provider, gameId } = req.body;
+    let query = {} as any;
+    if (date) {
+        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    }
+    if (provider) {
+        query.provider = provider;
+    }
+    if (gameId) {
+        query.gameId = gameId;
+    }
+
+    const results = await CasinoBetHistory.aggregate([
+        { $match: query },
+        {
+            $lookup: {
+                from: "casino_gamelists",
+                localField: "gameId",
+                foreignField: "Id",
+                as: "game"
+            }
+        },
+        {
+            $group: {
+                _id: "$gameId",
+                gameName: { $first: "$gameName" },
+                gameId: { $first: "$gameId" },
+                game: { $first: { $arrayElemAt: ["$game", 0] } },
+                currency: { $first: "$currency" },
+                totalBet: { $sum: "$bet" },
+                totalWin: { $sum: "$win" },
+                totalCount: { $sum: 1 }
+            }
+        }
+    ]);
+
+    return rep.json(results);
+}
+
+export const reportByPlayer = async (req: Request, res: Response) => {
+    const { date, provider, gameId, username } = req.body;
+    let query = {} as any;
+    if (date) {
+        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    }
+    if (provider) {
+        query.provider = provider;
+    }
+    if (gameId) {
+        query.gameId = ObjectId(gameId);
+    }
+    if (username) {
+        query.username = { $ne: username };
+    }
+
+    const results = await CasinoBetHistory.aggregate([
+        { $match: query },
+        {
+            $group: {
+                _id: "$username",
+                username: { $first: "$username" },
+                currency: { $first: "$currency" },
+                totalBet: { $sum: "$bet" },
+                totalWin: { $sum: "$win" },
+                totalCount: { $sum: 1 }
+            }
+        }
+    ]);
+
+    return res.json(results);
+}
+
 export const csv = async (req: Request, res: Response) => {
     const {
         userId = null,

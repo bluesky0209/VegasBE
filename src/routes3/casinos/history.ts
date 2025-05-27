@@ -1,6 +1,6 @@
 import routerx from 'express-promise-router';
 import { V, Validator } from '../../middlewares/validation';
-import { create, deleteOne, get, getOne, list, updateOne, csv, deleteMany } from '../../controllers/casinos/casinos';
+import { create, deleteOne, get, getOne, list, updateOne, csv, deleteMany, reportByPlayer, reportByGame } from '../../controllers/casinos/casinos';
 const router = routerx();
 
 router.get('/', get);
@@ -10,6 +10,8 @@ router.post('/list', V.body(Validator.Games.Games.List), list);
 router.post('/csv', V.body(Validator.Games.Games.List), csv);
 router.put('/:id', V.params(Validator.ObjectId), V.body(Validator.Games.Games.Update), updateOne);
 router.delete('/:id', V.params(Validator.ObjectId), deleteOne);
+router.post('/report-by-game', reportByGame);
+router.post('/report-by-player', reportByPlayer);
 router.post('/delete', deleteMany)
 
 export default router;
