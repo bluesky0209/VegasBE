@@ -59,8 +59,8 @@ export const label = async (req: Request, res: Response) => {
         },
         {
             $project: {
-                label: '$symbol',
-                value: '$_id',
+                label: '$Name',
+                value: '$Id',
                 _id: 0
             }
         },
