@@ -27,6 +27,17 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
                 console.log("playerName=>", playerName, "withdraw=>", withdraw, "deposit=>", deposit, "c2gaming")
                 const amount = (deposit - withdraw) / 100;
+                if (deposit === 0 && withdraw === 0) {
+                    console.log("The depoist and withdraw amount is not valid.")
+                    return rep.json({
+                        jsonrpc: "2.0",
+                        id: 0,
+                        error: {
+                            "code": 5,
+                            "message": "The depoist and withdraw amount is not valid."
+                        }
+                    });
+                }
                 if (deposit < 0) {
                     console.log("The depoist amount is not valid.")
                     return rep.json({
