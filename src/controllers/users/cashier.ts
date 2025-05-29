@@ -358,11 +358,12 @@ export const addlabel = async (req: Request, res: Response) => {
     return res.json(results);
 };
 
+
 export const updateOne = async (req: Request, res: Response) => {
-    let { username, password, permissionId } = req.body;
+    let { password, username, name } = req.body;
     password = encrypt(password);
     const query = { _id: ObjectId(req.params.id) };
-    await Users.updateOne(query, { username, password, permissionId });
+    await Users.updateOne(query, { username, password, name });
     const result = await Users.aggregate([{ $match: query }, ...aggregateQuery]);
     result[0].password = decrypt(result[0].password);
     return res.json(result[0]);
