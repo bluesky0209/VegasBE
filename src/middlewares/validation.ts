@@ -117,7 +117,7 @@ export const Validator = {
                 pageSize: Joi.number().min(1).max(100).optional(),
                 page: Joi.number().min(0).optional(),
                 country: Joi.string().min(2).max(2).optional(),
-                status: Joi.boolean().optional(),
+                status: Joi.alternatives().try(Joi.boolean(), Joi.string().valid('', 'true', 'false')).optional(),
                 userId: Joi.string().min(24).max(24).optional(),
                 permission: Joi.string().min(24).max(24).optional(),
                 date: Joi.array().optional(),

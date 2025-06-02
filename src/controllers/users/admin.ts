@@ -269,8 +269,9 @@ export const list = async (req: Request, res: Response) => {
         }
 
         if (status !== '' && status !== undefined) {
-            query.status = status;
+            query.active = Boolean(status);
         }
+        console.log(query, "query");
 
         if (date && date[0] && date[1]) {
             query.createdAt = {
