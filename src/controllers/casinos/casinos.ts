@@ -148,7 +148,7 @@ export const reportByPlayer = async (req: Request, res: Response) => {
         query.gameId = ObjectId(gameId);
     }
     if (username) {
-        query.username = { $ne: username };
+        query.username = { $regex: username, $options: 'i' }
     }
 
     const results = await CasinoBetHistory.aggregate([
