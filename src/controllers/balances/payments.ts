@@ -160,6 +160,69 @@ export const paymentReport = async (req: Request, res: Response) => {
     return res.json(results[0]);
 };
 
+export const report = async (req: Request, res: Response) => {
+    const { date } = req.body;
+    let query = {} as any;
+    if (date && date[0] && date[1]) {
+        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    }
+
+    const results = await Payments.aggregate([
+        {
+            $match: {
+                ...query,
+                $or: [
+                    { type: 'In', typeDetail: 'deposit' },
+                    { type: 'Out', typeDetail: 'withdraw' }
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalDeposit: {
+                    $sum: {
+                        $cond: [
+                            {
+                                $and: [
+                                    { $eq: ['$type', 'In'] },
+                                    { $eq: ['$typeDetail', 'deposit'] }
+                                ]
+                            },
+                            '$amount',
+                            0
+                        ]
+                    }
+                },
+                totalWithdraw: {
+                    $sum: {
+                        $cond: [
+                            {
+                                $and: [
+                                    { $eq: ['$type', 'Out'] },
+                                    { $eq: ['$typeDetail', 'withdraw'] }
+                                ]
+                            },
+                            { $multiply: ['$amount', -1] },
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                totalDeposit: 1,
+                totalWithdraw: 1,
+                total: { $subtract: ['$totalDeposit', '$totalWithdraw'] }
+            }
+        }
+    ]);
+
+    return res.json(results[0] || { totalDeposit: 0, totalWithdraw: 0, total: 0 });
+};
+
 export const resetPayments = async (req: Request, res: Response) => {
     const { userId } = req.body;
     const user = await Users.findById(userId);
