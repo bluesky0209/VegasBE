@@ -305,6 +305,7 @@ export const paymentReportSuperAgent = async (req: Request, res: Response) => {
         {
             $project: {
                 _id: 0,
+                userId: '$_id.userId',
                 username: '$_id.username',
                 totalDeposit: 1,
                 totalWithdraw: 1,
@@ -315,7 +316,7 @@ export const paymentReportSuperAgent = async (req: Request, res: Response) => {
 
     await Promise.all(results.map(async result => {
         const [agent] = await Payments.aggregate([
-            { $match: { 'parent.superagent': result.username } },
+            { $match: { payuserId: ObjectId(result.userId) } },
             {
                 $group: {
                     _id: null,
