@@ -27,17 +27,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
                 console.log("playerName=>", playerName, "withdraw=>", withdraw, "deposit=>", deposit, "c2gaming")
                 const amount = (deposit - withdraw) / 100;
-                if (deposit === 0 && withdraw === 0) {
-                    console.log("The depoist and withdraw amount is not valid.")
-                    return rep.json({
-                        jsonrpc: "2.0",
-                        id: 0,
-                        error: {
-                            "code": 5,
-                            "message": "The depoist and withdraw amount is not valid."
-                        }
-                    });
-                }
+
                 if (deposit < 0) {
                     console.log("The depoist amount is not valid.")
                     return rep.json({
@@ -71,10 +61,17 @@ export const getSeamless = async (req: Request, rep: Response) => {
                         Id: gameId
                     })
                 ]);
-
-                console.log(user.balance * 100, withdraw, user.balance * 100 < withdraw, "bet")
+                if (deposit === 0 && withdraw === 0) {
+                    return rep.status(200).json({
+                        jsonrpc: "2.0",
+                        id: req.body.id,
+                        "result": {
+                            "newBalance": Math.floor(user.balance * 100),
+                            "transactionId": transactionRef
+                        }
+                    });
+                }
                 if (user.balance * 100 < withdraw) {
-                    console.log("The player doesn't have enough money to do the bet action.")
                     return rep.json({
                         jsonrpc: "2.0",
                         id: 0,
