@@ -247,7 +247,7 @@ export const getShifts = async (req: Request, res: Response) => {
 export const paymentReportSuperAgent = async (req: Request, res: Response) => {
     const { date, username } = req.body;
     let query = {} as any;
-    if (date && date[0] && date[1]) {
+    if (date?.length === 2) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
     }
     if (username) {
@@ -264,25 +264,8 @@ export const paymentReportSuperAgent = async (req: Request, res: Response) => {
                 as: 'user'
             }
         },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'payuserId',
-                foreignField: '_id',
-                as: 'payuser'
-            }
-        },
-        {
-            $unwind: '$user'
-        },
-        {
-            $unwind: '$payuser'
-        },
-        {
-            $match: {
-                'user.role': 'superagent'
-            }
-        },
+        { $unwind: '$user' },
+        { $match: { 'user.role': 'superagent' } },
         {
             $group: {
                 _id: {
@@ -316,21 +299,6 @@ export const paymentReportSuperAgent = async (req: Request, res: Response) => {
                             0
                         ]
                     }
-                },
-                agentDeposit: {
-                    $sum: {
-                        $cond: [
-                            {
-                                $and: [
-                                    { $eq: ['$type', 'In'] },
-                                    { $eq: ['$typeDetail', 'deposit'] },
-                                    { $eq: ['$userId', '$payuserId'] }
-                                ]
-                            },
-                            '$amount',
-                            0
-                        ]
-                    }
                 }
             }
         },
@@ -340,11 +308,34 @@ export const paymentReportSuperAgent = async (req: Request, res: Response) => {
                 username: '$_id.username',
                 totalDeposit: 1,
                 totalWithdraw: 1,
-                agentDeposit: 1,
                 total: { $subtract: ['$totalDeposit', '$totalWithdraw'] }
             }
         }
     ]);
+
+    await Promise.all(results.map(async result => {
+        const [agent] = await Payments.aggregate([
+            { $match: { 'parent.superagent': result.username } },
+            {
+                $group: {
+                    _id: null,
+                    totalDeposit: {
+                        $sum: {
+                            $cond: [
+                                { $and: [{ $eq: ['$type', 'In'] }, { $eq: ['$typeDetail', 'deposit'] }] },
+                                '$amount',
+                                0
+                            ]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        if (agent) {
+            result.agentDeposit = agent.totalDeposit;
+        }
+    }));
 
     return res.json(results || []);
 }
