@@ -244,6 +244,111 @@ export const getShifts = async (req: Request, res: Response) => {
     return res.json({ results, count });
 };
 
+export const paymentReportSuperAgent = async (req: Request, res: Response) => {
+    const { date, username } = req.body;
+    let query = {} as any;
+    if (date && date[0] && date[1]) {
+        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    }
+    if (username) {
+        query.username = username;
+    }
+
+    const results = await Payments.aggregate([
+        { $match: query },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'userId',
+                foreignField: '_id',
+                as: 'user'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'payuserId',
+                foreignField: '_id',
+                as: 'payuser'
+            }
+        },
+        {
+            $unwind: '$user'
+        },
+        {
+            $unwind: '$payuser'
+        },
+        {
+            $match: {
+                'user.role': 'superagent'
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    userId: '$user._id',
+                    username: '$user.username'
+                },
+                totalDeposit: {
+                    $sum: {
+                        $cond: [
+                            {
+                                $and: [
+                                    { $eq: ['$type', 'In'] },
+                                    { $eq: ['$typeDetail', 'deposit'] }
+                                ]
+                            },
+                            '$amount',
+                            0
+                        ]
+                    }
+                },
+                totalWithdraw: {
+                    $sum: {
+                        $cond: [
+                            {
+                                $and: [
+                                    { $eq: ['$type', 'Out'] },
+                                    { $eq: ['$typeDetail', 'withdraw'] }
+                                ]
+                            },
+                            '$amount',
+                            0
+                        ]
+                    }
+                },
+                agentDeposit: {
+                    $sum: {
+                        $cond: [
+                            {
+                                $and: [
+                                    { $eq: ['$type', 'In'] },
+                                    { $eq: ['$typeDetail', 'deposit'] },
+                                    { $eq: ['$userId', '$payuserId'] }
+                                ]
+                            },
+                            '$amount',
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                username: '$_id.username',
+                totalDeposit: 1,
+                totalWithdraw: 1,
+                agentDeposit: 1,
+                total: { $subtract: ['$totalDeposit', '$totalWithdraw'] }
+            }
+        }
+    ]);
+
+    return res.json(results || []);
+}
+
 export const paymentReportUser = async (req: Request, res: Response) => {
     const { userId, date, page, pageSize } = req.body;
     let query = {} as any;
@@ -387,6 +492,7 @@ export const paymentReportUser = async (req: Request, res: Response) => {
     ]);
     return res.json({ results, count: result.length });
 };
+
 
 
 export const paymentsList = async (req: Request, res: Response) => {
