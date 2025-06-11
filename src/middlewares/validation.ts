@@ -94,6 +94,7 @@ export const Validator = {
                 userId: Joi.string().min(24).max(24).required(),
                 role: Joi.string().min(1).max(30).required(),
                 balance: Joi.number().optional(),
+                numbers: Joi.number().optional(),
                 bonusType: Joi.string().min(1).max(30).optional()
             }),
             Deposit: Joi.object({

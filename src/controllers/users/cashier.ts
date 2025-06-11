@@ -98,6 +98,126 @@ export const signin = async (req: Request, res: Response) => {
     }
 };
 
+const createUser = async (req: Request, res: Response) => {
+    const { role, userId, username, password, permissionId, balance, bonusType, name } = req.body;
+    try {
+        const permission = await Permissions.findById(ObjectId(permissionId));
+        const createRole = await Permissions.findOne({ title: role });
+        if (createRole.order !== permission.order + 1) {
+            return res.status(403).json('You can\'t create this role.');
+        }
+        const usernameExists = await Users.findOne({
+            username: { $regex: new RegExp('^' + username.toLowerCase(), 'i') }
+        });
+        if (usernameExists) {
+            return res.status(400).json(`An account named '${username}' already exists.`);
+        }
+
+        const parentUser = await Users.findByIdAndUpdate(
+            ObjectId(userId),
+            { $inc: { [`count.${role.toLowerCase()}`]: 1 } }
+        );
+
+        const updateParentCounts = async (parentPermissions: any) => {
+            for (const [roles, username] of Object.entries(parentPermissions)) {
+                await Users.findOneAndUpdate(
+                    { username },
+                    { $inc: { [`count.${role.toLowerCase()}`]: 1 } }
+                );
+            }
+        };
+        await updateParentCounts(parentUser.parent);
+
+        const parentPermissions = { ...parentUser.parent, [permission.title]: parentUser.username };
+
+        let newuser = new Users({
+            username,
+            password,
+            permissionId: createRole._id,
+            role,
+            parent: parentPermissions
+        });
+        newuser.password = newuser.generateHash(password);
+        newuser.status = true;
+        newuser.parentId = ObjectId(userId);
+        const lastUser = await Users.findOne().sort({ id: -1 });
+        newuser.id = (lastUser?.id || 0) + 1;
+        newuser.name = name ?? username;
+        if (createRole.title === 'player') {
+            let c2gaming = await setPlayer({ Id: username, BankGroupId: 'GoldenBet_USD', Nick: username });
+            if (!c2gaming) {
+                c2gaming = await setPlayer({ Id: username, BankGroupId: 'GoldenBet_USD', Nick: username });
+            }
+            console.log(c2gaming, "c2gaming");
+            if (!c2gaming) {
+                return res.status(400).json('error');
+            }
+        }
+        let u_result = await newuser.save();
+        if (u_result && createRole.title === 'player') {
+            let playxspin = await createPlayer({
+                name: username
+            });
+            console.log(playxspin, "playxspin");
+            if (playxspin?.data?.code) {
+                await Users.updateOne({ _id: u_result._id }, { $set: { code: playxspin.data.code } });
+            }
+        }
+        if (balance > 0) {
+            req.body.payuserId = userId;
+            req.body.amount = balance;
+            req.body.userId = u_result._id;
+            req.body.bonusType = bonusType;
+            u_result = await deposit(req, res);
+        }
+        if (!u_result) {
+            return res.status(400).json('error');
+        } else {
+            const result = await Users.aggregate([
+                { $match: { _id: u_result._id } },
+                ...aggregateQuery
+            ]);
+            const decryptedPassword = decrypt(u_result.password);
+            result[0].password = decryptedPassword;
+            return result[0];
+        }
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json('error');
+    }
+};
+
+export const generate = async (req: Request, res: Response) => {
+    const { numbers, balance } = req.body;
+    try {
+        const results = [];
+        for (let i = 0; i < numbers; i++) {
+            // Generate random 6 letter strings
+            const randomName = Math.random().toString(36).substring(2, 8);
+            const randomUsername = Math.random().toString(36).substring(2, 8);
+            const randomPassword = Math.random().toString(36).substring(2, 8);
+
+            // Call create with generated data
+            req.body = {
+                ...req.body,
+                name: randomName,
+                username: randomUsername,
+                password: randomPassword,
+                balance: balance
+            };
+
+            const result = await createUser(req, res);
+            if (result) {
+                results.push(result);
+            }
+        }
+        return res.json(results);
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json('error');
+    }
+};
+
 export const create = async (req: Request, res: Response) => {
     const { role, userId, username, password, permissionId, balance, bonusType, name } = req.body;
     try {
@@ -175,6 +295,8 @@ export const create = async (req: Request, res: Response) => {
                 { $match: { _id: u_result._id } },
                 ...aggregateQuery
             ]);
+            const decryptedPassword = decrypt(u_result.password);
+            result[0].password = decryptedPassword;
             return res.json(result[0]);
         }
     } catch (e) {

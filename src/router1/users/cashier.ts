@@ -12,7 +12,8 @@ import {
     signout,
     changePassword,
     create,
-    updateTimezone
+    updateTimezone,
+    generate
 } from '../../controllers/users/cashier';
 import { verifyCashierToken } from '../../middlewares/auth';
 const router = routerx();
@@ -29,5 +30,6 @@ router.post('/addlabel', verifyCashierToken, addlabel);
 router.put('/:id', verifyCashierToken, V.params(Validator.ObjectId), updateOne);
 router.delete('/:id', verifyCashierToken, V.params(Validator.ObjectId), deleteOne);
 router.post('/create', verifyCashierToken, V.body(Validator.Users.Admin.CreateUser), create);
+router.post('/generate', verifyCashierToken, generate);
 router.post('/updateTimezone', verifyCashierToken, updateTimezone);
 export default router;
