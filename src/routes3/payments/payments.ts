@@ -10,4 +10,4 @@ router.post('/withdraw', V.body(Validator.Users.Admin.Withdraw), withdraw);
 router.post('/list', list)
 router.post('/report', report)
 router.post('/report-superagent', paymentReportSuperAgent)
-export default router;
+export default router; 

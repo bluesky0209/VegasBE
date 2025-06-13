@@ -14,4 +14,4 @@ router.post('/report-by-game', reportByGame);
 router.post('/report-by-player', reportByPlayer);
 router.post('/delete', deleteMany)
 
-export default router;
+export default router; 

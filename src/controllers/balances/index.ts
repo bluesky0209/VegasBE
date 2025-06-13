@@ -25,7 +25,7 @@ export const deposit = async (req: Request, res: Response) => {
             return res.status(403).json('You are not allowed to deposit to this user');
         }
 
-        if (bonusType === 'wager' && user.balance > 0.0001) {
+        if (bonusType === 'wager' && user.balance >= 1) {
             return res.status(400).json(`Error: Player has credits, first play all credits Player: ${user.username}`);
         }
 
