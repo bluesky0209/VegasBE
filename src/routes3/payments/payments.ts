@@ -2,7 +2,7 @@ import routerx from 'express-promise-router';
 import { V } from '../../middlewares/validation';
 import { Validator } from '../../middlewares/validation';
 import { deposit, withdraw } from '../../controllers/balances';
-import { list, paymentReportSuperAgent, report } from '../../controllers/balances/payments';
+import { list, paymentReportSuperAgent, paymentReportUser, report } from '../../controllers/balances/payments';
 
 const router = routerx();
 router.post('/deposit', V.body(Validator.Users.Admin.Deposit), deposit);
@@ -10,4 +10,5 @@ router.post('/withdraw', V.body(Validator.Users.Admin.Withdraw), withdraw);
 router.post('/list', list)
 router.post('/report', report)
 router.post('/report-superagent', paymentReportSuperAgent)
+router.post('/report-user', paymentReportUser)
 export default router; 

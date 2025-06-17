@@ -47,6 +47,7 @@ export const decrypt = (text: string): string => {
         let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(process.env.ENCRYPTION_KEY as string), iv);
         let decrypted = decipher.update(encryptedText);
         decrypted = Buffer.concat([decrypted, decipher.final()]);
+        console.log(decrypted.toString(), "decrypted")
         return decrypted.toString();
     } catch (e) {
         return '';

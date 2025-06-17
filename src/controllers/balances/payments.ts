@@ -342,10 +342,13 @@ export const paymentReportSuperAgent = async (req: Request, res: Response) => {
 }
 
 export const paymentReportUser = async (req: Request, res: Response) => {
-    const { userId, date, page, pageSize } = req.body;
+    const { userId, date, page, pageSize, username } = req.body;
     let query = {} as any;
     if (date && date[0] && date[1]) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    }
+    if (username) {
+        query.username = username;
     }
     const result = await Payments.aggregate([
         { $match: query },
@@ -413,6 +416,7 @@ export const paymentReportUser = async (req: Request, res: Response) => {
             }
         }
     ]);
+
 
     const results = await Payments.aggregate([
         { $match: query },

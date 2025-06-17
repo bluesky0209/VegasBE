@@ -75,6 +75,7 @@ export const list = async (req: Request, res: Response) => {
     if (date && date[0] && date[1]) {
         query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
     }
+    console.log(query, "query")
 
     let count = await CasinoBetHistory.countDocuments(query);
 
