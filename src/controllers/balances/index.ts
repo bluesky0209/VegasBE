@@ -24,7 +24,6 @@ export const deposit = async (req: Request, res: Response) => {
         if (!hasPermission) {
             return res.status(403).json('You are not allowed to deposit to this user');
         }
-
         if (bonusType === 'wager' && user.balance >= 1) {
             return res.status(400).json(`Error: Player has credits, first play all credits Player: ${user.username}`);
         }
@@ -64,7 +63,8 @@ export const deposit = async (req: Request, res: Response) => {
                 if (bonusType === 'wager') {
                     const lastWagerBonus = await Bonus.findOne({
                         userId: ObjectId(userId),
-                        type: 'wager'
+                        type: 'wager',
+                        status: 'confirmed'
                     }).sort({ createdAt: -1 });
 
                     if (lastWagerBonus) {
