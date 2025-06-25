@@ -187,6 +187,38 @@ export const addFavoriteGame = async ({
     }
 }
 
+const giveDailyBonus = async (userId: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const bonus = await Bonus.findOne({
+        userId: ObjectId(userId),
+        type: 'daily',
+        createdAt: { $gte: today }
+    });
+    const lastDeposit = await Payments.findOne({
+        userId: ObjectId(userId),
+        type: 'In',
+        typeDetail: 'deposit',
+        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+    });
+
+    const canCollectBonus = !bonus && lastDeposit;
+
+    if (canCollectBonus) {
+        await Users.findOneAndUpdate(
+            { _id: ObjectId(userId) },
+            { $inc: { balance: 1.00 } }
+        );
+
+        await Bonus.create({
+            userId: ObjectId(userId),
+            type: 'daily',
+            amount: 1.00,
+            status: 'confirmed'
+        });
+    }
+}
+
 export const handleBet = async ({
     req = undefined,
     userId,
@@ -217,6 +249,10 @@ export const handleBet = async ({
 
         if (!user) {
             throw new Error('User not found');
+        }
+
+        if (user.balance < 1) {
+            giveDailyBonus(userId);
         }
 
         const currentBalance = NumberFix(user.balance, 5);

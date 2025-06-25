@@ -9,7 +9,6 @@ const BonusSchema = new Schema(
         },
         payuserId: {
             type: Schema.Types.ObjectId,
-            required: true,
             ref: 'users'
         },
         amount: {
