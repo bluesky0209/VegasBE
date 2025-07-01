@@ -303,18 +303,23 @@ export const list = async (req: Request, res: Response) => {
 };
 
 export const label = async (req: Request, res: Response) => {
+    const { username, role } = req.body;
+    const query: any = {};
+    if (role !== 'admin' && username && role) {
+        query[`parent.${role}`] = username;
+    }
+    console.log(query, "query")
     const results = await Users.aggregate([
+        {
+            $match: query
+        },
         {
             $project: {
                 label: '$username',
-                value: '$_id',
-                icon: '$avatar',
+                value: '$username',
+                role: 1,
+                parent: 1,
                 _id: 0
-            }
-        },
-        {
-            $sort: {
-                label: 1,
             }
         }
     ]);

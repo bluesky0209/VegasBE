@@ -3,10 +3,13 @@ import users from './users';
 import casinos from './casinos';
 import payments from './payments';
 import jackpot from './jackpot';
+import reports from './reports';
+
 const router = routerx();
 router.use('/users', users);
 router.use('/casinos', casinos);
 router.use('/payments', payments);
 router.use('/jackpot', jackpot);
+router.use('/reports', reports);
 
 export default router;
