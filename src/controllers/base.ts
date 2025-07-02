@@ -109,7 +109,7 @@ const calculateJackpot = async (amount: number) => {
     }
 
     const updatedJackpot = await Jackpots.findOneAndUpdate({}, {
-        $inc: { gold: NumberFix(amount / 4, 5), silver: NumberFix(amount / 4, 5), bronze: NumberFix(amount / 4, 5) },
+        $inc: { gold: amount / 4, silver: amount / 4, bronze: amount / 4 },
     }, { new: true });
 
     if (false) {
