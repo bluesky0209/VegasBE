@@ -109,19 +109,30 @@ const calculateJackpot = async (amount: number) => {
     }
 
     const updatedJackpot = await Jackpots.findOneAndUpdate({}, {
-        $inc: { gold: amount / 4, silver: amount / 4, bronze: amount / 4 },
+        $inc: {
+            bronze: amount / 10,
+            silver: (amount / 10) * 2,
+            gold: (amount / 10) * 4
+        }
     }, { new: true });
+
+    if (updatedJackpot.bronze >= 500 || updatedJackpot.silver >= 1000 || updatedJackpot.gold >= 2000) {
+        await Jackpots.findOneAndUpdate({}, {
+            $set: {
+                bronze: 0,
+                silver: 0,
+                gold: 0
+            }
+        });
+    }
 
     if (false) {
         if (jackpotWon === 'gold') {
             jackpotAmount = updatedJackpot.gold;
-            await Jackpots.findOneAndUpdate({}, { $set: { gold: 5 } });
         } else if (jackpotWon === 'silver') {
             jackpotAmount = updatedJackpot.silver;
-            await Jackpots.findOneAndUpdate({}, { $set: { silver: 3 } });
         } else if (jackpotWon === 'bronze') {
             jackpotAmount = updatedJackpot.bronze;
-            await Jackpots.findOneAndUpdate({}, { $set: { bronze: 1 } });
         }
         return {
             type: jackpotWon,
