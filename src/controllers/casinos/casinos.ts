@@ -80,17 +80,13 @@ export const list = async (req: Request, res: Response) => {
     let count = await CasinoBetHistory.countDocuments(query);
 
     if (!pageSize || !page) {
-        let results = await CasinoBetHistory.aggregate([{ $match: query }, ...aggregateQuery, { $sort: sortQuery }]);
+        let results = await CasinoBetHistory.find(query).sort(sortQuery);
         return res.json({ results, count });
     } else {
-        const squery = [
-            { $match: query },
-            ...aggregateQuery,
-            { $sort: sortQuery },
-            { $skip: (page - 1) * pageSize },
-            { $limit: pageSize }
-        ]
-        let results = await CasinoBetHistory.aggregate(squery);
+        let results = await CasinoBetHistory.find(query)
+            .sort(sortQuery)
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
 
         return res.json({ results, count });
     }
