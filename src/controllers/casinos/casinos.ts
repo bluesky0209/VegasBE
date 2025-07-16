@@ -165,6 +165,69 @@ export const reportByPlayer = async (req: Request, res: Response) => {
     return res.json(results);
 }
 
+export const reportByCustomer = async (req: Request, res: Response) => {
+    const { date, provider, gameId, username, role } = req.body;
+    let query = {} as any;
+    if (date) {
+        query.createdAt = { $gte: new Date(date[0]), $lte: new Date(date[1]) };
+    }
+    if (provider) {
+        query.provider = provider;
+    }
+    if (gameId) {
+        query.gameId = ObjectId(gameId);
+    }
+    if (username) {
+        query.username = { $regex: username, $options: 'i' }
+    }
+
+    // Get hierarchical user data
+    let userQuery = {};
+    if (role === 'admin') {
+        userQuery = { role: 'superagent' };
+    } else if (role === 'superagent') {
+        userQuery = { role: 'agent', 'parent.superagent': username };
+    } else if (role === 'agent') {
+        userQuery = { role: 'user', 'parent.agent': username };
+    }
+
+    const users = await Users.find(userQuery);
+    const usernames = users.map(u => u.username);
+
+    // Get bet history for all child users
+    const results = await CasinoBetHistory.aggregate([
+        {
+            $match: {
+                ...query,
+                username: { $in: usernames }
+            }
+        },
+        {
+            $group: {
+                _id: "$username",
+                username: { $first: "$username" },
+                currency: { $first: "$currency" },
+                totalBet: { $sum: "$bet" },
+                totalWin: { $sum: "$win" },
+                totalRevenue: { $sum: { $subtract: ["$bet", "$win"] } },
+                totalCount: { $sum: 1 }
+            }
+        }
+    ]);
+
+    // Add user role info
+    const finalResults = await Promise.all(results.map(async (result) => {
+        const user = await Users.findOne({ username: result.username });
+        return {
+            ...result,
+            role: user.role,
+            parentId: user.parentId
+        };
+    }));
+
+    return res.json(finalResults);
+}
+
 export const csv = async (req: Request, res: Response) => {
     const {
         userId = null,

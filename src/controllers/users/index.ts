@@ -50,7 +50,7 @@ export const signin = async (req: Request, res: Response) => {
         } else {
             const session = signAccessToken(req, res, user._id);
             await Promise.all([
-                Users.updateOne({ _id: ObjectId(user._id) }, { $set: { active: true, ip: ip.ip } }),
+                Users.updateOne({ _id: ObjectId(user._id) }, { $set: { active: true, ip: ip.ip, country: ip.country } }),
                 LoginHistories.create({
                     userId: user._id,
                     ...session,
