@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Bonus, CashierHistory, Users } from '../../models';
 import { balanceUpdate, ObjectId } from '../base';
-import { BONUSTYPE } from '../../config';
+import { BONUSCONFIG, BONUSTYPE } from '../../config';
 
 export const deposit = async (req: Request, res: Response) => {
     try {
@@ -24,11 +24,12 @@ export const deposit = async (req: Request, res: Response) => {
         if (!hasPermission) {
             return res.status(403).json('You are not allowed to deposit to this user');
         }
+
         if (bonusType === 'wager' && user.balance >= 1) {
             return res.status(400).json(`Error: Player has credits, first play all credits Player: ${user.username}`);
         }
 
-        if (user.bonusType === 'wager' && user.balance > user.wagerBonus) {
+        if (user.bonusType === 'wager') {
             return res.status(400).json('Deposit is not allowed to this user because of wager bonus');
         }
 
@@ -40,60 +41,51 @@ export const deposit = async (req: Request, res: Response) => {
         let typeDetail = "deposit"
         let bonus = 0;
         if (bonusType && bonusType !== 'general') {
-            const bonusConfig: any = {
-                cashback: {
-                    multiplier: 0.2,
-                    detail: 'Cashback Bonus',
-                    status: 'pending'
-                },
-                happyhour: {
-                    multiplier: 0.5,
-                    detail: 'HappyHour Bonus',
-                    status: 'pending'
-                },
-                wager: {
-                    multiplier: 2,
-                    detail: 'Wager Bonus',
-                    status: 'confirmed'
-                }
-            };
 
-            const config = bonusConfig[bonusType];
+            const config = BONUSCONFIG[bonusType];
             if (config) {
                 if (bonusType === 'wager') {
                     const lastWagerBonus = await Bonus.findOne({
                         userId: ObjectId(userId),
-                        type: 'wager',
-                        status: 'confirmed'
+                        type: 'wager'
                     }).sort({ createdAt: -1 });
 
                     if (lastWagerBonus) {
-                        const timeDiff = Date.now() - lastWagerBonus.createdAt.getTime();
-                        const hoursDiff = timeDiff / (1000 * 60 * 60);
-
-                        if (hoursDiff < 1) {
-                            const minutesRemaining = Math.ceil((1 - hoursDiff) * 60);
-                            return res.status(400).json(`You cannot use BONUS yet. Try again in ${Math.floor(minutesRemaining / 60)}:${String(minutesRemaining % 60).padStart(2, '0')}:00. Player: ${user.username}`);
+                        const hoursSinceLastBonus = (Date.now() - lastWagerBonus.createdAt.getTime()) / (1000 * 60 * 60);
+                        if (hoursSinceLastBonus < 1) {
+                            const minutesLeft = Math.ceil((1 - hoursSinceLastBonus) * 60);
+                            const hours = Math.floor(minutesLeft / 60);
+                            const minutes = String(minutesLeft % 60).padStart(2, '0');
+                            return res.status(400).json(
+                                `You cannot use BONUS yet. Try again in ${hours}:${minutes}:00. Player: ${user.username}`
+                            );
                         }
                     }
-                    await Bonus.create({
+
+                    const bonusData = {
                         userId: ObjectId(userId),
-                        amount: amount,
+                        amount,
                         payuserId: ObjectId(payuserId),
                         type: bonusType,
                         status: config.status
-                    });
-                    await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: amount });
-                    await balanceUpdate({
-                        req,
-                        userId,
-                        amount,
-                        type: 'In',
-                        payuserId,
-                        typeDetail: 'Wager Bonus',
-                        bonusType,
-                        bonus: 0
-                    });
+                    };
+                    await Users.findOneAndUpdate({ _id: ObjectId(userId) }, {
+                        wagerBonus: amount, $inc: { bonusBalance: amount }
+                    })
+                    await Promise.all([
+                        Bonus.create(bonusData),
+                        balanceUpdate({
+                            req,
+                            userId,
+                            amount,
+                            type: 'In',
+                            payuserId,
+                            typeDetail: 'Wager Bonus',
+                            bonusType,
+                            bonus: 0
+                        })
+                    ]);
+
                     if (payuser.role === 'cashier') {
                         await CashierHistory.create({
                             userId: ObjectId(payuserId),
@@ -176,7 +168,7 @@ export const withdraw = async (req: Request, res: Response) => {
         } else if (user.bonusType === 'wager') {
             await Bonus.findOneAndUpdate({ userId: ObjectId(userId), type: user.bonusType }, { $set: { status: 'cancel' } }, { new: true });
             await balanceUpdate({ req, userId, amount: -user.wagerBonus, type: 'Out', payuserId, typeDetail: 'Wager Bonus Cancel', bonusType, bonus });
-            await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: 0 });
+            await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: 0, $inc: { bonusBalance: -user.wagerBonus } });
             if (payuser.role === 'cashier') {
                 await CashierHistory.create({
                     userId: ObjectId(payuserId),
@@ -201,4 +193,20 @@ export const withdraw = async (req: Request, res: Response) => {
     }
 };
 
+export const changeBalance = async () => {
+    try {
+        const users = await Users.find({ role: 'player' });
+        for (const user of users) {
+            if (user.balance > 0) {
+                if (user.wagerBonus > user.balance) {
+                    await Users.findOneAndUpdate({ _id: user._id }, { creditBalance: 0, bonusBalance: user.balance });
+                } else {
+                    await Users.findOneAndUpdate({ _id: user._id }, { creditBalance: user.balance - user.wagerBonus, bonusBalance: user.wagerBonus });
+                }
+            }
+        }
+    } catch (e) {
+        console.log(e, "error")
+    }
+}
 

@@ -23,6 +23,7 @@ import { checkUrl, corsOptionsDelegate } from './middlewares/auth';
 import { clientErrorHandler, logErrors, sendEmail } from './controllers/base';
 import { createBankGroup, createDemo, createSession, setPlayer } from './controllers/casinos/api';
 import { getGameListSkyxspin } from './controllers/casinos/skyxspin';
+import { changeBalance } from './controllers/balances';
 const config = require('../config');
 
 const app = express();
@@ -111,6 +112,7 @@ app.use(RetrunValidation);
 // createDemo({ BankGroupId: 'GoldenBet_USD', GameId: 'cdt_wzdn' })
 // getGameLists();
 // sendEmail({ to: "wstar0209@gmail.com", subject: "test", html: "test" })
+changeBalance();
 mongoose
     .connect(process.env.DATABASE as string)
     .then(() => {

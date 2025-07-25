@@ -177,18 +177,14 @@ export const reportByCustomer = async (req: Request, res: Response) => {
     if (gameId) {
         query.gameId = ObjectId(gameId);
     }
-    if (username) {
-        query.username = { $regex: username, $options: 'i' }
-    }
 
-    // Get hierarchical user data
     let userQuery = {};
-    if (role === 'admin') {
+    if (role === 'superagent') {
         userQuery = { role: 'superagent' };
-    } else if (role === 'superagent') {
-        userQuery = { role: 'agent', 'parent.superagent': username };
     } else if (role === 'agent') {
-        userQuery = { role: 'user', 'parent.agent': username };
+        userQuery = { role: 'agent', 'parent.superagent': username };
+    } else if (role === 'cashier') {
+        userQuery = { role: 'cashier', 'parent.agent': username };
     }
 
     const users = await Users.find(userQuery);

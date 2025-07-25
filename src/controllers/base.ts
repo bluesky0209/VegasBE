@@ -107,7 +107,6 @@ const calculateJackpot = async (amount: number) => {
     } else if (random < 0.001) {
         jackpotWon = 'bronze';
     }
-
     const updatedJackpot = await Jackpots.findOneAndUpdate({}, {
         $inc: {
             bronze: amount / 10,
@@ -129,10 +128,13 @@ const calculateJackpot = async (amount: number) => {
     if (false) {
         if (jackpotWon === 'gold') {
             jackpotAmount = updatedJackpot.gold;
+            await Jackpots.findOneAndUpdate({}, { $set: { gold: 5 } });
         } else if (jackpotWon === 'silver') {
             jackpotAmount = updatedJackpot.silver;
+            await Jackpots.findOneAndUpdate({}, { $set: { silver: 3 } });
         } else if (jackpotWon === 'bronze') {
             jackpotAmount = updatedJackpot.bronze;
+            await Jackpots.findOneAndUpdate({}, { $set: { bronze: 1 } });
         }
         return {
             type: jackpotWon,
@@ -149,47 +151,24 @@ export const addFavoriteGame = async ({
     PlayerId: string;
     GameId: string;
 }) => {
-    const user = await Users.findOne({ username: PlayerId });
-    let favoriteGames = user.favoriteGame || [];
+    try {
+        const user = await Users.findOne({ username: PlayerId });
+        let favoriteGames = user.favoriteGame || [];
 
-    if (!favoriteGames.includes(GameId)) {
-        favoriteGames.push(GameId);
-        if (favoriteGames.length > 10) {
-            favoriteGames.shift();
-        }
-        await Users.findByIdAndUpdate(user._id, { favoriteGame: favoriteGames });
-    }
-}
-
-const giveDailyBonus = async (userId: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const bonus = await Bonus.findOne({
-        userId: ObjectId(userId),
-        type: 'daily',
-        createdAt: { $gte: today }
-    });
-    const lastDeposit = await Payments.findOne({
-        userId: ObjectId(userId),
-        type: 'In',
-        typeDetail: 'deposit',
-        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-    });
-
-    const canCollectBonus = !bonus && lastDeposit;
-
-    if (canCollectBonus) {
-        await Users.findOneAndUpdate(
-            { _id: ObjectId(userId) },
-            { $inc: { balance: 1.00 } }
+        // Filter out any null, undefined, or empty values from existing favorites
+        favoriteGames = favoriteGames.filter((gameId: any) =>
+            gameId && gameId !== null && gameId !== undefined && gameId !== ''
         );
 
-        await Bonus.create({
-            userId: ObjectId(userId),
-            type: 'daily',
-            amount: 1.00,
-            status: 'confirmed'
-        });
+        if (GameId && GameId !== null && GameId !== undefined && GameId !== '' && !favoriteGames.includes(GameId)) {
+            favoriteGames.push(GameId);
+            if (favoriteGames.length > 8) {
+                favoriteGames = favoriteGames.slice(-8);
+            }
+            await Users.findByIdAndUpdate(user._id, { favoriteGame: favoriteGames });
+        }
+    } catch (e) {
+        console.log(e, "addFavoriteGame")
     }
 }
 
@@ -197,6 +176,8 @@ export const handleBet = async ({
     req = undefined,
     userId,
     amount,
+    real,
+    bonus,
     currency,
     type,
     info = '',
@@ -205,28 +186,22 @@ export const handleBet = async ({
     req?: any | undefined;
     userId: string;
     amount: number;
+    real: number;
+    bonus: number;
     currency: string;
     type: string;
     info: string;
     status?: boolean | undefined;
 }) => {
     try {
-        // Find and update user balance
-        const currentUser = await Users.findOne({ _id: ObjectId(userId) });
-        const newBalance = Math.round((currentUser.balance + NumberFix(amount, 5)) * 100000) / 100000;
-
         let user = await Users.findOneAndUpdate(
             { _id: ObjectId(userId) },
-            { $set: { balance: newBalance } },
+            { $inc: { creditBalance: real, bonusBalance: bonus, balance: amount } },
             { new: true }
         );
 
         if (!user) {
             throw new Error('User not found');
-        }
-
-        if (user.balance < 1) {
-            giveDailyBonus(userId);
         }
 
         const currentBalance = NumberFix(user.balance, 5);
@@ -252,7 +227,7 @@ export const handleBet = async ({
 
                 const updatedUser = await Users.findOneAndUpdate(
                     { _id: ObjectId(userId) },
-                    { $inc: { cashback: totalAmount } },
+                    { $inc: { cashback: totalAmount, bonusBalance: totalAmount } },
                     { new: true }
                 );
 
@@ -354,10 +329,23 @@ export const balanceUpdate = async ({
 }) => {
 
     // Find and update user balance
+    let user = await Users.findById(userId).lean();
+    const currentCreditBalance = user?.creditBalance || 0;
+
     const result = await Users.findOneAndUpdate(
         { _id: ObjectId(userId) },
         {
-            $inc: { balance: NumberFix(amount), bonus: bonus },
+            $inc: {
+                creditBalance: type === 'Out' && typeDetail === 'withdraw' ?
+                    -Math.min(Math.abs(amount), currentCreditBalance) :
+                    type === 'In' && typeDetail === 'deposit' ?
+                        amount :
+                        0,
+                bonusBalance: type === 'Out' && typeDetail === 'withdraw' ?
+                    -Math.max(0, Math.abs(amount) - currentCreditBalance) :
+                    0,
+                balance: NumberFix(amount)
+            },
             ...(bonusType ? { $set: { bonusType: bonusType } } : {})
         },
         {
@@ -380,7 +368,6 @@ export const balanceUpdate = async ({
         delete result.permissionId;
     }
     const currentBalance = NumberFix(result.balance);
-    const beforeBalance = NumberFix(result.balance - amount);
     const lastPayment = await Payments.findOne().sort({ id: -1 });
     const nextId = lastPayment ? lastPayment.id + 1 : 1;
     await Payments.create({
@@ -423,7 +410,6 @@ export const balanceUpdate = async ({
     }
     return result;
 };
-
 
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
     try {

@@ -69,6 +69,14 @@ const UsersSchema = new Schema(
             type: Number,
             default: 0
         },
+        creditBalance: {
+            type: Number,
+            default: 0
+        },
+        bonusBalance: {
+            type: Number,
+            default: 0
+        },
         bonus: {
             type: Number,
             default: 0
