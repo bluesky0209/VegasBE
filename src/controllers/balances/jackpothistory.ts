@@ -34,7 +34,7 @@ export const spinJackpot = async (req: Request, res: Response) => {
 
     const randomNumber = Math.floor(Math.random() * 50);
     const firstLuckyNumber = user.luckyNumber[0];
-    const amount = firstLuckyNumber === randomNumber ? 500 : 250;
+    const amount = firstLuckyNumber === randomNumber ? 5 : 2.5;
 
     const [updatedUser] = await Promise.all([
         Users.findByIdAndUpdate(userId, {

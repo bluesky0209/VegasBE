@@ -87,7 +87,6 @@ export const launchGame = async (req: Request, rep: Response) => {
         user = await Users.findOne({ username: PlayerId });
     }
 
-    console.log(user.code, user, "user");
     const provider_id = providers.find(p => p.provider_name === game.SectionId)?.provider_id;
 
     try {
@@ -99,7 +98,6 @@ export const launchGame = async (req: Request, rep: Response) => {
             "return_url": "https://bcasino24.com",
             "win_ratio": 0
         });
-        console.log(result.data.data.game_url, "playxspin");
         return rep.json({ result: { SessionUrl: result.data.data.game_url } })
     } catch (error: any) {
         console.log(error)

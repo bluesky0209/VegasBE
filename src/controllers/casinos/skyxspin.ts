@@ -72,8 +72,6 @@ export const launchGame = async (req: Request, rep: Response) => {
         await addFavoriteGame({ PlayerId, GameId });
 
         const res = await client.post(`/api/v1/game/launch?UserID=${PlayerId}&GameID=${GameId}&Language=en`);
-        console.log(res.data, "res")
-        console.log(res.data?.data?.Url, "url")
         if (res.data?.data) {
             return rep.json({ result: { SessionUrl: res.data.data.Url } })
         }
