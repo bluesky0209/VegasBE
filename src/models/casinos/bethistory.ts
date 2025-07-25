@@ -57,6 +57,22 @@ const CasinoBetHistorySchema = new Schema({
         type: Number,
         default: 0
     },
+    realWin: {
+        type: Number,
+        default: 0
+    },
+    realBet: {
+        type: Number,
+        default: 0
+    },
+    bonusWin: {
+        type: Number,
+        default: 0
+    },
+    bonusBet: {
+        type: Number,
+        default: 0
+    },
     type: {
         type: String //bet and rollback
     },
@@ -69,4 +85,3 @@ const CasinoBetHistorySchema = new Schema({
 }, { timestamps: true })
 
 export const CasinoBetHistory = model('casino_bethistory', CasinoBetHistorySchema);
-

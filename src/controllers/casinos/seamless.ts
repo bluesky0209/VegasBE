@@ -26,7 +26,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                 try {
                     const { callerId, playerName, withdraw, deposit, currency, transactionRef, gameRoundRef, gameId, reason, sessionId, sessionAlternativeId, chargeFreerounds, bonusId, spinDetails } = req.body.params;
                     const amount = (deposit - withdraw) / 100;
-                    console.log(deposit, withdraw, "deposit, withdraw")
+
                     if (deposit < 0) {
                         console.log("The depoist amount is not valid.")
                         return rep.json({
@@ -132,7 +132,6 @@ export const getSeamless = async (req: Request, rep: Response) => {
                             provider: game.SectionId
                         })
                     ]);
-                    console.log(updatedBalance, "updatedBalance")
                     return rep.status(200).json({
                         jsonrpc: "2.0",
                         id: req.body.id,
