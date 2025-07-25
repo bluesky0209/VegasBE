@@ -110,17 +110,17 @@ const calculateJackpot = async (amount: number) => {
     const updatedJackpot = await Jackpots.findOneAndUpdate({}, {
         $inc: {
             bronze: amount / 10,
-            silver: (amount / 10) * 2,
-            gold: (amount / 10) * 4
+            silver: (amount / 10),
+            gold: (amount / 10)
         }
     }, { new: true });
 
     if (updatedJackpot.bronze >= 500 || updatedJackpot.silver >= 1000 || updatedJackpot.gold >= 2000) {
         await Jackpots.findOneAndUpdate({}, {
             $set: {
-                bronze: 0,
-                silver: 0,
-                gold: 0
+                bronze: 20,
+                silver: 50,
+                gold: 100
             }
         });
     }
