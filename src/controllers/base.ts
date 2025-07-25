@@ -327,88 +327,91 @@ export const balanceUpdate = async ({
     bonus?: number;
     bonusType?: string;
 }) => {
+    try {
+        // Find and update user balance
+        let user = await Users.findById(userId).lean();
+        const currentCreditBalance = user?.creditBalance || 0;
 
-    // Find and update user balance
-    let user = await Users.findById(userId).lean();
-    const currentCreditBalance = user?.creditBalance || 0;
-
-    const result = await Users.findOneAndUpdate(
-        { _id: ObjectId(userId) },
-        {
-            $inc: {
-                creditBalance: type === 'Out' && typeDetail === 'withdraw' ?
-                    -Math.min(Math.abs(amount), currentCreditBalance) :
-                    type === 'In' && typeDetail === 'deposit' ?
-                        amount :
-                        0,
-                bonusBalance: type === 'Out' && typeDetail === 'withdraw' ?
-                    -Math.max(0, Math.abs(amount) - currentCreditBalance) :
-                    0,
-                balance: NumberFix(amount)
-            },
-            ...(bonusType ? { $set: { bonusType: bonusType } } : {})
-        },
-        {
-            new: true,
-            populate: {
-                path: 'permissionId',
-                select: 'title',
-                model: 'permissions'
-            }
-        }
-    )
-        .select('+password')
-        .lean();
-
-    // Transform result if user found
-    if (result) {
-        // Decrypt password and restructure permission data
-        result.password = decrypt(result.password);
-        result.permission = result.permissionId;
-        delete result.permissionId;
-    }
-    const currentBalance = NumberFix(result.balance);
-    const lastPayment = await Payments.findOne().sort({ id: -1 });
-    const nextId = lastPayment ? lastPayment.id + 1 : 1;
-    await Payments.create({
-        id: nextId,
-        userId,
-        username: result.username,
-        parent: result.parent,
-        payuserId,
-        amount,
-        type,
-        typeDetail,
-        afterBalance: currentBalance,
-        afterBonus: result.bonus,
-        ip: getIPAddress(req).ip
-    });
-
-    if (typeDetail === 'deposit' || typeDetail === 'withdraw') {
-        const payuser = await Users.findOneAndUpdate(
-            { _id: ObjectId(payuserId), role: { $ne: 'admin' } },
+        const result = await Users.findOneAndUpdate(
+            { _id: ObjectId(userId) },
             {
                 $inc: {
-                    balance: NumberFix(-amount),
-                    [type === 'In' ? 'in' : 'out']: NumberFix(type === 'In' ? amount : -amount)
+                    creditBalance: type === 'Out' && typeDetail === 'withdraw' ?
+                        -Math.min(Math.abs(amount), currentCreditBalance) :
+                        type === 'In' && typeDetail === 'deposit' ?
+                            amount :
+                            0,
+                    bonusBalance: type === 'Out' && typeDetail === 'withdraw' ?
+                        -Math.max(0, Math.abs(amount) - currentCreditBalance) :
+                        0,
+                    balance: NumberFix(amount)
                 },
+                ...(bonusType ? { $set: { bonusType: bonusType } } : {})
             },
-            { new: true }
-        );
-        if (payuser) {
-            result.adminbalance = payuser.balance;
-            result.adminin = payuser.in;
-            result.adminout = payuser.out;
+            {
+                new: true,
+                populate: {
+                    path: 'permissionId',
+                    select: 'title',
+                    model: 'permissions'
+                }
+            }
+        )
+            .select('+password')
+            .lean();
+
+        // Transform result if user found
+        if (result) {
+            // Decrypt password and restructure permission data
+            result.password = decrypt(result.password);
+            result.permission = result.permissionId;
+            delete result.permissionId;
         }
-    }
-    if (result.status && !result.disabled && req) {
-        const session = await Sessions.findOne({ userId: result._id });
-        if (session && session.socketId) {
-            req.app.get('io').to(session.socketId).emit('balance', { balance: result.balance });
-            req.app.get('io').to(session.socketId).emit('bonus', { bonus: result.bonus });
+        const currentBalance = NumberFix(result.balance);
+        const lastPayment = await Payments.findOne().sort({ id: -1 });
+        const nextId = lastPayment ? lastPayment.id + 1 : 1;
+        await Payments.create({
+            id: nextId,
+            userId,
+            username: result.username,
+            parent: result.parent,
+            payuserId,
+            amount,
+            type,
+            typeDetail,
+            afterBalance: currentBalance,
+            afterBonus: result.bonus,
+            ip: getIPAddress(req).ip
+        });
+
+        if (typeDetail === 'deposit' || typeDetail === 'withdraw') {
+            const payuser = await Users.findOneAndUpdate(
+                { _id: ObjectId(payuserId), role: { $ne: 'admin' } },
+                {
+                    $inc: {
+                        balance: NumberFix(-amount),
+                        [type === 'In' ? 'in' : 'out']: NumberFix(type === 'In' ? amount : -amount)
+                    },
+                },
+                { new: true }
+            );
+            if (payuser) {
+                result.adminbalance = payuser.balance;
+                result.adminin = payuser.in;
+                result.adminout = payuser.out;
+            }
         }
+        if (result.status && !result.disabled && req) {
+            const session = await Sessions.findOne({ userId: result._id });
+            if (session && session.socketId) {
+                req.app.get('io').to(session.socketId).emit('balance', { balance: result.balance });
+                req.app.get('io').to(session.socketId).emit('bonus', { bonus: result.bonus });
+            }
+        }
+        return result;
+    } catch (e) {
+        console.log(e)
     }
-    return result;
 };
 
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
