@@ -3,7 +3,7 @@ import { Jackpots, Users } from "../../models";
 import { Jackpothistories } from "../../models/payments/jackpothistories";
 
 export const getJackpot = async (req: Request, res: Response) => {
-    const { userId } = req.body;
+    const { userId, cashier } = req.body;
     if (userId) {
         const user = await Users.findById(userId);
         const jackpot = await Jackpots.findOne({ cashier: user.parent.cashier });
@@ -17,8 +17,17 @@ export const getJackpot = async (req: Request, res: Response) => {
             return res.json(newJackpot);
         }
         return res.json(jackpot);
-    } else {
-        const jackpot = await Jackpots.findOne({});
+    } else if (cashier) {
+        const jackpot = await Jackpots.findOne({ cashier });
+        if (!jackpot) {
+            const newJackpot = await Jackpots.create({
+                gold: 100,
+                silver: 50,
+                bronze: 20,
+                cashier
+            });
+            return res.json(newJackpot);
+        }
         return res.json(jackpot);
     }
 }
