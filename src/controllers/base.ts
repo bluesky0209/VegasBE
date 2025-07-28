@@ -231,15 +231,23 @@ export const handleBet = async ({
                     { new: true }
                 );
 
-                if (updatedUser.cashback >= 500) {
-                    const luckyNumber = random(0, 49);
-                    await Users.findOneAndUpdate(
-                        { _id: ObjectId(userId) },
-                        {
-                            $inc: { cashback: -500 },
-                            $push: { luckyNumber }
-                        }
-                    );
+                if (updatedUser.cashback >= 5) {
+                    while (updatedUser.cashback >= 5) {
+                        const luckyNumber = random(0, 49);
+                        await Users.findOneAndUpdate(
+                            { _id: ObjectId(userId) },
+                            {
+                                $inc: { cashback: -5 },
+                                $push: {
+                                    luckyNumber: {
+                                        $each: [luckyNumber],
+                                        $slice: -6
+                                    }
+                                }
+                            }
+                        );
+                        updatedUser.cashback -= 5;
+                    }
                 }
 
                 await balanceUpdate({
@@ -277,7 +285,7 @@ export const handleBet = async ({
                 });
                 user = await Users.findOneAndUpdate(
                     { _id: ObjectId(userId) },
-                    { $inc: { balance: jackpot.amount } },
+                    { $inc: { balance: jackpot.amount, bonusBalance: jackpot.amount } },
                     { new: true }
                 );
             }

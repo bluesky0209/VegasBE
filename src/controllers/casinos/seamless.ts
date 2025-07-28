@@ -114,7 +114,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                             username: playerName,
                             parent: user.parent,
                             userId: user._id,
-                            amount: -amount,
+                            amount: amount,
                             transactionRef,
                             currency,
                             gameId,
@@ -167,7 +167,7 @@ export const getSeamless = async (req: Request, rep: Response) => {
                             handleBet({
                                 req,
                                 userId: user._id,
-                                amount: -existingTransaction.amount,
+                                amount: existingTransaction.amount,
                                 real: existingTransaction.realBet,
                                 bonus: existingTransaction.bonusBet,
                                 currency: existingTransaction.currency,
