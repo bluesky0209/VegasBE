@@ -95,7 +95,7 @@ export const NumberFix = (number: number, decimal = 10): number => {
     return Number(Number(number).toFixed(decimal));
 };
 
-const calculateJackpot = async (amount: number) => {
+const calculateJackpot = async (cashier: string, amount: number) => {
     const random = Math.random();
     let jackpotWon = null;
     let jackpotAmount = 0;
@@ -107,16 +107,16 @@ const calculateJackpot = async (amount: number) => {
     } else if (random < 0.001) {
         jackpotWon = 'bronze';
     }
-    const updatedJackpot = await Jackpots.findOneAndUpdate({}, {
+    const updatedJackpot = await Jackpots.findOneAndUpdate({ cashier }, {
         $inc: {
-            bronze: amount / 10,
-            silver: (amount / 10),
-            gold: (amount / 10)
+            bronze: amount / 200,
+            silver: (amount / 200),
+            gold: (amount / 200)
         }
-    }, { new: true });
+    }, { new: true, upsert: true });
 
-    if (updatedJackpot.bronze >= 500 || updatedJackpot.silver >= 1000 || updatedJackpot.gold >= 2000) {
-        await Jackpots.findOneAndUpdate({}, {
+    if (updatedJackpot.gold >= 2000) {
+        await Jackpots.findOneAndUpdate({ cashier }, {
             $set: {
                 bronze: 20,
                 silver: 50,
@@ -274,7 +274,7 @@ export const handleBet = async ({
         }
 
         if (amount < 0) {
-            const jackpot = await calculateJackpot(-amount);
+            const jackpot = await calculateJackpot(user.parent.cashier, -amount);
             if (jackpot) {
                 await Jackpothistories.create({
                     userId,

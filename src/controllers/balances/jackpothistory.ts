@@ -3,8 +3,24 @@ import { Jackpots, Users } from "../../models";
 import { Jackpothistories } from "../../models/payments/jackpothistories";
 
 export const getJackpot = async (req: Request, res: Response) => {
-    const jackpot = await Jackpots.findOne({});
-    return res.json(jackpot);
+    const { userId } = req.body;
+    if (userId) {
+        const user = await Users.findById(userId);
+        const jackpot = await Jackpots.findOne({ cashier: user.parent.cashier });
+        if (!jackpot) {
+            const newJackpot = await Jackpots.create({
+                gold: 100,
+                silver: 50,
+                bronze: 20,
+                cashier: user.parent.cashier
+            });
+            return res.json(newJackpot);
+        }
+        return res.json(jackpot);
+    } else {
+        const jackpot = await Jackpots.findOne({});
+        return res.json(jackpot);
+    }
 }
 
 export const getJackpotHistory = async (req: Request, res: Response) => {

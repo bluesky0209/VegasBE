@@ -4,27 +4,18 @@ const JackpotsSchema = new Schema(
     {
         gold: {
             type: Number,
-            default: 5
+            default: 100
         },
         silver: {
             type: Number,
-            default: 3
+            default: 50
         },
         bronze: {
             type: Number,
-            default: 1
+            default: 20
         },
-        goldbet: {
-            type: Number,
-            default: 0
-        },
-        silverbet: {
-            type: Number,
-            default: 0
-        },
-        bronzebet: {
-            type: Number,
-            default: 0
+        cashier: {
+            type: String,
         }
     },
     { timestamps: true }
