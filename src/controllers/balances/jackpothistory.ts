@@ -89,23 +89,31 @@ export const spinJackpot = async (req: Request, res: Response) => {
         amount = 2.5;
     }
 
-    const [updatedUser] = await Promise.all([
-        Users.findByIdAndUpdate(userId, {
-            $set: { luckyNumber: [] },
-            $inc: { balance: amount, bonusBalance: amount }
-        }, { new: true }),
-        Jackpothistories.create({
-            userId,
-            username: user.username,
-            parent: user.parent,
-            amount,
-            type: 'lucky-spin'
-        })
-    ]);
+    if (amount > 0) {
+        const [updatedUser] = await Promise.all([
+            Users.findByIdAndUpdate(userId, {
+                $set: { luckyNumber: [] },
+                $inc: { balance: amount, bonusBalance: amount }
+            }, { new: true }),
+            Jackpothistories.create({
+                userId,
+                username: user.username,
+                parent: user.parent,
+                amount,
+                type: 'lucky-spin'
+            })
+        ]);
+        return res.json({
+            number: randomNumber,
+            balance: updatedUser.balance,
+            amount: amount
+        });
+    } else {
+        return res.json({
+            number: randomNumber,
+            balance: user.balance,
+            amount: amount
+        });
+    }
 
-    return res.json({
-        number: randomNumber,
-        balance: updatedUser.balance,
-        amount: amount
-    });
 }

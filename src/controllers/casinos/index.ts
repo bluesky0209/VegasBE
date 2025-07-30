@@ -23,7 +23,6 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
     if (filter) {
         query.Name = { $regex: new RegExp(filter.toLowerCase(), 'i') }
     }
-
     const [count, result] = await Promise.all([
         CasinoGameLists.countDocuments(query),
         page && pageSize
@@ -32,7 +31,6 @@ export const getCasinoGamesLists = async (req: Request, res: Response) => {
                 .limit(pageSize)
             : CasinoGameLists.find(query, { Id: 1, Name: 1, SectionId: 1, aggregator: 1, Icon: 1, _id: 0 })
     ]);
-
     return res.json({ result, count });
 }
 

@@ -12,6 +12,7 @@ const CasinoGameListsSchema = new Schema({
     },
     SectionId: {
         type: String,
+        index: true
     },
     Type: {
         type: String,

@@ -96,52 +96,66 @@ export const NumberFix = (number: number, decimal = 10): number => {
 };
 
 const calculateJackpot = async (cashier: string, amount: number) => {
-    const random = Math.random();
-    let jackpotWon = null;
-    let jackpotAmount = 0;
+    const INITIAL_JACKPOTS = {
+        gold: 100,
+        silver: 50,
+        bronze: 20
+    };
 
-    if (random < 0.00001) {
-        jackpotWon = 'gold';
-    } else if (random < 0.0001) {
-        jackpotWon = 'silver';
-    } else if (random < 0.001) {
-        jackpotWon = 'bronze';
-    }
-    const updatedJackpot = await Jackpots.findOneAndUpdate({ cashier }, {
-        $inc: {
-            bronze: amount / 200,
-            silver: (amount / 200),
-            gold: (amount / 200)
-        }
-    }, { new: true, upsert: true });
-
-    if (updatedJackpot.gold >= 2000) {
-        await Jackpots.findOneAndUpdate({ cashier }, {
-            $set: {
-                bronze: 20,
-                silver: 50,
-                gold: 100
+    const updatedJackpot = await Jackpots.findOneAndUpdate(
+        { cashier },
+        {
+            $inc: {
+                bronze: amount / 200,
+                silver: amount / 200,
+                gold: amount / 200
             }
-        });
-    }
+        },
+        { new: true, upsert: true }
+    );
 
-    if (false) {
-        if (jackpotWon === 'gold') {
-            jackpotAmount = updatedJackpot.gold;
-            await Jackpots.findOneAndUpdate({}, { $set: { gold: 5 } });
-        } else if (jackpotWon === 'silver') {
-            jackpotAmount = updatedJackpot.silver;
-            await Jackpots.findOneAndUpdate({}, { $set: { silver: 3 } });
-        } else if (jackpotWon === 'bronze') {
-            jackpotAmount = updatedJackpot.bronze;
-            await Jackpots.findOneAndUpdate({}, { $set: { bronze: 1 } });
-        }
-        return {
-            type: jackpotWon,
-            amount: jackpotAmount
-        };
+    if (updatedJackpot.gold >= 1000) {
+        await Jackpots.findOneAndUpdate(
+            { cashier },
+            { $set: INITIAL_JACKPOTS }
+        );
+
+        const topWagerUsers = await Users.find({
+            'parent.cashier': cashier,
+            'wager': { $gt: 0 }
+        })
+            .sort({ wager: -1 })
+            .limit(3);
+
+        const jackpotUpdates = topWagerUsers.map(async (user, index) => {
+            const jackpotType = ['gold', 'silver', 'bronze'][index];
+            const jackpotAmount = updatedJackpot[jackpotType];
+
+            await Promise.all([
+                Users.findByIdAndUpdate(user._id, {
+                    $inc: {
+                        balance: jackpotAmount,
+                        bonusBalance: jackpotAmount
+                    }
+                }),
+                Jackpothistories.create({
+                    userId: user._id,
+                    username: user.username,
+                    parent: user.parent,
+                    amount: jackpotAmount,
+                    type: jackpotType
+                })
+            ]);
+        });
+
+        await Promise.all([
+            ...jackpotUpdates,
+            Users.updateMany(
+                { 'parent.cashier': cashier },
+                { wager: 0 }
+            )
+        ]);
     }
-    return null;
 }
 
 export const addFavoriteGame = async ({
@@ -274,20 +288,27 @@ export const handleBet = async ({
         }
 
         if (amount < 0) {
-            const jackpot = await calculateJackpot(user.parent.cashier, -amount);
-            if (jackpot) {
-                await Jackpothistories.create({
-                    userId,
-                    username: user.username,
-                    parent: user.parent,
-                    amount: jackpot.amount,
-                    type: jackpot.type,
-                });
-                user = await Users.findOneAndUpdate(
-                    { _id: ObjectId(userId) },
-                    { $inc: { balance: jackpot.amount, bonusBalance: jackpot.amount } },
-                    { new: true }
-                );
+            calculateJackpot(user.parent.cashier, -amount);
+            const newUser = await Users.findOneAndUpdate(
+                { _id: ObjectId(userId) },
+                { $inc: { wager: -amount, level: -amount / (Math.floor(user.level + 1) * 100) } },
+                { new: true }
+            );
+            if (newUser.level === Math.floor(user.level) + 1) {
+                if (Math.floor(newUser.level) > 3) {
+                    await Jackpothistories.create({
+                        userId: ObjectId(userId),
+                        username: user.username,
+                        parent: user.parent,
+                        amount: (Math.floor(newUser.level) - 3) * 5,
+                        type: 'gold-bonus'
+                    });
+                    await Users.findOneAndUpdate(
+                        { _id: ObjectId(userId) },
+                        { $inc: { balance: (Math.floor(newUser.level) - 3) * 5, bonusBalance: (Math.floor(newUser.level) - 3) * 5 } },
+                        { new: true }
+                    );
+                }
             }
         }
 

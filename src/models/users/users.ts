@@ -62,6 +62,10 @@ const UsersSchema = new Schema(
             type: String,
             unique: true
         },
+        level: {
+            type: Number,
+            default: 0
+        },
         name: {
             type: String
         },
