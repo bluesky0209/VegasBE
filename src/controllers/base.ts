@@ -384,9 +384,10 @@ export const balanceUpdate = async ({
                     bonusBalance: type === 'Out' ?
                         -Math.max(0, Math.abs(amount) - currentCreditBalance) :
                         0,
+                    bonus: type === 'In' ? bonus : 0,
                     balance: NumberFix(amount)
                 },
-                ...(bonusType ? { $set: { bonusType: bonusType, bonus: bonus || 0 } } : {})
+                ...(type === 'Out' && bonusType ? { $set: { bonusType: bonusType, bonus: bonus } } : type === 'In' && bonusType ? { $set: { bonusType: bonusType } } : {})
             },
             {
                 new: true,
