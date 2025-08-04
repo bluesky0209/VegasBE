@@ -386,7 +386,7 @@ export const balanceUpdate = async ({
                         0,
                     balance: NumberFix(amount)
                 },
-                ...(bonusType ? { $set: { bonusType: bonusType } } : {})
+                ...(bonusType ? { $set: { bonusType: bonusType, bonus: bonus || 0 } } : {})
             },
             {
                 new: true,
