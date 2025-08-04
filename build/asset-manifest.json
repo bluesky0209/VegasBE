@@ -1,11 +1,11 @@
 {
   "files": {
     "main.css": "/static/css/main.c36de3d6.css",
-    "main.js": "/static/js/main.c601e491.js",
+    "main.js": "/static/js/main.00730c69.js",
     "static/js/919.7ccbb1b4.chunk.js": "/static/js/919.7ccbb1b4.chunk.js",
     "static/css/579.1fcdba10.chunk.css": "/static/css/579.1fcdba10.chunk.css",
     "static/js/579.ff3d595a.chunk.js": "/static/js/579.ff3d595a.chunk.js",
-    "static/js/910.3cf5d979.chunk.js": "/static/js/910.3cf5d979.chunk.js",
+    "static/js/910.53e5e901.chunk.js": "/static/js/910.53e5e901.chunk.js",
     "static/js/479.b3e544f2.chunk.js": "/static/js/479.b3e544f2.chunk.js",
     "static/js/488.31278821.chunk.js": "/static/js/488.31278821.chunk.js",
     "static/css/727.7ba39645.chunk.css": "/static/css/727.7ba39645.chunk.css",
@@ -14,7 +14,7 @@
     "static/media/logo_anim.png": "/static/media/logo_anim.b121a6688e38e17945bf.png",
     "static/media/intro.default.mp3": "/static/media/intro.default.ea3c24173413b1c61890.mp3",
     "static/media/background.default.png": "/static/media/background.default.e2e15c6471c8a36997d7.png",
-    "static/media/vegas-logo.png": "/static/media/vegas-logo.440a6e8aabd66debdf73.png",
+    "static/media/vegas-logo.png": "/static/media/vegas-logo.225773ef5cba1c797b65.png",
     "static/media/win_coins.png": "/static/media/win_coins.422289118840f3d81539.png",
     "static/media/win_background.png": "/static/media/win_background.a4f2d41f0ceaa709afbb.png",
     "static/media/wheel-outer.default.png": "/static/media/wheel-outer.default.607dd657ceb404c1f2c0.png",
@@ -87,11 +87,11 @@
     "static/media/evoplay1.svg": "/static/media/evoplay1.1302dcf294295dbd8d8f289a616ef80a.svg",
     "index.html": "/index.html",
     "main.c36de3d6.css.map": "/static/css/main.c36de3d6.css.map",
-    "main.c601e491.js.map": "/static/js/main.c601e491.js.map",
+    "main.00730c69.js.map": "/static/js/main.00730c69.js.map",
     "919.7ccbb1b4.chunk.js.map": "/static/js/919.7ccbb1b4.chunk.js.map",
     "579.1fcdba10.chunk.css.map": "/static/css/579.1fcdba10.chunk.css.map",
     "579.ff3d595a.chunk.js.map": "/static/js/579.ff3d595a.chunk.js.map",
-    "910.3cf5d979.chunk.js.map": "/static/js/910.3cf5d979.chunk.js.map",
+    "910.53e5e901.chunk.js.map": "/static/js/910.53e5e901.chunk.js.map",
     "479.b3e544f2.chunk.js.map": "/static/js/479.b3e544f2.chunk.js.map",
     "488.31278821.chunk.js.map": "/static/js/488.31278821.chunk.js.map",
     "727.7ba39645.chunk.css.map": "/static/css/727.7ba39645.chunk.css.map",
@@ -99,6 +99,6 @@
   },
   "entrypoints": [
     "static/css/main.c36de3d6.css",
-    "static/js/main.c601e491.js"
+    "static/js/main.00730c69.js"
   ]
 }
