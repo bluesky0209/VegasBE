@@ -274,7 +274,7 @@ export const handleBet = async ({
                 //     bonusType: 'general',
                 //     bonus: -totalAmount
                 // });
-                await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { $inc: { balance: totalAmount, bonusBalance: totalAmount } });
+                await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { $inc: { balance: totalAmount } });
 
             }
         }
