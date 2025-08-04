@@ -264,16 +264,17 @@ export const handleBet = async ({
                     }
                 }
 
-                await balanceUpdate({
-                    req,
-                    userId,
-                    amount: totalAmount,
-                    type: 'In',
-                    payuserId: bonusData[0]?.payuserId,
-                    typeDetail: 'Bonus Rewards',
-                    bonusType: 'general',
-                    bonus: -totalAmount
-                });
+                // await balanceUpdate({
+                //     req,
+                //     userId,
+                //     amount: totalAmount,
+                //     type: 'In',
+                //     payuserId: bonusData[0]?.payuserId,
+                //     typeDetail: 'Bonus Rewards',
+                //     bonusType: 'general',
+                //     bonus: -totalAmount
+                // });
+                await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { $inc: { balance: totalAmount, bonusBalance: totalAmount } });
 
             }
         }
@@ -288,27 +289,37 @@ export const handleBet = async ({
         }
 
         if (amount < 0) {
-            calculateJackpot(user.parent.cashier, -amount);
+            const absoluteAmount = Math.abs(amount);
+            calculateJackpot(user.parent.cashier, absoluteAmount);
+
+            const levelMultiplier = Math.floor(user.level + 1) * 100;
+            const levelIncrement = absoluteAmount / levelMultiplier;
+
             const newUser = await Users.findOneAndUpdate(
                 { _id: ObjectId(userId) },
-                { $inc: { wager: -amount, level: -amount / (Math.floor(user.level + 1) * 100) } },
+                { $inc: { wager: absoluteAmount, level: levelIncrement } },
                 { new: true }
             );
-            if (newUser.level === Math.floor(user.level) + 1) {
-                if (Math.floor(newUser.level) > 3) {
-                    await Jackpothistories.create({
+
+            const hasLeveledUp = Math.floor(newUser.level) === Math.floor(user.level) + 1;
+            const isEligibleForBonus = Math.floor(newUser.level) > 3;
+
+            if (hasLeveledUp && isEligibleForBonus) {
+                const bonusAmount = (Math.floor(newUser.level) - 3) * 5;
+                await Promise.all([
+                    Jackpothistories.create({
                         userId: ObjectId(userId),
                         username: user.username,
                         parent: user.parent,
-                        amount: (Math.floor(newUser.level) - 3) * 5,
+                        amount: bonusAmount,
                         type: 'gold-bonus'
-                    });
-                    await Users.findOneAndUpdate(
+                    }),
+                    Users.findOneAndUpdate(
                         { _id: ObjectId(userId) },
-                        { $inc: { balance: (Math.floor(newUser.level) - 3) * 5, bonusBalance: (Math.floor(newUser.level) - 3) * 5 } },
+                        { $inc: { balance: bonusAmount, bonusBalance: bonusAmount } },
                         { new: true }
-                    );
-                }
+                    )
+                ]);
             }
         }
 
@@ -365,12 +376,12 @@ export const balanceUpdate = async ({
             { _id: ObjectId(userId) },
             {
                 $inc: {
-                    creditBalance: type === 'Out' && typeDetail === 'withdraw' ?
+                    creditBalance: type === 'Out' ?
                         -Math.min(Math.abs(amount), currentCreditBalance) :
-                        type === 'In' && typeDetail === 'deposit' ?
+                        type === 'In' ?
                             amount :
                             0,
-                    bonusBalance: type === 'Out' && typeDetail === 'withdraw' ?
+                    bonusBalance: type === 'Out' ?
                         -Math.max(0, Math.abs(amount) - currentCreditBalance) :
                         0,
                     balance: NumberFix(amount)

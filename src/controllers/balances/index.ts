@@ -69,21 +69,22 @@ export const deposit = async (req: Request, res: Response) => {
                         type: bonusType,
                         status: config.status
                     };
-                    await Users.findOneAndUpdate({ _id: ObjectId(userId) }, {
-                        wagerBonus: amount, $inc: { bonusBalance: amount }
-                    })
                     await Promise.all([
                         Bonus.create(bonusData),
-                        balanceUpdate({
-                            req,
-                            userId,
-                            amount,
-                            type: 'In',
-                            payuserId,
-                            typeDetail: 'Wager Bonus',
-                            bonusType,
-                            bonus: 0
+                        await Users.findOneAndUpdate({ _id: ObjectId(userId) }, {
+                            wagerBonus: amount, $inc: { balance: amount, bonusBalance: amount }
                         })
+
+                        // balanceUpdate({
+                        //     req,
+                        //     userId,
+                        //     amount,
+                        //     type: 'In',
+                        //     payuserId,
+                        //     typeDetail: 'Wager Bonus',
+                        //     bonusType,
+                        //     bonus: 0
+                        // })
                     ]);
 
                     if (payuser.role === 'cashier') {
@@ -167,8 +168,7 @@ export const withdraw = async (req: Request, res: Response) => {
             }
         } else if (user.bonusType === 'wager') {
             await Bonus.findOneAndUpdate({ userId: ObjectId(userId), type: user.bonusType }, { $set: { status: 'cancel' } }, { new: true });
-            await balanceUpdate({ req, userId, amount: -user.wagerBonus, type: 'Out', payuserId, typeDetail: 'Wager Bonus Cancel', bonusType, bonus });
-            await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: 0, $inc: { bonusBalance: -user.wagerBonus } });
+            await Users.findOneAndUpdate({ _id: ObjectId(userId) }, { wagerBonus: 0, $inc: { balance: -user.wagerBonus, bonusBalance: -user.wagerBonus } });
             if (payuser.role === 'cashier') {
                 await CashierHistory.create({
                     userId: ObjectId(payuserId),
