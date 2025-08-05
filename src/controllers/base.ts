@@ -446,7 +446,6 @@ export const balanceUpdate = async ({
             const session = await Sessions.findOne({ userId: result._id });
             if (session && session.socketId) {
                 req.app.get('io').to(session.socketId).emit('balance', { balance: result.balance });
-                req.app.get('io').to(session.socketId).emit('bonus', { bonus: result.bonus });
             }
         }
         return result;
