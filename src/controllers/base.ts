@@ -371,7 +371,6 @@ export const balanceUpdate = async ({
         // Find and update user balance
         let user = await Users.findById(userId).lean();
         const currentCreditBalance = user?.creditBalance || 0;
-
         const result = await Users.findOneAndUpdate(
             { _id: ObjectId(userId) },
             {
@@ -384,10 +383,15 @@ export const balanceUpdate = async ({
                     bonusBalance: type === 'Out' ?
                         -Math.max(0, Math.abs(amount) - currentCreditBalance) :
                         0,
-                    bonus: type === 'In' ? bonus : 0,
                     balance: NumberFix(amount)
                 },
-                ...(type === 'Out' && bonusType ? { $set: { bonusType: bonusType, bonus: bonus } } : type === 'In' && bonusType ? { $set: { bonusType: bonusType } } : {})
+                ...(type === 'Out' && bonusType ?
+                    { $set: { bonusType: bonusType, bonus: bonus } } :
+                    type === 'In' && bonusType ?
+                        { $set: { bonusType: bonusType, bonus: bonus } } :
+                        type === 'In' ?
+                            { $inc: { bonus: bonus || 0 } } :
+                            {})
             },
             {
                 new: true,
