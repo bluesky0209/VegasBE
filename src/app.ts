@@ -136,7 +136,7 @@ mongoose
             const io = require('socket.io')(http, { cors: { origin: '*' } });
             socket(io);
             app.set('io', io);
-            http.listen(port);
+            http.listen(port, '0.0.0.0');
             console.log('server listening on:', port);
         }
     })
