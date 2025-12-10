@@ -154,15 +154,15 @@ const createUser = async (req: Request, res: Response) => {
             }
         }
         let u_result = await newuser.save();
-        if (u_result && createRole.title === 'player') {
-            let playxspin = await createPlayer({
-                name: username
-            });
-            console.log(playxspin, "playxspin");
-            if (playxspin?.data?.code) {
-                await Users.updateOne({ _id: u_result._id }, { $set: { code: playxspin.data.code } });
-            }
-        }
+        // if (u_result && createRole.title === 'player') {
+        //     let playxspin = await createPlayer({
+        //         name: username
+        //     });
+        //     console.log(playxspin, "playxspin");
+        //     if (playxspin?.data?.code) {
+        //         await Users.updateOne({ _id: u_result._id }, { $set: { code: playxspin.data.code } });
+        //     }
+        // }
         if (balance > 0) {
             req.body.payuserId = userId;
             req.body.amount = balance;
